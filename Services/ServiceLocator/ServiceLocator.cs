@@ -18,6 +18,7 @@ namespace Larje.Core.Services
 
         private void Awake()
         {
+            _default = this;
             _services = new Dictionary<Type, Service>();
 
             BindChildren();
