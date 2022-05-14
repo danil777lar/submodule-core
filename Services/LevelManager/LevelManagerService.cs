@@ -83,7 +83,7 @@ namespace Larje.Core.Services
 
             if (level.LevelPrefab)
             {
-                SelLevelParams(level);
+                SetLevelParams(level);
                 CurrentLevelIndex = levelIndex;
             }
         }
@@ -116,7 +116,7 @@ namespace Larje.Core.Services
             }
         }
 
-        private void SelLevelParams(Level level)
+        private void SetLevelParams(Level level)
         {
             if (level.LevelPrefab)
             {

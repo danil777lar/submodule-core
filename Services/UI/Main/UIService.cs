@@ -14,7 +14,7 @@ namespace Larje.Core.Services
         [SerializeField] private string _defaultScreenId;
 
 
-        private void Start()
+        private void Awake()
         {
             ShowScreen(_defaultScreenId, false);
         }
@@ -22,7 +22,7 @@ namespace Larje.Core.Services
 
         public async void ShowScreen(string id, bool withAnim = true) 
         {
-            foreach (UIScreen oldScreen in _screenHolder.GetComponentsInParent<UIScreen>())
+            foreach (UIScreen oldScreen in _screenHolder.GetComponentsInChildren<UIScreen>())
                 oldScreen.Close();
 
             var op = Addressables.InstantiateAsync($"Screen/{id}", _screenHolder.transform);
