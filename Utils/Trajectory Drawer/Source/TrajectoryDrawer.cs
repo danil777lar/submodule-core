@@ -8,6 +8,7 @@ public class TrajectoryDrawer : MonoBehaviour
     [SerializeField] private float _updateDelta;
     [SerializeField] private float _drag;
     [SerializeField] private float _gravityScale;
+    [SerializeField] private string[] _ignoreLayers;
     [Header("Visual")]
     [SerializeField] private float _startCutLenght;
     [SerializeField] private LineRenderer _linePrefab;
@@ -45,7 +46,7 @@ public class TrajectoryDrawer : MonoBehaviour
                 points.RemoveAt(0);
             }
 
-            RaycastHit2D hit = Physics2D.Raycast(prevPosition, position - prevPosition, velocity.magnitude * _updateDelta, ~LayerMask.GetMask("Player"));
+            RaycastHit2D hit = Physics2D.Raycast(prevPosition, position - prevPosition, velocity.magnitude * _updateDelta, ~LayerMask.GetMask(_ignoreLayers));
             if (hit)
             {
                 points.Add(hit.point);
