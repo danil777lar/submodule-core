@@ -11,24 +11,32 @@ public class TrajectoryDrawer : MonoBehaviour
     [SerializeField] private string[] _ignoreLayers;
     [Header("Visual")]
     [SerializeField] private float _startCutLenght;
-    [SerializeField] private float _totalLenght;
     [SerializeField] private Transform _drawRoot;
-    [Space]
+    [Header("Line")]
     [SerializeField] private LineRenderer _linePrefab;
-    [SerializeField] private ParticleSystem _partsPrefab;
+    [Header("Trail")]
+    [SerializeField] private float _trailSpeed;
+    [SerializeField] private ParticleSystem _trailPrefab;
+    [Header("Hit")]
     [SerializeField] private ParticleSystem _hitPrefab;
 
+    public float maxLenght;
+    public bool useTrail;
+
+    private float _trailDistance;
+
     private LineRenderer _lineInstance;
-    private ParticleSystem _partsInstance;
+    private ParticleSystem _trailInstance;
     private ParticleSystem _hitInstance;
 
 
     public void ShowTrajectory(Vector3 force) 
     {
         TrySpawnLine();
-        TrySpawnLineParts();
+        TrySpawnTrail();
         TrySpawnHit();
 
+        bool showHit = false;
         float cuttedLenght = 0f;
         Vector3 velocity = force;
         Vector3 position = _drawRoot ? _drawRoot.position : transform.position;
@@ -52,6 +60,7 @@ public class TrajectoryDrawer : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(prevPosition, position - prevPosition, velocity.magnitude * _updateDelta, ~LayerMask.GetMask(_ignoreLayers));
             if (hit)
             {
+                showHit = true;
                 points.Add(new Vector3(hit.point.x, hit.point.y, prevPosition.z));
                 break;
             }
@@ -60,11 +69,12 @@ public class TrajectoryDrawer : MonoBehaviour
         float totalLenght = 0f;
         for (int i = 0; i < points.Count - 1; i++)
         {
-            if (totalLenght + Vector3.Distance(points[i], points[i + 1]) >= _totalLenght)
+            if (totalLenght + Vector3.Distance(points[i], points[i + 1]) >= maxLenght)
             {
-                points[i + 1] = points[i] + (points[i + 1] - points[i]).normalized * (_totalLenght - totalLenght);
+                points[i + 1] = points[i] + (points[i + 1] - points[i]).normalized * (maxLenght - totalLenght);
                 if (i < points.Count - 2)
                 {
+                    showHit = false;
                     points.RemoveRange(i + 2, points.Count - (i + 2));
                     break;
                 }
@@ -76,14 +86,14 @@ public class TrajectoryDrawer : MonoBehaviour
         }
 
         TryUpdateLine(points);
-        TryDestroyLineParts();
-        TryUpdateHit();
+        TryUpdateTrail(points);
+        TryUpdateHit(points, showHit);
     }
 
     public void HideTrajectory() 
     {
         TryDestroyLine();
-        TryDestroyLineParts();
+        TryDestroyTrail();
         TryDestroyHit();
     }
 
@@ -111,27 +121,73 @@ public class TrajectoryDrawer : MonoBehaviour
     {
         if (_lineInstance) 
         {
-            Destroy(_lineInstance);
+            Destroy(_lineInstance.gameObject);
         }
     }
 
     #endregion
 
-    #region LineParts
+    #region Trail
 
-    private void TrySpawnLineParts()
+    private void TrySpawnTrail()
     {
-
+        if (!_trailInstance && _trailPrefab)
+        {
+            _trailInstance = Instantiate(_trailPrefab);
+            _trailInstance.transform.SetParent(transform);
+            _trailDistance = 0f;
+        }
     }
 
-    private void TryUpdateLineParts()
+    private void TryUpdateTrail(List<Vector3> points)
     {
+        if (!_trailInstance) return;
 
+        if (!_trailInstance.isPlaying)
+        {
+            _trailDistance = 0f;
+        }
+        else 
+        {
+            float distance = 0f;
+            for (int i = 0; i < points.Count - 1; i++) 
+            {
+                if (distance + Vector3.Distance(points[i], points[i + 1]) > _trailDistance)
+                {
+                    _trailInstance.transform.position = points[i] + (points[i + 1] - points[i]).normalized * (_trailDistance - distance);
+                    break;
+                }
+                else if (i == points.Count - 2) 
+                {
+                    TryDestroyTrail();
+                    TrySpawnTrail();
+                }
+                else
+                {
+                    distance += Vector3.Distance(points[i], points[i + 1]);
+                }
+            }
+            _trailDistance += _trailSpeed * (Time.deltaTime / Time.timeScale);
+        }
+
+        if (useTrail && !_trailInstance.isPlaying)
+        {
+            _trailInstance.Play();
+        }
+        if (!useTrail && _trailInstance.isPlaying)
+        {
+            _trailInstance.Stop();
+        }
     }
 
-    private void TryDestroyLineParts()
+    private void TryDestroyTrail()
     {
-
+        if (_trailInstance)
+        {
+            _trailInstance.Stop();
+            Destroy(_trailInstance.gameObject, _trailInstance.main.duration);
+            _trailInstance = null;
+        }
     }
 
     #endregion
@@ -140,17 +196,30 @@ public class TrajectoryDrawer : MonoBehaviour
 
     private void TrySpawnHit()
     {
-
+        if (!_hitInstance && _hitPrefab)
+        {
+            _hitInstance = Instantiate(_hitPrefab);
+            _hitInstance.transform.SetParent(transform);
+        }
     }
 
-    private void TryUpdateHit()
+    private void TryUpdateHit(List<Vector3> points, bool show)
     {
-
+        if (_hitInstance)
+        {
+            _hitInstance.transform.position = points[points.Count - 1];
+            _hitInstance.gameObject.SetActive(show);
+        }
     }
 
     private void TryDestroyHit()
     {
-
+        if (_hitInstance)
+        {
+            _hitInstance.Stop();
+            Destroy(_hitInstance.gameObject, _hitInstance.main.duration);
+            _trailInstance = null;
+        }
     }
 
     #endregion
