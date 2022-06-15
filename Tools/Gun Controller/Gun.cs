@@ -7,6 +7,7 @@ namespace Larje.Core.Tools.GunController
 {
     public class Gun : MonoBehaviour
     {
+        [SerializeField] private bool _stateOnStart;
         [SerializeField] private Transform _model;
         [Header("IKTargets")]
         [SerializeField] private Transform _rightArmTarget;
@@ -36,6 +37,7 @@ namespace Larje.Core.Tools.GunController
         private void Start()
         {
             _aimPointDefaultRotation = _aimPoint.localRotation;
+            ChangeState(_stateOnStart, 0f);
         }
 
         private void Update()
