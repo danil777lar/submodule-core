@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Larje.Core.Utils.PhysicsBodyProjections
+namespace Larje.Core.Tools.PhysicsBodyProjections
 {
     public class PhysicalAnimationProjector : MonoBehaviour
     {

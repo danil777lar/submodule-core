@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace Larje.Core.Utils.PhysicsBodyProjections
+namespace Larje.Core.Tools.PhysicsBodyProjections
 {
     [CustomEditor(typeof(PhysicalAnimationProjector))]
     public class PhysicalAnimationProjectorEditor : Editor

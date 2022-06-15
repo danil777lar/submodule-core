@@ -2,23 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace Larje.Core.Tools.TrajectoryDrawer
+{
 public class TrajectoryDrawer : MonoBehaviour
 {
-    [Header("Simulation Options")]
-    [SerializeField] private float _updateDelta;
+    [Header("Simulation Options")] [SerializeField]
+    private float _updateDelta;
+
     [SerializeField] private float _drag;
     [SerializeField] private float _gravityScale;
     [SerializeField] private string[] _ignoreLayers;
-    [Header("Visual")]
-    [SerializeField] private float _startCutLenght;
+    [Header("Visual")] [SerializeField] private float _startCutLenght;
     [SerializeField] private Transform _drawRoot;
-    [Header("Line")]
-    [SerializeField] private LineRenderer _linePrefab;
-    [Header("Trail")]
-    [SerializeField] private float _trailSpeed;
+    [Header("Line")] [SerializeField] private LineRenderer _linePrefab;
+    [Header("Trail")] [SerializeField] private float _trailSpeed;
     [SerializeField] private ParticleSystem _trailPrefab;
-    [Header("Hit")]
-    [SerializeField] private ParticleSystem _hitPrefab;
+    [Header("Hit")] [SerializeField] private ParticleSystem _hitPrefab;
 
     public float maxLenght;
     public bool useTrail;
@@ -30,7 +29,7 @@ public class TrajectoryDrawer : MonoBehaviour
     private ParticleSystem _hitInstance;
 
 
-    public void ShowTrajectory(Vector3 force) 
+    public void ShowTrajectory(Vector3 force)
     {
         TrySpawnLine();
         TrySpawnTrail();
@@ -51,13 +50,14 @@ public class TrajectoryDrawer : MonoBehaviour
             Vector3 prevPosition = position;
             position = position + velocity * _updateDelta;
 
-            if (cuttedLenght < _startCutLenght) 
+            if (cuttedLenght < _startCutLenght)
             {
                 cuttedLenght += (velocity * _updateDelta).magnitude;
                 points.RemoveAt(0);
             }
 
-            RaycastHit2D hit = Physics2D.Raycast(prevPosition, position - prevPosition, velocity.magnitude * _updateDelta, ~LayerMask.GetMask(_ignoreLayers));
+            RaycastHit2D hit = Physics2D.Raycast(prevPosition, position - prevPosition,
+                velocity.magnitude * _updateDelta, ~LayerMask.GetMask(_ignoreLayers));
             if (hit)
             {
                 showHit = true;
@@ -79,7 +79,7 @@ public class TrajectoryDrawer : MonoBehaviour
                     break;
                 }
             }
-            else 
+            else
             {
                 totalLenght += Vector3.Distance(points[i], points[i + 1]);
             }
@@ -90,7 +90,7 @@ public class TrajectoryDrawer : MonoBehaviour
         TryUpdateHit(points, showHit);
     }
 
-    public void HideTrajectory() 
+    public void HideTrajectory()
     {
         TryDestroyLine();
         TryDestroyTrail();
@@ -100,7 +100,7 @@ public class TrajectoryDrawer : MonoBehaviour
 
     #region Line
 
-    private void TrySpawnLine() 
+    private void TrySpawnLine()
     {
         if (_lineInstance || !_linePrefab) return;
 
@@ -109,7 +109,7 @@ public class TrajectoryDrawer : MonoBehaviour
         _lineInstance.transform.localPosition = Vector3.zero;
     }
 
-    private void TryUpdateLine(List<Vector3> points) 
+    private void TryUpdateLine(List<Vector3> points)
     {
         if (!_lineInstance) return;
 
@@ -117,9 +117,9 @@ public class TrajectoryDrawer : MonoBehaviour
         _lineInstance.SetPositions(points.ToArray());
     }
 
-    private void TryDestroyLine() 
+    private void TryDestroyLine()
     {
-        if (_lineInstance) 
+        if (_lineInstance)
         {
             Destroy(_lineInstance.gameObject);
         }
@@ -147,17 +147,18 @@ public class TrajectoryDrawer : MonoBehaviour
         {
             _trailDistance = 0f;
         }
-        else 
+        else
         {
             float distance = 0f;
-            for (int i = 0; i < points.Count - 1; i++) 
+            for (int i = 0; i < points.Count - 1; i++)
             {
                 if (distance + Vector3.Distance(points[i], points[i + 1]) > _trailDistance)
                 {
-                    _trailInstance.transform.position = points[i] + (points[i + 1] - points[i]).normalized * (_trailDistance - distance);
+                    _trailInstance.transform.position =
+                        points[i] + (points[i + 1] - points[i]).normalized * (_trailDistance - distance);
                     break;
                 }
-                else if (i == points.Count - 2) 
+                else if (i == points.Count - 2)
                 {
                     TryDestroyTrail();
                     TrySpawnTrail();
@@ -167,6 +168,7 @@ public class TrajectoryDrawer : MonoBehaviour
                     distance += Vector3.Distance(points[i], points[i + 1]);
                 }
             }
+
             _trailDistance += _trailSpeed * (Time.deltaTime / Time.timeScale);
         }
 
@@ -174,6 +176,7 @@ public class TrajectoryDrawer : MonoBehaviour
         {
             _trailInstance.Play();
         }
+
         if (!useTrail && _trailInstance.isPlaying)
         {
             _trailInstance.Stop();
@@ -223,4 +226,5 @@ public class TrajectoryDrawer : MonoBehaviour
     }
 
     #endregion
+}
 }
