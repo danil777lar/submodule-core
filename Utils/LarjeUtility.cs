@@ -30,5 +30,26 @@ namespace Larje.Core.Utility
             float grayValue = (color.a + color.g + color.b) / 3f;
             return Color.LerpUnclamped(Color.white * grayValue, color, saturationValue);
         }
+
+        public static List<Vector2Int> GetPixelsInRange(Vector2Int center, int range) 
+        {
+            List<Vector2Int> points = new List<Vector2Int>();
+
+            int min = (-range / 2);
+            int max = (range / 2) + (range % 2 == 1 ? 1 : 0);
+            for (int x = min; x < max; x++)
+            {
+                for (int y = min; y < max; y++)
+                {
+                    Vector2Int point = center + new Vector2Int(x, y);
+                    if (!points.Contains(point))
+                    {
+                        points.Add(point);
+                    }
+                }
+            }
+
+            return points;
+        }
     }
 }
