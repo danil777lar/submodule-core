@@ -23,13 +23,13 @@ namespace Larje.Core.Services.UI
             ShowScreen(_defaultScreenType, false);
         }
 
-        public void ShowScreen(UIScreenType screenType, bool withAnim = true) 
+        public void ShowScreen(UIScreenType screenType, bool withAnim = true, object screenArguments = null) 
         {
             UIScreen screenToOpen = _screens.Find((screen) => screen.ScreenType == screenType);
             if (screenToOpen != null)
             {
                 _openedScreen?.Close();
-                _openedScreen = Instantiate(screenToOpen, _screenHolder).Open();
+                _openedScreen = Instantiate(screenToOpen, _screenHolder).Open(screenArguments);
             }
         }
 

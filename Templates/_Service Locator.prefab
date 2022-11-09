@@ -1,5 +1,59 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1900271719270620300
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5958827649559428337}
+  - component: {fileID: 8324409825488134305}
+  m_Layer: 0
+  m_Name: Data Service
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5958827649559428337
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900271719270620300}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7966927716223805036}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8324409825488134305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900271719270620300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a8ecb04c4e03384ba7ffa8e9b206f61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _profileName: MainData
+  _defaultProfile: {fileID: 0}
+  _data:
+    Settings:
+      Vibration: 1
+      SoundValue: 1
+      MusicValue: 1
+    IternalData:
+      AdsDisabled: 0
+      IsFirstSession: 0
 --- !u!1 &2385820433737456575
 GameObject:
   m_ObjectHideFlags: 0
@@ -8,7 +62,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1510689313577601543}
+  - component: {fileID: 3141764543069132534}
   m_Layer: 0
   m_Name: Screen Holder
   m_TagString: Untagged
@@ -16,8 +70,8 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &1510689313577601543
-RectTransform:
+--- !u!4 &3141764543069132534
+Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -31,11 +85,6 @@ RectTransform:
   m_Father: {fileID: 7966927716984223960}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 391.5, y: 178.5}
-  m_SizeDelta: {x: 783, y: 357}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &5970761873550322361
 GameObject:
   m_ObjectHideFlags: 0
@@ -44,7 +93,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 911869175196034246}
+  - component: {fileID: 953983293145800347}
   m_Layer: 0
   m_Name: Popup Holder
   m_TagString: Untagged
@@ -52,8 +101,8 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!224 &911869175196034246
-RectTransform:
+--- !u!4 &953983293145800347
+Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -67,11 +116,6 @@ RectTransform:
   m_Father: {fileID: 7966927716984223960}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 391.5, y: 178.5}
-  m_SizeDelta: {x: 783, y: 357}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &7966927716223805042
 GameObject:
   m_ObjectHideFlags: 0
@@ -101,10 +145,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7966927716984223960}
+  - {fileID: 5958827649559428337}
   - {fileID: 7966927717295633392}
-  - {fileID: 7966927716583811019}
   - {fileID: 734051588745057704}
+  - {fileID: 7966927716984223960}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -118,50 +162,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7912ba2a4720884a92fb835b14e2e12, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!1 &7966927716583811018
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7966927716583811019}
-  - component: {fileID: 7966927716583811012}
-  m_Layer: 0
-  m_Name: Currency Service
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7966927716583811019
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7966927716583811018}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7966927716223805036}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7966927716583811012
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7966927716583811018}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c1751659f10a4534488ae78738d72639, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &7966927716984223967
@@ -193,10 +193,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1510689313577601543}
-  - {fileID: 911869175196034246}
+  - {fileID: 3141764543069132534}
+  - {fileID: 953983293145800347}
   m_Father: {fileID: 7966927716223805036}
-  m_RootOrder: 0
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5485579590817959418
 MonoBehaviour:
@@ -210,8 +210,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f60fc5f04aa955246a9b124d0a1e5f6b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _screenHolder: {fileID: 1510689313577601543}
-  _popupHolder: {fileID: 911869175196034246}
+  _screenHolder: {fileID: 0}
+  _popupHolder: {fileID: 0}
   _defaultScreenType: 0
   _screens: []
   _popups: []
@@ -290,7 +290,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7966927716223805036}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8422168776878564030
 MonoBehaviour:

@@ -23,6 +23,7 @@ namespace Larje.Core.Services
 
             BindChildren();
             InjectChildren();
+            DontDestroyOnLoad(this);
         }
 
 

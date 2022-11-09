@@ -48,7 +48,7 @@ namespace Larje.Core.Services.UI
         }
 
         [ContextMenu("Play Open Animation")]
-        public void PlayOpenAnimation() 
+        public void PlayOpenAnimation(object arguments) 
         {
             if (!Application.isPlaying) 
             {
