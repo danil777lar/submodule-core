@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7900673010672978795}
   - component: {fileID: 7222243308927965897}
   m_Layer: 5
-  m_Name: _ScreenTemplate
+  m_Name: _Screen Template
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -124,8 +124,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8364457158180722862}
+  - component: {fileID: 9216634043312523538}
   - component: {fileID: 5644852298510410190}
   - component: {fileID: 3363551533272105375}
+  - component: {fileID: 7279857855867252095}
   m_Layer: 5
   m_Name: Screen Base
   m_TagString: Untagged
@@ -153,6 +155,60 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &9216634043312523538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8492095725618759506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bad54fb3f05d2914d883a2fd67ff3a3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _openAnimation:
+    anchoredPosition:
+      use: 0
+      duration: 0
+      ease: 1
+      value: {x: 0, y: 0, z: 0}
+    rotation:
+      use: 0
+      duration: 0
+      ease: 1
+      value: {x: 0, y: 0, z: 0}
+    scale:
+      use: 1
+      duration: 0.25
+      ease: 1
+      value: {x: 1.25, y: 1.25, z: 1.25}
+    alpha:
+      use: 1
+      duration: 0.25
+      ease: 1
+      value: 0
+  _closeAnimation:
+    anchoredPosition:
+      use: 0
+      duration: 0
+      ease: 1
+      value: {x: 0, y: 0, z: 0}
+    rotation:
+      use: 0
+      duration: 0
+      ease: 1
+      value: {x: 0, y: 0, z: 0}
+    scale:
+      use: 0
+      duration: 0
+      ease: 1
+      value: {x: 0, y: 0, z: 0}
+    alpha:
+      use: 0
+      duration: 0
+      ease: 1
+      value: 0
 --- !u!222 &5644852298510410190
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -191,3 +247,15 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &7279857855867252095
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8492095725618759506}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
