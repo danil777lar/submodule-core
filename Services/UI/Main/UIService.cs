@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 
-namespace Larje.Core.Services
+namespace Larje.Core.Services.UI
 {
     [BindService(typeof(UIService))]
     public class UIService : Service
@@ -11,28 +10,33 @@ namespace Larje.Core.Services
         [SerializeField] private Transform _screenHolder;
         [SerializeField] private Transform _popupHolder;
         [Space]
-        [SerializeField] private string _defaultScreenId;
+        [SerializeField] private UIScreenType _defaultScreenType;
+        [Space]
+        [SerializeField] private List<UIScreen> _screens;
+        [SerializeField] private List<UIPopup> _popups;
+
+        private UIScreen _openedScreen;
 
 
         private void Awake()
         {
-            ShowScreen(_defaultScreenId, false);
+            ShowScreen(_defaultScreenType, false);
         }
 
-
-        public async void ShowScreen(string id, bool withAnim = true) 
+        public void ShowScreen(UIScreenType screenType, bool withAnim = true) 
         {
-            foreach (UIScreen oldScreen in _screenHolder.GetComponentsInChildren<UIScreen>())
-                oldScreen.Close();
-
-            var op = Addressables.InstantiateAsync($"Screen/{id}", _screenHolder.transform);
-            await op.Task;
-            if (op.IsDone && withAnim)
+            UIScreen screenToOpen = _screens.Find((screen) => screen.ScreenType == screenType);
+            if (screenToOpen != null)
             {
-                op.Result.gameObject.GetComponent<UIScreen>().Open();
+                _openedScreen?.Close();
+                _openedScreen = Instantiate(screenToOpen, _screenHolder).Open();
             }
         }
 
+        public void ShowPopup(UIPopupType popupType) 
+        {
+
+        }
 
         public override void Init(){}
     }
