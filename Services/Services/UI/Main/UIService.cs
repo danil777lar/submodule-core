@@ -7,6 +7,9 @@ namespace Larje.Core.Services.UI
     [BindService(typeof(UIService))]
     public class UIService : Service
     {
+        [SerializeField] private bool _useBackButton = true;
+        [SerializeField] private bool _saveFirstScreen = false;
+        [Space]
         [SerializeField] private Transform _screenHolder;
         [SerializeField] private Transform _popupHolder;
         [Space]
@@ -23,10 +26,21 @@ namespace Larje.Core.Services.UI
         private void Awake()
         {
             _history = new Stack<ScreenOpenProperties>();
-            ShowScreen(new ScreenOpenProperties(_defaultScreenType, false));
+            ShowScreen(new ScreenOpenProperties(_defaultScreenType), true, _saveFirstScreen);
         }
 
-        public void ShowScreen(ScreenOpenProperties args, bool pushToHistory = true) 
+        private void Update()
+        {
+            if (_useBackButton) 
+            {
+                if (Input.GetKeyDown(KeyCode.Escape)) 
+                {
+                    ShowPreviousScreen();
+                }
+            }
+        }
+
+        public void ShowScreen(ScreenOpenProperties args, bool pushToHistory = true, bool saveProperties = true) 
         {
             UIScreen screenToOpen = _screens.Find((screen) => screen.ScreenType == args.screenType);
             if (screenToOpen != null)
@@ -36,7 +50,10 @@ namespace Larje.Core.Services.UI
                 {
                     _history.Push(_openedScreenProperties); 
                 }
-                _openedScreenProperties = args;
+                if (saveProperties)
+                {
+                    _openedScreenProperties = args;
+                }
                 _openedScreen = Instantiate(screenToOpen, _screenHolder).Open(args.screenArguments);
             }
         }
@@ -60,13 +77,11 @@ namespace Larje.Core.Services.UI
         public class ScreenOpenProperties
         {
             public readonly UIScreenType screenType;
-            public readonly bool withAnim;
             public readonly object[] screenArguments;
 
-            public ScreenOpenProperties(UIScreenType screenType, bool withAnim = true, object[] screenArguments = null) 
+            public ScreenOpenProperties(UIScreenType screenType, object[] screenArguments = null) 
             {
                 this.screenType = screenType;
-                this.withAnim = withAnim;
                 this.screenArguments = screenArguments;
             }
         }
