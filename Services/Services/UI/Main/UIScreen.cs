@@ -11,12 +11,12 @@ namespace Larje.Core.Services.UI
     {
         [SerializeField] private UIScreenType _screenType;
 
-        public Action<object> ScreenOpen;
+        public Action<object[]> ScreenOpen;
         public Action ScreenClose;
         public UIScreenType ScreenType => _screenType;
 
 
-        public UIScreen Open(object arguments)
+        public UIScreen Open(object[] arguments)
         {
             ScreenOpen?.Invoke(arguments);
             return this;

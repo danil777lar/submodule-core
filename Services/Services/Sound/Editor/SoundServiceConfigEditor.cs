@@ -7,8 +7,8 @@ using System.Collections.Generic;
 
 namespace Larje.Core.Services
 {
-    [CustomEditor(typeof(SoundService))]
-    public class SoundServiceEditor : Editor
+    [CustomEditor(typeof(SoundServiceConfig))]
+    public class SoundServiceConfigEditor : Editor
     {
         private ReorderableList _list;
         private Dictionary<string, ReorderableList> _subLists = new Dictionary<string, ReorderableList>();

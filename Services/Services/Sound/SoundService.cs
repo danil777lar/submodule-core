@@ -17,9 +17,14 @@ namespace Larje.Core.Services
         {
             public AudioClip clip;
             public float volume = 1f;
+
+            public SoundOption() 
+            {
+                volume = 1f;
+            }
         }
 
-        public List<SoundPack> soundPacks;
+        [SerializeField] private SoundServiceConfig _config;
 
         public override void Init() { }
 
@@ -63,14 +68,14 @@ namespace Larje.Core.Services
         /// </summary>
         public SoundOption GetRandomSound(SoundType soundType)
         {
-            SoundPack pack = soundPacks.Find((p) => p.soundType == soundType);
+            SoundPack pack = _config.soundPacks.Find((p) => p.soundType == soundType);
             if (pack == null || pack.sounds.Count <= 0) return null;
             return pack.sounds[UnityEngine.Random.Range(0, pack.sounds.Count)];
         }
 
         public SoundOption GetSoundByIndex(SoundType soundType, int id) 
         {
-            SoundPack pack = soundPacks.Find((p) => p.soundType == soundType);
+            SoundPack pack = _config.soundPacks.Find((p) => p.soundType == soundType);
             if (pack == null || pack.sounds.Count <= 0) return null;
             return pack.sounds[Mathf.Clamp(id, 0, pack.sounds.Count)];
         }
