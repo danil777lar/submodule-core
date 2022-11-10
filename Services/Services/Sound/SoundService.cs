@@ -32,24 +32,24 @@ namespace Larje.Core.Services
         /// Спавнит GameObject c AudioSource, помещает в него рандомный клип из набора с соответствующим названем, задает настройки громкости.
         /// Объект автоматически удаляется после проигрывания клипа.
         /// </summary>
-        public void PlayRandomFromSoundPack(SoundType soundType)
+        public AudioSource PlayRandomFromSoundPack(SoundType soundType, bool loop)
         {
             SoundOption sound = GetRandomSound(soundType);
             if (!sound.clip)
             {
-                return;
+                return null;
             }
-            SpawnSoundSource(sound.clip, sound.volume);
+            return SpawnSoundSource(sound.clip, loop, sound.volume);
         }
 
-        public void PlayFromSoundPackByIndex(SoundType soundType, int id)
+        public AudioSource PlayFromSoundPackByIndex(SoundType soundType, int id, bool loop)
         {
             SoundOption sound = GetSoundByIndex(soundType, id);
             if (!sound.clip)
             {
-                return;
+                return null;
             }
-            SpawnSoundSource(sound.clip, sound.volume);
+            return SpawnSoundSource(sound.clip, loop, sound.volume);
         }
 
 
@@ -58,9 +58,9 @@ namespace Larje.Core.Services
         /// Спавнит GameObject c AudioSource, помещает в него рандомный клип.
         /// Объект автоматически удаляется после проигрывания клипа.
         /// </summary>
-        public void PlayClip(AudioClip clip)
+        public AudioSource PlayClip(AudioClip clip, bool loop)
         {
-            SpawnSoundSource(clip);
+            return SpawnSoundSource(clip, loop);
         }
 
         /// <summary>
@@ -80,16 +80,23 @@ namespace Larje.Core.Services
             return pack.sounds[Mathf.Clamp(id, 0, pack.sounds.Count)];
         }
 
-        private void SpawnSoundSource(AudioClip clip, float volume = 1f)
+        private AudioSource SpawnSoundSource(AudioClip clip, bool loop, float volume = 1f)
         {
             AudioSource source = new GameObject($"{clip.name} source").AddComponent<AudioSource>();
             source.transform.SetParent(gameObject.transform);
             source.transform.localPosition = Vector3.zero;
             source.clip = clip;
             source.volume = volume;
+            source.loop = loop;
             source.pitch += UnityEngine.Random.Range(-0.1f, 0.1f);
             source.Play();
-            Destroy(source.gameObject, clip.length);
+
+            if (!loop)
+            {
+                Destroy(source.gameObject, clip.length);
+            }
+
+            return source;
         }
     }
 }
