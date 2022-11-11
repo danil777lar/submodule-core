@@ -162,11 +162,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: _closeAnimation.scale.use
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: _closeAnimation.scale.duration
-    value: 0.25
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: _closeAnimation.scale.ease
@@ -186,11 +186,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: _closeAnimation.alpha.use
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: _closeAnimation.alpha.duration
-    value: 0.25
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: _closeAnimation.alpha.ease
