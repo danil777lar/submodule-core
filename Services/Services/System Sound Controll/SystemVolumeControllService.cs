@@ -8,24 +8,8 @@ namespace Larje.Core.Services.NativeVolume
     [BindService(typeof(SystemVolumeControllService))]
     public class SystemVolumeControllService : Service
     {
-        private float _lastVolumeValue;
         private INativeVolumeService _nativeService;
 
-        public Action<float> VolumeChanged;
-
-
-        private void Update()
-        {
-            if (_nativeService != null) 
-            {
-                float currentSystemVolume = GetSystemVolume();
-                if (_lastVolumeValue != currentSystemVolume) 
-                {
-                    VolumeChanged?.Invoke(currentSystemVolume);
-                }
-                _lastVolumeValue = currentSystemVolume;
-            }
-        }
 
         public override void Init()
         {
@@ -38,11 +22,6 @@ namespace Larje.Core.Services.NativeVolume
 #else
             Debug.LogError("Unexpected platform");
 #endif
-
-            if (_nativeService != null)
-            {
-                _lastVolumeValue = GetSystemVolume();
-            }
         }
 
         public float GetSystemVolume() 
