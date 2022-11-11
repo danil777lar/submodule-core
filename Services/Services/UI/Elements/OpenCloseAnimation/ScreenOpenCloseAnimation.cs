@@ -47,6 +47,12 @@ namespace Larje.Core.Services.UI
             screen.ScreenClose += PlayCloseAnimation;
         }
 
+        private void OnDestroy()
+        {
+            this.DOKill();
+        } 
+
+
         [ContextMenu("Play Open Animation")]
         public void PlayOpenAnimation(object arguments) 
         {

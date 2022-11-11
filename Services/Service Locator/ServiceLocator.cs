@@ -13,6 +13,8 @@ namespace Larje.Core.Services
         public static ServiceLocator Default => _default;
         #endregion
 
+        [SerializeField] private bool _dontDestroyOnLoad;
+
         private Dictionary<Type, Service> _services;
 
 
@@ -23,7 +25,10 @@ namespace Larje.Core.Services
 
             BindChildren();
             InjectChildren();
-            DontDestroyOnLoad(this);
+            if (_dontDestroyOnLoad)
+            {
+                DontDestroyOnLoad(this);
+            }
         }
 
 

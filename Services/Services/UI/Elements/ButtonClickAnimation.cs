@@ -20,6 +20,11 @@ namespace Larje.Core.Services.UI
             GetComponent<Button>().onClick.AddListener(OnButtonCLlicked);            
         }
 
+        private void OnDestroy()
+        {
+            this.DOKill();
+        }
+
         private void OnButtonCLlicked() 
         {
             this.DOKill();

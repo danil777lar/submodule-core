@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,6 +23,8 @@ namespace Larje.Core.Services.UI
         private ScreenOpenProperties _openedScreenProperties;
         private Stack<ScreenOpenProperties> _history;
 
+        public Action<UIScreenType, UIScreenType> ScreenChanged;
+
 
         private void Awake()
         {
@@ -45,7 +48,11 @@ namespace Larje.Core.Services.UI
             UIScreen screenToOpen = _screens.Find((screen) => screen.ScreenType == args.screenType);
             if (screenToOpen != null)
             {
-                _openedScreen?.Close();
+                if (_openedScreen) 
+                {
+                    ScreenChanged?.Invoke(_openedScreen.ScreenType, args.screenType);
+                    _openedScreen.Close();
+                }
                 if (_openedScreenProperties != null && pushToHistory) 
                 {
                     _history.Push(_openedScreenProperties); 
