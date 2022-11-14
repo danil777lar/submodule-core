@@ -8,15 +8,23 @@ namespace Larje.Core.Services.UI
     [RequireComponent(typeof(Button))]
     public class PreviousScreenButton : MonoBehaviour
     {
+        [InjectService] private UIService _uiService;
+
+        private Button _button;
+
+
         private void Start()
         {
-            UIService uiService = ServiceLocator.Default.GetService<UIService>();
-            Button button = GetComponent<Button>();
-            button.onClick.AddListener(() => 
-            {
-                button.interactable = false;
-                uiService.ShowPreviousScreen();
-            });
+            ServiceLocator.Default.InjectServicesInComponent(this);
+
+            _button = GetComponent<Button>();
+            _button.onClick.AddListener(OnButtonClicked);
+        }
+
+        private void OnButtonClicked() 
+        {
+            _button.interactable = false;
+            _uiService.ShowPreviousScreen();
         }
     }
 }

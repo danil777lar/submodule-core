@@ -21,6 +21,7 @@ namespace Larje.Core.Services.DataService
         {
             Load();
             _data.IternalData.SessionNum++;
+            Save();
         }
 
         private void Load()
