@@ -48,11 +48,7 @@ namespace Larje.Core.Services.UI
             UIScreen screenToOpen = _screens.Find((screen) => screen.ScreenType == args.screenType);
             if (screenToOpen != null)
             {
-                if (_openedScreen) 
-                {
-                    ScreenChanged?.Invoke(_openedScreen.ScreenType, args.screenType);
-                    _openedScreen.Close();
-                }
+                UIScreen screenToClose = _openedScreen;
                 if (_openedScreenProperties != null && pushToHistory) 
                 {
                     _history.Push(_openedScreenProperties); 
@@ -61,7 +57,14 @@ namespace Larje.Core.Services.UI
                 {
                     _openedScreenProperties = args;
                 }
+
                 _openedScreen = Instantiate(screenToOpen, _screenHolder).Open(args.screenArguments);
+
+                if (screenToClose) 
+                {
+                    ScreenChanged?.Invoke(_openedScreen.ScreenType, args.screenType);
+                    screenToClose.Close();
+                }
             }
         }
 
