@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace Larje.Core.Tools.PhysicsBodyProjections
         [SerializeField] private Transform _animationBody;
         [SerializeField] private Transform _physicalBody;
         [SerializeField] private ConfigurableJoint _connectionJointPrefab;
+        [SerializeField] private List<BodyPartJointSettings> _jointSettings;
         [Header("Debug")]
         [SerializeField] private bool _drawBonesDebug;
         [SerializeField] private bool _drawIfSelected;
@@ -18,11 +20,57 @@ namespace Larje.Core.Tools.PhysicsBodyProjections
         [SerializeField] private Color _animationBodyColor = Color.red;
         [SerializeField] private Color _physicalBodyColor = Color.blue;
 
+        private Dictionary<Transform, Transform> _bonesWithoutJoints;
 
         public Transform AnimationBody => _animationBody;
         public Transform PhysicalBody => _physicalBody;
         public ConfigurableJoint JointPrefab => _connectionJointPrefab;
 
+
+        private void Start()
+        {
+            _bonesWithoutJoints = new Dictionary<Transform, Transform>();
+            List<Transform> animationBones = AnimationBody.GetComponentsInChildren<Transform>().Where(x => x.GetComponent<Joint>() == null).ToList();
+            List<Transform> physicalBones = PhysicalBody.GetComponentsInChildren<Transform>().Where(x => x.GetComponent<Joint>() == null).ToList();
+            foreach (Transform physBone in physicalBones) 
+            {
+                _bonesWithoutJoints.Add(physBone, animationBones.Find(x => x.gameObject.name == physBone.gameObject.name));
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            if (_jointSettings != null)
+            {
+                foreach (BodyPartJointSettings settings in _jointSettings)
+                {
+                    settings.UpdateSettings();
+                }
+            }
+
+            PhysicalBody.localPosition = AnimationBody.localPosition;
+            PhysicalBody.localRotation = AnimationBody.localRotation;
+            foreach (Transform physBone in _bonesWithoutJoints.Keys) 
+            {
+                Transform animBone = _bonesWithoutJoints[physBone];
+                if (animBone != null)
+                {
+                    physBone.localPosition = animBone.localPosition;
+                    physBone.localRotation = animBone.localRotation;
+                }
+            }
+        }
+
+        private void OnValidate()
+        {
+            if (_jointSettings != null) 
+            {
+                foreach (BodyPartJointSettings settings in _jointSettings) 
+                {
+                    settings.UpdateInspectorName();
+                }
+            }
+        }
 
         public void BuildPhysicsBody()
         {
@@ -103,5 +151,69 @@ namespace Larje.Core.Tools.PhysicsBodyProjections
         }
 
         #endregion
+
+
+        public enum BodyPartType 
+        {
+            Hips,
+            Spine,
+            Head,
+            LeftArm, 
+            RightArm, 
+            LeftLeg,
+            RightLeg
+        }
+
+        [Serializable]
+        public class BodyPartJointSettings
+        {
+            [SerializeField, HideInInspector] private string _inspectorName;
+
+            public BodyPartType partType;
+            public Settings settings;
+
+            [Space]
+            [SerializeField] private List<ConfigurableJoint> _joints;
+
+
+            public void UpdateInspectorName() 
+            {
+                _inspectorName = Enum.GetName(typeof(BodyPartType), partType);
+            }
+
+            public void UpdateSettings() 
+            {
+                foreach (ConfigurableJoint joint in _joints) 
+                {
+                    JointDrive drive = new JointDrive();
+                    drive.positionSpring = settings.positionSpring;
+                    drive.positionDamper = settings.positionDamper;
+                    drive.maximumForce = settings.maximumForce;
+
+                    joint.slerpDrive = drive;
+                    joint.massScale = settings.massScale;
+
+                    joint.xMotion = settings.lockPosition ? ConfigurableJointMotion.Locked : ConfigurableJointMotion.Free;
+                    joint.yMotion = settings.lockPosition ? ConfigurableJointMotion.Locked : ConfigurableJointMotion.Free;
+                    joint.zMotion = settings.lockPosition ? ConfigurableJointMotion.Locked : ConfigurableJointMotion.Free;
+
+                    joint.angularXMotion = settings.lockRotation ? ConfigurableJointMotion.Locked : ConfigurableJointMotion.Free;
+                    joint.angularYMotion = settings.lockRotation ? ConfigurableJointMotion.Locked : ConfigurableJointMotion.Free;
+                    joint.angularZMotion = settings.lockRotation ? ConfigurableJointMotion.Locked : ConfigurableJointMotion.Free;
+                }
+            }
+
+
+            [Serializable]
+            public struct Settings 
+            {
+                public bool lockPosition;
+                public bool lockRotation;
+                public float positionSpring;
+                public float positionDamper;
+                public float maximumForce;
+                public float massScale;
+            }
+        }
     }
 }
