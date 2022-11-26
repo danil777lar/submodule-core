@@ -45,9 +45,19 @@ namespace Larje.Core.Services
             }
         }
 
-        public void InjectServicesInComponent(Component component) 
+        public void InjectServicesInComponent(Component component, Type type = null)
         {
-            List<FieldInfo> fields = new List<FieldInfo>(component.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
+            List<FieldInfo> fields = new List<FieldInfo>();
+
+            if (type != null)
+            {
+                fields.AddRange(type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
+            }
+            else 
+            {
+                fields.AddRange(component.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
+            }
+
             fields = fields.FindAll((f) => Attribute.IsDefined(f, typeof(InjectServiceAttribute)));
             foreach (FieldInfo field in fields)
             {

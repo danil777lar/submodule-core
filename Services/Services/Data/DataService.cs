@@ -41,7 +41,7 @@ namespace Larje.Core.Services.DataService
             Save();
         }
 
-
+        [ContextMenu("Save")]
         public void Save()
         {
             byte[] jsonDataBytes = Encoding.UTF8.GetBytes(JsonUtility.ToJson(_data, false));
