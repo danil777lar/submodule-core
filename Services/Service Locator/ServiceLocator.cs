@@ -82,7 +82,6 @@ namespace Larje.Core.Services
                     if (attribute != null && !_services.ContainsKey(attribute.type)) 
                     {
                         _services.Add(attribute.type, service);
-                        service.Init();
                     }
                 }
             }
@@ -105,6 +104,7 @@ namespace Larje.Core.Services
                             field.SetValue(service, getService.Invoke(this, null));
                         }
                     }
+                    service.Init();
                 }
             }
         }
