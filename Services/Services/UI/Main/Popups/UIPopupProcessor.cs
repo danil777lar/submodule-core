@@ -9,7 +9,7 @@ namespace Larje.Core.Services.UI
     public class UIPopupProcessor
     {
         private Options _options;
-        private Stack<UIPopup> _openedPopups;
+        private Stack<UIPopup> _openedPopups = new Stack<UIPopup>();
 
 
         public UIPopupProcessor(Options options)
@@ -17,17 +17,23 @@ namespace Larje.Core.Services.UI
             _options = options;
         }
 
-        public void ShowPopup(PopupOpenProperties properties) 
+        public UIPopup OpenPopup(PopupOpenProperties properties) 
         {
             UIPopup popupPrefab = _options.Popups.First(x => x.PopupType == properties.popupType);
             if (popupPrefab != null) 
             {
-                _openedPopups.Peek().PopupClosed -= OnLastPopupClosed; 
-                HandleLastPopup(properties.combinationType);
+                if (_openedPopups.Count > 0)
+                {
+                    _openedPopups.Peek().PopupClosed -= OnLastPopupClosed;
+                    HandleLastPopup(properties.combinationType);
+                }
                 _openedPopups.Push(GameObject.Instantiate(popupPrefab, _options.PopupHolder).Open(properties.popupArguments));
                 _openedPopups.Peek().GetComponent<Canvas>().sortingOrder = _options.StartSortOrder + _openedPopups.Count;
                 _openedPopups.Peek().PopupClosed += OnLastPopupClosed;
+                return _openedPopups.Peek();
             }
+
+            return null;
         }
 
         public bool TryClosePopupByBackButton() 
