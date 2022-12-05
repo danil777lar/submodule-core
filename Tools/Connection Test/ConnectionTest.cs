@@ -8,42 +8,26 @@ namespace Larje.Core.Tools
 {
     public static class ConnectionTest
     {
-        public static async Task<bool> IsConnectionAvailable() 
+        public static async Task<bool> IsConnectionAvailable(float timeOutSize) 
         {
-            string htmlText = await GetHtmlFromUri("https://google.com");
-            if (string.IsNullOrEmpty(htmlText) || string.IsNullOrWhiteSpace(htmlText))
+            if (Application.internetReachability == NetworkReachability.NotReachable)
             {
                 return false;
             }
-            else if (!htmlText.Contains("schema.org/WebPage"))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
 
-        private static async Task<string> GetHtmlFromUri(string resource)
-        {
-            UnityWebRequest request = UnityWebRequest.Get(resource);
-            request.SendWebRequest();
-            while (!request.isDone) 
-            {
-                await Task.Yield();
-            }
+            Ping ping = new Ping("8.8.8.8");
+            float pingStartTime = Time.time;
 
-            bool isError = request.result == UnityWebRequest.Result.ConnectionError;
-            isError |= request.result == UnityWebRequest.Result.ProtocolError;
-            if (isError)
+            while (!ping.isDone)
             {
-                return "";
+                await Task.Delay(5);
+
+                if (Time.time - pingStartTime >= timeOutSize)
+                {
+                    return false;
+                }
             }
-            else 
-            {
-                return request.downloadHandler.text;
-            }
+            return true;
         }
     }
 }
