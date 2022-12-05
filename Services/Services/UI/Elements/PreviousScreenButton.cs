@@ -24,7 +24,7 @@ namespace Larje.Core.Services.UI
         private void OnButtonClicked() 
         {
             _button.interactable = false;
-            _uiService.ShowPreviousScreen();
+            _uiService.Screens.TryOpenPreviousScreen();
         }
     }
 }

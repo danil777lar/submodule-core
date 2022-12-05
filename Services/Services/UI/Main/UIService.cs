@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,91 +7,60 @@ namespace Larje.Core.Services.UI
     [BindService(typeof(UIService))]
     public class UIService : Service
     {
-        [SerializeField] private bool _useBackButton = true;
+        [SerializeField] private bool _useDeviceBackButton = true;
         [SerializeField] private bool _saveFirstScreen = false;
-        [Space]
-        [SerializeField] private Transform _screenHolder;
-        [SerializeField] private Transform _popupHolder;
         [Space]
         [SerializeField] private UIScreenType _defaultScreenType;
         [Space]
-        [SerializeField] private List<UIScreen> _screens;
-        [SerializeField] private List<UIPopup> _popups;
+        [SerializeField] private UIScreenProcessor.Options _screenProcessorOptions;
+        [SerializeField] private UIPopupProcessor.Options _popupProcessorOptions;
+        [SerializeField] private UIToastProcessor.Options _toastProcessorOptions;
 
-        private UIScreen _openedScreen;
-        private ScreenOpenProperties _openedScreenProperties;
-        private Stack<ScreenOpenProperties> _history;
-
-        public Action<UIScreenType, UIScreenType> ScreenChanged;
-
-
-        private void Awake()
+        public UIScreenProcessor Screens 
         {
-            _history = new Stack<ScreenOpenProperties>();
-            ShowScreen(new ScreenOpenProperties(_defaultScreenType), true, _saveFirstScreen);
+            get;
+            private set;
         }
+        public UIPopupProcessor Popups
+        {
+            get;
+            private set;
+        }
+        public UIToastProcessor Toasts
+        {
+            get;
+            private set;
+        }
+
+        public Action<UIScreenType, UIScreenType> ScreenChanged => Screens.ScreenChanged;
+
 
         private void Update()
         {
-            if (_useBackButton) 
-            {
-                if (Input.GetKeyDown(KeyCode.Escape)) 
-                {
-                    ShowPreviousScreen();
-                }
-            }
+            UpdateDeviceBackButton();
         }
 
-        public void ShowScreen(ScreenOpenProperties args, bool pushToHistory = true, bool saveProperties = true) 
+        public override void Init() 
         {
-            UIScreen screenToOpen = _screens.Find((screen) => screen.ScreenType == args.screenType);
-            if (screenToOpen != null)
-            {
-                UIScreen screenToClose = _openedScreen;
-                if (_openedScreenProperties != null && pushToHistory) 
-                {
-                    _history.Push(_openedScreenProperties); 
-                }
-                if (saveProperties)
-                {
-                    _openedScreenProperties = args;
-                }
+            Screens = new UIScreenProcessor(_screenProcessorOptions);
+            Popups = new UIPopupProcessor(_popupProcessorOptions);
+            Toasts = new UIToastProcessor(_toastProcessorOptions);
 
-                _openedScreen = Instantiate(screenToOpen, _screenHolder).Open(args.screenArguments);
-
-                if (screenToClose) 
-                {
-                    ScreenChanged?.Invoke(_openedScreen.ScreenType, args.screenType);
-                    screenToClose.Close();
-                }
-            }
+            Screens.OpenScreen(new ScreenOpenProperties(_defaultScreenType), true, _saveFirstScreen);
         }
 
-        public void ShowPreviousScreen() 
+
+        private void UpdateDeviceBackButton() 
         {
-            if (_history.Count > 0)
+            if (_useDeviceBackButton)
             {
-                ShowScreen(_history.Pop(), false);
-            }
-        }
-
-        public void ShowPopup(UIPopupType popupType) 
-        {
-
-        }
-
-        public override void Init(){}
-
-
-        public class ScreenOpenProperties
-        {
-            public readonly UIScreenType screenType;
-            public readonly object[] screenArguments;
-
-            public ScreenOpenProperties(UIScreenType screenType, object[] screenArguments = null) 
-            {
-                this.screenType = screenType;
-                this.screenArguments = screenArguments;
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    if (!Popups.TryClosePopupByBackButton()) 
+                    {
+                        Screens.TryOpenPreviousScreen();
+                    }
+                }
             }
         }
     }

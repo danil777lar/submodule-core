@@ -8,7 +8,7 @@ using DG.Tweening;
 namespace Larje.Core.Services.UI
 {
     [RequireComponent(typeof(CanvasGroup))]
-    public class ScreenOpenCloseAnimation : MonoBehaviour, IUIScreenCloseDelay
+    public class ScreenOpenCloseAnimation : MonoBehaviour, IUIPartCloseDelay
     {
         [SerializeField] private AnimationValuesList _openAnimation;
         [SerializeField] private AnimationValuesList _closeAnimation;

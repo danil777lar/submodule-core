@@ -9,12 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6324585436492576402}
-  - component: {fileID: 3700941305240713560}
+  - component: {fileID: 7471179632494232061}
   - component: {fileID: 4994452837015288185}
   - component: {fileID: 7900673010672978795}
   - component: {fileID: 7222243308927965897}
   m_Layer: 5
-  m_Name: _Screen Template
+  m_Name: _Popup Template
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41,7 +41,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &3700941305240713560
+--- !u!114 &7471179632494232061
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -50,10 +50,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 6042899577616953883}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2385662de76ac8d40b11c1d7ae30eb94, type: 3}
+  m_Script: {fileID: 11500000, guid: f4a87141929f6bb459edf5f12fbe0c3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _screenType: 0
+  _popupType: 0
+  _closeByBackDeviceKey: 0
+  _closeByBackgroundClick: 0
+  _background: {fileID: 413276139855450870}
 --- !u!223 &4994452837015288185
 Canvas:
   m_ObjectHideFlags: 0
@@ -128,6 +131,7 @@ GameObject:
   - component: {fileID: 5644852298510410190}
   - component: {fileID: 3363551533272105375}
   - component: {fileID: 7279857855867252095}
+  - component: {fileID: 413276139855450870}
   m_Layer: 5
   m_Name: Screen Base
   m_TagString: Untagged
@@ -259,3 +263,15 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &413276139855450870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8492095725618759506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7f6b6326bdaf6d40988db8fdf7dab61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
