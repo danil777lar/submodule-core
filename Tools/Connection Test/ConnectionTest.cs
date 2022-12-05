@@ -1,18 +1,21 @@
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
+using UnityEngine.Networking;
+using UnityEngine;
 
 namespace Larje.Core.Tools
 {
     public static class ConnectionTest
     {
-        public static bool IsConnectionAvailable() 
+        public static async Task<bool> IsConnectionAvailable() 
         {
-            string HtmlText = GetHtmlFromUri("https://google.com");
-            if (string.IsNullOrEmpty(HtmlText) || string.IsNullOrWhiteSpace(HtmlText))
+            string htmlText = await GetHtmlFromUri("https://google.com");
+            if (string.IsNullOrEmpty(htmlText) || string.IsNullOrWhiteSpace(htmlText))
             {
                 return false;
             }
-            else if (!HtmlText.Contains("schema.org/WebPage"))
+            else if (!htmlText.Contains("schema.org/WebPage"))
             {
                 return false;
             }
@@ -22,34 +25,25 @@ namespace Larje.Core.Tools
             }
         }
 
-        private static string GetHtmlFromUri(string resource)
+        private static async Task<string> GetHtmlFromUri(string resource)
         {
-            string html = string.Empty;
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(resource);
-            try
+            UnityWebRequest request = UnityWebRequest.Get(resource);
+            request.SendWebRequest();
+            while (!request.isDone) 
             {
-                using (HttpWebResponse resp = (HttpWebResponse)req.GetResponse())
-                {
-                    bool isSuccess = (int)resp.StatusCode < 299 && (int)resp.StatusCode >= 200;
-                    if (isSuccess)
-                    {
-                        using (StreamReader reader = new StreamReader(resp.GetResponseStream()))
-                        {
-                            char[] cs = new char[80];
-                            reader.Read(cs, 0, cs.Length);
-                            foreach (char ch in cs)
-                            {
-                                html += ch;
-                            }
-                        }
-                    }
-                }
+                await Task.Yield();
             }
-            catch
+
+            bool isError = request.result == UnityWebRequest.Result.ConnectionError;
+            isError |= request.result == UnityWebRequest.Result.ProtocolError;
+            if (isError)
             {
                 return "";
             }
-            return html;
+            else 
+            {
+                return request.downloadHandler.text;
+            }
         }
     }
 }
