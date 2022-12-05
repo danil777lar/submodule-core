@@ -41,7 +41,12 @@ namespace Larje.Core.Services.UI
         public void Close()
         {
             PopupClosed?.Invoke();
-            float delay = GetComponentsInChildren<IUIPartCloseDelay>().Max((delay) => delay.GetDelay());
+            float delay = 0f;
+            IUIPartCloseDelay[] closeDelays = GetComponentsInChildren<IUIPartCloseDelay>();
+            if (closeDelays.Length > 0) 
+            {
+                delay = closeDelays.Max((delay) => delay.GetDelay());
+            }
             Destroy(gameObject, delay);
         }
 

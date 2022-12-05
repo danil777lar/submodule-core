@@ -43,8 +43,17 @@ namespace Larje.Core.Services.UI
         private void Awake()
         {            
             UIScreen screen = GetComponentInParent<UIScreen>();
-            screen.ScreenOpen += PlayOpenAnimation;
-            screen.ScreenClose += PlayCloseAnimation;
+            UIPopup popup = GetComponentInParent<UIPopup>();
+            if (screen != null)
+            {
+                screen.ScreenOpen += PlayOpenAnimation;
+                screen.ScreenClose += PlayCloseAnimation;
+            }
+            if (popup != null)
+            {
+                popup.PopupOpened += PlayOpenAnimation;
+                popup.PopupClosed += PlayCloseAnimation;
+            }
         }
 
         private void OnDestroy()

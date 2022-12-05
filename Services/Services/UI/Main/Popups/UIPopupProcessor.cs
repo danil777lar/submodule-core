@@ -69,8 +69,12 @@ namespace Larje.Core.Services.UI
 
         private void OnLastPopupClosed() 
         {
-            _openedPopups.Pop();
-            _openedPopups.Peek().TryShow();
+            _openedPopups.Pop().PopupClosed -= OnLastPopupClosed;
+            if (_openedPopups.Count > 0)
+            {
+                _openedPopups.Peek().PopupClosed += OnLastPopupClosed;
+                _openedPopups.Peek().TryShow();
+            }
         }
 
 
