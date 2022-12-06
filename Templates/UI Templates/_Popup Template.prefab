@@ -250,7 +250,7 @@ MonoBehaviour:
     Quantized: 0
     TargetBPM: 120
   DebugActive: 0
-  AnimatePositionTarget: {fileID: 0}
+  AnimatePositionTarget: {fileID: 6766994431375689979}
   Mode: 1
   TimeScale: 0
   Space: 1
