@@ -63,7 +63,7 @@ MonoBehaviour:
   Feedbacks:
   - {fileID: 3723655018412267045}
   - {fileID: 7095781342460115407}
-  InitializationMode: 2
+  InitializationMode: 1
   SafeMode: 3
   Direction: 0
   AutoChangeDirectionOnEnd: 1
