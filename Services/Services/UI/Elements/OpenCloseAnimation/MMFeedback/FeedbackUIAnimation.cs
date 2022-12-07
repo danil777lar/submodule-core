@@ -54,7 +54,14 @@ namespace Larje.Core.Services.UI
 
         public float GetDelay()
         {
-            return _feedback.TotalDuration;
+            if (_eventType.HasFlag(EventType.Close) || _eventType.HasFlag(EventType.Hide))
+            {
+                return _feedback.TotalDuration;
+            }
+            else 
+            {
+                return 0f;
+            }
         }
 
 
