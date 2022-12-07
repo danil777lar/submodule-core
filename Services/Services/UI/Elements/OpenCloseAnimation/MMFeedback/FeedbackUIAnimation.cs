@@ -7,15 +7,15 @@ using MoreMountains.Feedbacks;
 namespace Larje.Core.Services.UI
 {
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(MMFeedbacks))]
+    [RequireComponent(typeof(MMF_Player))]
     public class FeedbackUIAnimation : MonoBehaviour, IUIPartCloseDelay
     {
         [SerializeField] private EventType _eventType;
-        private MMFeedbacks _feedback;
+        private MMF_Player _feedback;
 
         private void Awake()
         {
-            _feedback = GetComponent<MMFeedbacks>();
+            _feedback = GetComponent<MMF_Player>();
             UIScreen screen = GetComponentInParent<UIScreen>();
             UIPopup popup = GetComponentInParent<UIPopup>();
 
