@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Larje.Core.Utility
 {
-    public static class LarjeUtility
+    public static class Utility
     {
         public static bool CastCollider2D(Collider2D collider, Vector2 direction, float distance) 
         {
