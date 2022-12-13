@@ -4,8 +4,8 @@ using System.Text;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Larje.Core.Services.DataService
-{
+namespace Larje.Core.Services
+{ 
     [BindService(typeof(DataService))]
     public class DataService : Service
     {
@@ -60,8 +60,7 @@ namespace Larje.Core.Services.DataService
             Save();
             Load();
         }
-
-
+        
         #region Debug
         [ContextMenu("Clear Progress")]
         public void DeleteSave()
