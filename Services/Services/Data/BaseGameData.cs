@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Larje.Core.Services.DataService
+namespace Larje.Core.Services
 {
     [Serializable]
     public partial class GameData
@@ -21,6 +21,7 @@ namespace Larje.Core.Services.DataService
     public partial class Settings
     {
         public bool Vibration = true;
+        public bool SoundGlobal = true;
         public float SoundValue = 1f;
         public float MusicValue = 1f;
     }

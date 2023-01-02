@@ -5,7 +5,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 
-namespace Larje.Core.Services.DataService
+namespace Larje.Core.Services
 {
     [CreateAssetMenu(fileName = "DefaultProfile", menuName = "Scriptables/DefaultDataProfile")]
     public class DefaultProfile : ScriptableObject

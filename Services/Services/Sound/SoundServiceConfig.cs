@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Principal;
 using UnityEngine;
 
 namespace Larje.Core.Services
@@ -7,7 +9,6 @@ namespace Larje.Core.Services
     [CreateAssetMenu(fileName = "SoundServiceConfig", menuName = "Scriptables/SoundServiceConfig")]
     public class SoundServiceConfig : ScriptableObject
     {
-        public List<SoundService.SoundPack> soundPacks;
-
+        [SerializeField] public List<SoundService.SoundPack> soundPacks;
     }
 }

@@ -9,16 +9,15 @@ namespace Larje.Core.Services.LevelManagement
     {
         private List<ILevelStartHandler> _startHandlers;
         private List<ILevelEndHandler> _endHandlers;
-
         private bool _isLevelPlaying = false;
-
+        
 
         protected virtual void Start()
         {
-            _startHandlers = GetComponentsInChildren<ILevelStartHandler>().ToList();
-            _endHandlers = GetComponentsInChildren<ILevelEndHandler>().ToList();
+            _startHandlers = GetComponentsInChildren<ILevelStartHandler>(true).ToList();
+            _endHandlers = GetComponentsInChildren<ILevelEndHandler>(true).ToList();
         }
-
+        
         public abstract void TryStartLevel(StartData data);
 
         public abstract void TryStopLevel(StopData data);
@@ -28,6 +27,7 @@ namespace Larje.Core.Services.LevelManagement
             if (!_isLevelPlaying)
             {
                 _startHandlers.ForEach(x => x.OnLevelStarted(data));
+                _isLevelPlaying = true;
             }
         }
 
@@ -36,9 +36,9 @@ namespace Larje.Core.Services.LevelManagement
             if (_isLevelPlaying)
             {
                 _endHandlers.ForEach(x => x.OnLevelEnded(data));
+                _isLevelPlaying = false;
             }
         }
-
 
         public abstract class StartData { }
 

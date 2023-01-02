@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -16,8 +17,9 @@ namespace Larje.Core.Services
 
         private void OnEnable()
         {
-            _list = new ReorderableList(serializedObject, serializedObject.FindProperty("soundPacks"), true, true, true, true);
+            _list = new ReorderableList(serializedObject, serializedObject.FindProperty("soundPacks"), false, false, false, false);
 
+            float elementHeight = 0f;
             _list.drawElementCallback = (Rect rect, int index, bool isActive, bool isFocused) =>
             {
                 var soundPack = _list.serializedProperty.GetArrayElementAtIndex(index);
@@ -33,6 +35,7 @@ namespace Larje.Core.Services
                     subList = new ReorderableList(soundPack.serializedObject, sounds, true, true, true, true);
                     subList.drawElementCallback = (Rect subrect, int subindex, bool subIsActive, bool subIsFocused) =>
                     {
+                        elementHeight = subrect.height;
                         SerializedProperty clip = sounds.GetArrayElementAtIndex(subindex).FindPropertyRelative("clip");
                         SerializedProperty volume = sounds.GetArrayElementAtIndex(subindex).FindPropertyRelative("volume");
 
@@ -41,12 +44,13 @@ namespace Larje.Core.Services
                             clip, GUIContent.none);
 
                         volume.floatValue = EditorGUI.Slider(
-                            new Rect((subrect.width / 2f) + 70, subrect.y, (subrect.width / 2f) - 10, EditorGUIUtility.singleLineHeight),
+                            new Rect(subrect.x + (subrect.width / 2f) + 10, subrect.y, (subrect.width / 2f) - 10, EditorGUIUtility.singleLineHeight),
                             volume.floatValue, 0f, 1f);
                     };
                     subList.drawHeaderCallback = (Rect subRect) =>
                     {
-                        soundType.enumValueIndex = (int)(SoundType)EditorGUI.EnumPopup(new Rect(subRect.x, subRect.y, subRect.width, subRect.height), (SoundType)soundType.enumValueIndex);
+                        string typeName = Enum.GetName(typeof(SoundType), (SoundType)soundType.enumValueIndex);
+                        EditorGUI.LabelField(new Rect(subRect.x, subRect.y, subRect.width, subRect.height), typeName);
                     };
                     _subLists[listKey] = subList;
                 }
@@ -56,7 +60,8 @@ namespace Larje.Core.Services
             {
                 var element = _list.serializedProperty.GetArrayElementAtIndex(index);
                 SerializedProperty sounds = element.FindPropertyRelative("sounds");
-                return (sounds.arraySize + 4) * (EditorGUIUtility.singleLineHeight * 1.3f);
+                int elementCount = Mathf.Max(1, sounds.arraySize); 
+                return (elementCount * elementHeight) + (EditorGUIUtility.singleLineHeight * 3f);
             };
             _list.drawHeaderCallback = (Rect rect) =>
             {
@@ -66,6 +71,18 @@ namespace Larje.Core.Services
 
         public override void OnInspectorGUI()
         {
+            List<SoundService.SoundPack> soundPacks = ((SoundServiceConfig)target).soundPacks;
+            for (int i = 0; i < Enum.GetValues(typeof(SoundType)).Length; i++)
+            {
+                if (soundPacks.Count == i)
+                {
+                    SoundService.SoundPack soundPack = new SoundService.SoundPack();
+                    soundPack.soundType = (SoundType)Enum.GetValues(typeof(SoundType)).GetValue(i);
+                    soundPack.sounds = new List<SoundService.SoundOption>();
+                    soundPacks.Add(soundPack);
+                }
+            }
+            
             serializedObject.ApplyModifiedProperties();
             serializedObject.Update();
             _list.DoLayoutList();
