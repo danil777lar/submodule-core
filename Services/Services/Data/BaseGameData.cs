@@ -21,6 +21,7 @@ namespace Larje.Core.Services
     public partial class Settings
     {
         public bool Vibration = true;
+        public bool SoundGlobal = true;
         public float SoundValue = 1f;
         public float MusicValue = 1f;
     }

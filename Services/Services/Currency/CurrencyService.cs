@@ -36,7 +36,7 @@ namespace Larje.Core.Services
         public bool TrySpendCurrency(CurrencyType currency, CurrencyPlacementType placement, int count)
         {
             int currentCount = GetCurrency(currency, placement);
-            if (currentCount > count)
+            if (currentCount < count)
             {
                 return false;
             }
@@ -55,13 +55,13 @@ namespace Larje.Core.Services
 
         public int GetCurrency(CurrencyType currency, CurrencyPlacementType placement)
         {
-            CurrencyData currencyData = _currencyDatas.Find(x => x.currencyType == currency);
+            CurrencyData currencyData = _currencyDatas.Find(x => x.CurrencyType == currency);
             if (currencyData == null)
             {
                 return 0;
             }
 
-            PlacementData placementData = currencyData.placements.Find(x => x.currencyPlacementType == placement);
+            PlacementData placementData = currencyData.placements.Find(x => x.CurrencyPlacementType == placement);
             if (placementData == null)
             {
                 return 0;
@@ -72,24 +72,17 @@ namespace Larje.Core.Services
 
         public void SetCurrency(CurrencyType currency, CurrencyPlacementType placement, int count)
         {
-            CurrencyData currencyData = _currencyDatas.Find(x => x.currencyType == currency);
+            CurrencyData currencyData = _currencyDatas.Find(x => x.CurrencyType == currency);
             if (currencyData == null)
             {
-                currencyData = new CurrencyData
-                {
-                    currencyType = currency,
-                    placements = new List<PlacementData>()
-                };
+                currencyData = new CurrencyData(currency);
                 _currencyDatas.Add(currencyData);
             }
 
-            PlacementData placementData = currencyData.placements.Find(x => x.currencyPlacementType == placement);
+            PlacementData placementData = currencyData.placements.Find(x => x.CurrencyPlacementType == placement);
             if (placementData == null)
             {
-                placementData = new PlacementData
-                {
-                    currencyPlacementType = placement
-                };
+                placementData = new PlacementData(placement);
                 currencyData.placements.Add(placementData);
             }
 

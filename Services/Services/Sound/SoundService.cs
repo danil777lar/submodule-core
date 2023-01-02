@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using MoreMountains.Tools;
 using UnityEngine;
 
 namespace Larje.Core.Services
@@ -8,23 +9,8 @@ namespace Larje.Core.Services
     [BindService(typeof(SoundService))]
     public class SoundService : Service
     {
-        [Serializable] public class SoundPack
-        {
-            public SoundType soundType;
-            public List<SoundOption> sounds;
-        }
-        [Serializable] public class SoundOption
-        {
-            public AudioClip clip;
-            public float volume = 1f;
-
-            public SoundOption() 
-            {
-                volume = 1f;
-            }
-        }
-
         [SerializeField] private SoundServiceConfig _config;
+        [InjectService] private DataService _dataService;
 
         public override void Init() { }
 
@@ -86,9 +72,17 @@ namespace Larje.Core.Services
             source.transform.SetParent(gameObject.transform);
             source.transform.localPosition = Vector3.zero;
             source.clip = clip;
-            source.volume = volume;
             source.loop = loop;
             source.pitch += UnityEngine.Random.Range(-0.1f, 0.1f);
+            if (_dataService.Data.Settings.SoundGlobal)
+            {
+                source.volume = volume;
+            }
+            else
+            {
+                source.volume = 0f;
+            }
+
             source.Play();
 
             if (!loop)
@@ -97,6 +91,25 @@ namespace Larje.Core.Services
             }
 
             return source;
+        }
+        
+        [Serializable] 
+        public class SoundPack
+        {
+            public SoundType soundType;
+            public List<SoundOption> sounds;
+        }
+        
+        [Serializable] 
+        public class SoundOption
+        {
+            public AudioClip clip;
+            public float volume = 1f;
+
+            public SoundOption() 
+            {
+                volume = 1f;
+            }
         }
     }
 }
