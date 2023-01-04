@@ -1,14 +1,35 @@
-/*public enum UIScreenType
+/*
+#region UI
+public enum UIScreenType
 {
-    Loading
+
 }
 
 public enum UIPopupType
 {
-    Loading,
-    Confirm
+
 }
+
+public enum UIToastType
+{
+    
+}
+#endregion
+
+#region Currency
+public enum CurrencyType
+{
+    
+}
+
+public enum CurrencyPlacementType
+{
+    
+}
+#endregion
 
 public enum SoundType
 {
-}*/
+
+}
+*/

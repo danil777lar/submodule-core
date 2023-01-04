@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
 
-namespace Larje.Core.Services.LevelManagement
+namespace Larje.Core.Services
 {
     [CustomEditor(typeof(LevelManagerService))]
     public class LevelManagerServiceEditor : Editor

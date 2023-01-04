@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using MoreMountains.Tools;
-using Unity.VisualScripting;
 using UnityEditor;
-using Random = System.Random;
+using Larje.Core.Services;
 
-namespace Larje.Core.Services.LevelManagement
+namespace Larje.Core.Services
 {
     [BindService(typeof(LevelManagerService))]
     public class LevelManagerService : Service

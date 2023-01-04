@@ -1,4 +1,4 @@
-namespace Larje.Core.Services.LevelManagement
+namespace Larje.Core.Services
 {
     public interface ILevelEndHandler
     {

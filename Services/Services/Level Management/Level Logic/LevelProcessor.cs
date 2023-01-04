@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Larje.Core.Services.LevelManagement
+namespace Larje.Core.Services
 {
     public abstract class LevelProcessor : MonoBehaviour
     {
