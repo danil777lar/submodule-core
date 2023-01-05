@@ -16,9 +16,9 @@ namespace Larje.Core.Services.UI
         public event Action Closed;
 
 
-        public UIScreen Open(Dictionary<string, object> arguments)
+        public UIScreen Open(Dictionary<string, object> args)
         {
-            OnOpen(arguments);
+            OnOpen(args);
             return this;
         }
 
@@ -34,7 +34,7 @@ namespace Larje.Core.Services.UI
             Destroy(gameObject, delay);
         }
 
-        protected virtual void OnOpen(Dictionary<string, object> arguments)
+        protected virtual void OnOpen(Dictionary<string, object> args)
         {
             Opened?.Invoke();   
         }
