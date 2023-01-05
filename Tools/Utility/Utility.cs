@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Larje.Core.Utility
+namespace Larje.Core.Tools
 {
     public static class Utility
     {
