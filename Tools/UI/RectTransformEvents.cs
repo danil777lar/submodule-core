@@ -6,14 +6,15 @@ using UnityEngine.EventSystems;
 
 namespace Larje.Core.Services.UI
 {
-    public class RectTransformEvents : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+    public class RectTransformEvents : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IDragHandler
     {
-        public Action<PointerEventData> PointerDown;
-        public Action<PointerEventData> PointerMove;
-        public Action<PointerEventData> PointerUp;
-        public Action<PointerEventData> PointerEnter;
-        public Action<PointerEventData> PointerExit;
-        public Action<PointerEventData> PointerClick;
+        public event Action<PointerEventData> PointerDown;
+        public event Action<PointerEventData> PointerMove;
+        public event Action<PointerEventData> PointerUp;
+        public event Action<PointerEventData> PointerEnter;
+        public event Action<PointerEventData> PointerExit;
+        public event Action<PointerEventData> PointerClick;
+        public event Action<PointerEventData> PointerDrag;
 
 
         public void OnPointerDown(PointerEventData eventData)
@@ -44,6 +45,11 @@ namespace Larje.Core.Services.UI
         public void OnPointerClick(PointerEventData eventData)
         {
             PointerClick?.Invoke(eventData);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            PointerDrag?.Invoke(eventData);
         }
     }
 }
