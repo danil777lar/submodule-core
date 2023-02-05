@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,14 +9,18 @@ namespace Larje.Core.Services
     public class CurrencyData
     {
         [SerializeField, HideInInspector] private string inspectorName;
-        [HideInInspector] public readonly CurrencyType CurrencyType;
-        public List<PlacementData> placements;
+        [SerializeField] private CurrencyType currencyType;
+        [SerializeField] public List<PlacementData> placements;
 
-        public CurrencyData(CurrencyType currencyType)
+        public CurrencyType CurrencyType => currencyType;
+        
+        public CurrencyData Build(CurrencyType currencyType)
         {
-            CurrencyType = currencyType;
+            this.currencyType = currencyType;
             inspectorName = Enum.GetName(typeof(CurrencyType), currencyType);
             placements = new List<PlacementData>();
+
+            return this;
         }
     }
 
@@ -23,13 +28,17 @@ namespace Larje.Core.Services
     public class PlacementData
     {
         [SerializeField, HideInInspector] private string inspectorName;
-        [HideInInspector] public readonly CurrencyPlacementType CurrencyPlacementType;
-        public int count;
+        [SerializeField] private CurrencyPlacementType currencyPlacementType;
+        [SerializeField] public int count;
+        
+        public CurrencyPlacementType CurrencyPlacementType => currencyPlacementType;
 
-        public PlacementData(CurrencyPlacementType currencyPlacementType)
+        public PlacementData Build(CurrencyPlacementType currencyPlacementType)
         {
-            CurrencyPlacementType = currencyPlacementType;
+            this.currencyPlacementType = currencyPlacementType;
             inspectorName = Enum.GetName(typeof(CurrencyPlacementType), currencyPlacementType);
+            
+            return this;
         }
     }
     

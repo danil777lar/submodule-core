@@ -75,14 +75,14 @@ namespace Larje.Core.Services
             CurrencyData currencyData = _currencyDatas.Find(x => x.CurrencyType == currency);
             if (currencyData == null)
             {
-                currencyData = new CurrencyData(currency);
+                currencyData = new CurrencyData().Build(currency);
                 _currencyDatas.Add(currencyData);
             }
 
             PlacementData placementData = currencyData.placements.Find(x => x.CurrencyPlacementType == placement);
             if (placementData == null)
             {
-                placementData = new PlacementData(placement);
+                placementData = new PlacementData().Build(placement);
                 currencyData.placements.Add(placementData);
             }
 
