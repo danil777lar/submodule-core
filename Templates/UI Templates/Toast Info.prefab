@@ -758,7 +758,7 @@ GameObject:
   - component: {fileID: 6316590875476393578}
   - component: {fileID: 6316590875476393577}
   m_Layer: 5
-  m_Name: _Toast Template
+  m_Name: Toast Info
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -798,7 +798,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 913d3097b10788d40aab70105a2abb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toastType: 0
+  toastType: 1
   closeDelay: 2
   maxToastWidth: 800
   tmp: {fileID: 6316590874643426915}
@@ -946,8 +946,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -2413806693520163455, guid: 19b9304c31017d34f9c39a54ed652cc2,
-    type: 3}
+  m_Sprite: {fileID: -2413806693520163455, guid: 19b9304c31017d34f9c39a54ed652cc2, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1

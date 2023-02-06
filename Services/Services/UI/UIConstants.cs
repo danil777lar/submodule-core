@@ -17,7 +17,7 @@ namespace ProjectConstants
     #if !PROJECT_CONSTANT_UITOASTTYPE
     public enum UIToastType
     {
-
+        Info = 1
     }
     #endif
 }

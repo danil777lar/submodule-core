@@ -3,16 +3,16 @@ namespace ProjectConstants
     #if !PROJECT_CONSTANT_CURRENCYTYPE
     public enum CurrencyType
     {
-        Coins,
-        Gems
+        Coins = 1,
+        Gems = 2
     }
     #endif
 
     #if !PROJECT_CONSTANT_CURRENCYPLACEMENTTYPE
     public enum CurrencyPlacementType
     {
-        Global,
-        Level
+        Global = 1,
+        Level = 2
     }
     #endif
 } 
