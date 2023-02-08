@@ -1,3 +1,5 @@
+using System;
+
 namespace ProjectConstants
 {
     #if !PROJECT_CONSTANT_CURRENCYTYPE
@@ -10,6 +12,13 @@ namespace ProjectConstants
 
     #if !PROJECT_CONSTANT_CURRENCYPLACEMENTTYPE
     public enum CurrencyPlacementType
+    {
+        Global = 1,
+        Level = 2
+    }
+    
+    [Flags]
+    public enum CurrencyPlacementTypes
     {
         Global = 1,
         Level = 2

@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -35,16 +36,19 @@ public class ProjectConstantsConfig : ScriptableObject
     public void LoadDefaultValues()
     {
         constants.Clear();
-        Type[] allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes()).ToArray();
-        foreach (Type type in allTypes)
+        List<Type> allTypes = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(x => x.IsEnum && x.Namespace == NAMESPACE)
+            .ToList();
+        List<Type> simpleEnums = allTypes.FindAll(x => Attribute.GetCustomAttribute(x, typeof (FlagsAttribute)) == null);
+        List<Type> flagEnums = allTypes.FindAll(x => Attribute.GetCustomAttribute(x, typeof (FlagsAttribute)) != null);
+        foreach (Type type in simpleEnums)
         {
-            if (type.Namespace == NAMESPACE && type.IsEnum)
-            {
-                Constant constant = new Constant();
-                constant.Name = type.Name;
-                constant.Values = Enum.GetNames(type);
-                constants.Add(constant);
-            }
+            Constant constant = new Constant();
+            constant.Name = type.Name;
+            constant.Values = Enum.GetNames(type);
+            constant.UseFlags = flagEnums.Select(x => x.Name).Where(s => s.Contains(constant.Name)).ToList().Count > 0;
+            constants.Add(constant);
         }
     }
 

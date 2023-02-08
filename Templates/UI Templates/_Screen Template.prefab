@@ -46,6 +46,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2c0e494a2bf96f4a81996ed1321aeae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useForceDelay: 0
+  forceDelay: 0
   _eventType: -1
 --- !u!114 &8651540384859406395
 MonoBehaviour:
@@ -143,7 +145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Feedbacks: []
-  InitializationMode: 2
+  InitializationMode: 1
   SafeMode: 3
   Direction: 0
   AutoChangeDirectionOnEnd: 1
@@ -387,6 +389,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _screenType: 0
+  rewriteDeviceBackButton: 0
 --- !u!223 &4994452837015288185
 Canvas:
   m_ObjectHideFlags: 0
