@@ -55,6 +55,8 @@ public class ProjectConstantsConfig : ScriptableObject
     private string GetScriptText()
     {
         string script = $"using System;\nnamespace {NAMESPACE}\n{{\n";
+        script += "//SCRIPT IS GENERATED AUTOMATICALLY\n";
+        script += "//TO CHANGE THE CONTENT YOU SHOULD USE THE CONFIG\n";
         foreach (Constant constant in constants)
         {
             int index = 0;
