@@ -26,7 +26,7 @@ namespace Larje.Core.Services.UI
         public event Action Shown;
         public event Action Hidden;
 
-        public UIPopup Open(Dictionary<string, object> args)
+        public UIPopup Open(PopupOpenProperties args)
         {
             OnOpened(args);
 
@@ -70,7 +70,7 @@ namespace Larje.Core.Services.UI
             }
         }
 
-        protected virtual void OnOpened(Dictionary<string, object> args)
+        protected virtual void OnOpened(PopupOpenProperties args)
         {
             Opened?.Invoke();
         }

@@ -27,7 +27,7 @@ namespace Larje.Core.Services.UI
                     _openedPopups.Peek().Closed -= OnLastClosed;
                     HandleLastPopup(properties.combinationType);
                 }
-                _openedPopups.Push(GameObject.Instantiate(popupPrefab, _options.PopupHolder).Open(properties.popupArguments));
+                _openedPopups.Push(GameObject.Instantiate(popupPrefab, _options.PopupHolder).Open(properties));
                 _openedPopups.Peek().GetComponent<Canvas>().sortingOrder = _options.StartSortOrder + _openedPopups.Count;
                 _openedPopups.Peek().Closed += OnLastClosed;
                 return _openedPopups.Peek();

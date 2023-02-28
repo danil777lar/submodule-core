@@ -9,7 +9,6 @@ namespace Larje.Core.Services.UI
     {
         public readonly UIPopupType popupType;
         public PopupCombinationType combinationType = PopupCombinationType.Close;
-        public Dictionary<string, object> popupArguments = new Dictionary<string, object>();
 
         public PopupOpenProperties(UIPopupType popupType)
         {

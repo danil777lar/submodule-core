@@ -8,7 +8,6 @@ namespace Larje.Core.Services.UI
     public class ScreenOpenProperties
     {
         public UIScreenType screenType;
-        public Dictionary<string, object> screenArguments = new Dictionary<string, object>();
 
         public ScreenOpenProperties(UIScreenType screenType)
         {

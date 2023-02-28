@@ -38,7 +38,7 @@ namespace Larje.Core.Services.UI
                     _openedScreenProperties = args;
                 }
 
-                _openedScreen = GameObject.Instantiate(screenToOpen, _options.ScreenHolder).Open(args.screenArguments);
+                _openedScreen = GameObject.Instantiate(screenToOpen, _options.ScreenHolder).Open(args);
                 _openedScreen.GetComponent<Canvas>().sortingOrder = _options.StartSortOrder;
 
                 if (screenToClose)
