@@ -7,8 +7,8 @@ using UnityEditorInternal;
 
 namespace Larje.Core.Services
 {
-    [CustomEditor(typeof(LevelManagerService))]
-    public class LevelManagerServiceEditor : Editor
+    [CustomEditor(typeof(LevelManagerAddressablesService))]
+    public class LevelManagerAddressablesServiceEditor : Editor
     {
         private ReorderableList _list;
         private float _buttonWidth = 50;
@@ -31,7 +31,7 @@ namespace Larje.Core.Services
                 addToRandomList.boolValue = EditorGUI.Toggle(toggleRect, addToRandomList.boolValue);
                 if (GUI.Button(buttonRect, "Spawn"))
                 {
-                    (target as LevelManagerService).SpawnLevelInDebugMode(key.stringValue);
+                    (target as LevelManagerAddressablesService).SpawnLevelInDebugMode(key.stringValue);
                 }
             };
         }

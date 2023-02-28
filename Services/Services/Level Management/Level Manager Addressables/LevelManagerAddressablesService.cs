@@ -11,12 +11,13 @@ using Larje.Core.Services;
 
 namespace Larje.Core.Services
 {
-    [BindService(typeof(LevelManagerService))]
-    public class LevelManagerService : Service
+    [BindService(typeof(ILevelManagerService))]
+    public class LevelManagerAddressablesService : Service, ILevelManagerService
     {
         [SerializeField] private bool editorMode;
         [SerializeField] private Transform levelHolder;
         [SerializeField, HideInInspector] private LevelOptions[] levels;
+        
         [InjectService] private DataService _dataService;
 
         private bool _firstLevelSpawn = true;
@@ -27,9 +28,7 @@ namespace Larje.Core.Services
             get;
             private set;
         }
-        public int CurrentLevelCount => _dataService.Data.LevelManagerData.CurrentLevelCount;
-        public int CurrentLevelIndex => GetLevelId();
-
+        
         public override void Init()
         {
             #if !UNITY_EDITOR
@@ -52,8 +51,8 @@ namespace Larje.Core.Services
             InstantiatingLevel = true;
 
             GetLevelHolder().MMDestroyAllChildren();
-            int levelId = GetLevelId();
-            _dataService.Data.LevelManagerData.LastLevelIndex = levelId;
+            int levelId = GetCurrentLevelIndex();
+            _dataService.Data.levelManagerAddressablesData.LastLevelIndex = levelId;
             _dataService.Save();
             
             GameObject levelInstance = await Addressables.InstantiateAsync("Levels/" + levels[levelId].Key, GetLevelHolder()).Task;
@@ -77,20 +76,9 @@ namespace Larje.Core.Services
             _firstLevelSpawn = false;
         }
 
-        public void IncrementLevelId()
-        {
-            _dataService.Data.LevelManagerData.CurrentLevelCount++;
-            List<int> randomLevels = _dataService.Data.LevelManagerData.RandomLevels;
-            if (randomLevels != null && randomLevels.Count > 0)
-            {
-                randomLevels.RemoveAt(0);
-            }
-            _dataService.Save();
-        }
-
         public async void SpawnLevelInDebugMode(string key)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             GetLevelHolder().MMDestroyAllChildren();
             var handle = Addressables.LoadAssetAsync<GameObject>($"Levels/{key}");
             while (!handle.IsDone)
@@ -98,7 +86,18 @@ namespace Larje.Core.Services
                 await Task.Yield();
             }
             PrefabUtility.InstantiatePrefab(handle.Result, GetLevelHolder());
-            #endif
+#endif
+        }
+
+        public void IncrementLevelId()
+        {
+            _dataService.Data.levelManagerAddressablesData.CurrentLevelCount++;
+            List<int> randomLevels = _dataService.Data.levelManagerAddressablesData.RandomLevels;
+            if (randomLevels != null && randomLevels.Count > 0)
+            {
+                randomLevels.RemoveAt(0);
+            }
+            _dataService.Save();
         }
 
         public void TryStartCurrentLevel(LevelProcessor.StartData data)
@@ -117,22 +116,32 @@ namespace Larje.Core.Services
             }
         }
 
-        private int GetLevelId()
+        public float GetCurrentLevelProgress()
         {
-            int id = _dataService.Data.LevelManagerData.CurrentLevelCount;
+            return _currentLevel.GetLevelProgress();
+        }
+
+        public int GetCurrentLevelCount()
+        {
+            return _dataService.Data.levelManagerAddressablesData.CurrentLevelCount;
+        }
+        
+        public int GetCurrentLevelIndex()
+        {
+            int id = _dataService.Data.levelManagerAddressablesData.CurrentLevelCount;
             if (id >= levels.Length)
             {
-                List<int> randomLevels = _dataService.Data.LevelManagerData.RandomLevels;
+                List<int> randomLevels = _dataService.Data.levelManagerAddressablesData.RandomLevels;
                 if (randomLevels == null || randomLevels.Count == 0)
                 {
                     randomLevels = new List<int>();
-                    _dataService.Data.LevelManagerData.RandomLevels = randomLevels;
+                    _dataService.Data.levelManagerAddressablesData.RandomLevels = randomLevels;
                     foreach (LevelOptions level in levels.Where(x => x.AddToRandomList))
                     {
                         randomLevels.Add(levels.ToList().IndexOf(level));
                     }
                     randomLevels.MMShuffle();
-                    if (randomLevels.Count > 1 && randomLevels[0] == _dataService.Data.LevelManagerData.LastLevelIndex)
+                    if (randomLevels.Count > 1 && randomLevels[0] == _dataService.Data.levelManagerAddressablesData.LastLevelIndex)
                     {
                         randomLevels.MMSwap(0, UnityEngine.Random.Range(1, randomLevels.Count));
                     }

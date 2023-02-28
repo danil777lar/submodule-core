@@ -7,15 +7,14 @@ using UnityEngine;
 
 namespace Larje.Core.Services
 {
-    [BindService(typeof(CurrencyService))]
-    public class CurrencyService : Service
+    [BindService(typeof(ICurrencyService))]
+    public class CurrencyService : Service, ICurrencyService
     {
         [InjectService] private DataService _dataService;
         private List<CurrencyData> _currencyDatas;
 
         public event Action CurrencyChanged;
-
-
+        
         public override void Init()
         {
             _currencyDatas = _dataService.Data.CurrencyData;

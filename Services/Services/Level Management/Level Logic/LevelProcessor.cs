@@ -22,6 +22,8 @@ namespace Larje.Core.Services
 
         public abstract void TryStopLevel(StopData data);
 
+        public abstract float GetLevelProgress();
+
         protected void StartLevel(StartData data)
         {
             if (!_isLevelPlaying)

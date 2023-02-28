@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using MoreMountains.Tools;
 using ProjectConstants;
 using UnityEngine;
 
 namespace Larje.Core.Services
 {
-    [BindService(typeof(SoundService))]
-    public class SoundService : Service
+    [BindService(typeof(ISoundService))]
+    public class SoundService : Service, ISoundService
     {
         [SerializeField] private SoundServiceConfig _config;
+        
         [InjectService] private DataService _dataService;
 
         public override void Init() { }
@@ -38,9 +37,7 @@ namespace Larje.Core.Services
             }
             return SpawnSoundSource(sound.clip, loop, sound.volume);
         }
-
-
-
+        
         /// <summary>
         /// Спавнит GameObject c AudioSource, помещает в него рандомный клип.
         /// Объект автоматически удаляется после проигрывания клипа.
@@ -53,14 +50,14 @@ namespace Larje.Core.Services
         /// <summary>
         /// Возвращает рандомный звук с настройками громкости из соответствующего набора.
         /// </summary>
-        public SoundOption GetRandomSound(SoundType soundType)
+        private SoundOption GetRandomSound(SoundType soundType)
         {
             SoundPack pack = _config.soundPacks.Find((p) => p.soundType == soundType);
             if (pack == null || pack.sounds.Count <= 0) return null;
             return pack.sounds[UnityEngine.Random.Range(0, pack.sounds.Count)];
         }
 
-        public SoundOption GetSoundByIndex(SoundType soundType, int id) 
+        private SoundOption GetSoundByIndex(SoundType soundType, int id) 
         {
             SoundPack pack = _config.soundPacks.Find((p) => p.soundType == soundType);
             if (pack == null || pack.sounds.Count <= 0) return null;
