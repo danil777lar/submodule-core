@@ -53,7 +53,7 @@ namespace Larje.Core.Tools.PrefabPacker
                         instance = PrefabUtility.InstantiatePrefab(prefab) as PackablePrefab;
                     }
 #else
-                    PackableLevelObject instance = Instantiate(prefab);
+                    PackablePrefab instance = Instantiate(prefab);
 #endif
                     instance.UnpackObject(packedObject.data);
                 }

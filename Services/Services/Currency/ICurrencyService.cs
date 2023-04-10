@@ -1,9 +1,12 @@
+using System;
 using ProjectConstants;
 
 namespace Larje.Core.Services
 {
     public interface ICurrencyService
     {
+        public event Action CurrencyChanged;
+
         public void AddCurrency(CurrencyType currency, CurrencyPlacementType placement, int count);
 
         public void MoveCurrency(CurrencyType currency, CurrencyPlacementType placementFrom, CurrencyPlacementType placementTo);

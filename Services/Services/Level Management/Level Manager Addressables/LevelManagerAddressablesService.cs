@@ -21,14 +21,9 @@ namespace Larje.Core.Services
         [InjectService] private DataService _dataService;
 
         private bool _firstLevelSpawn = true;
+        private bool _isInstantiatingLevel;
         private LevelProcessor _currentLevel;
 
-        public bool InstantiatingLevel
-        {
-            get;
-            private set;
-        }
-        
         public override void Init()
         {
             #if !UNITY_EDITOR
@@ -48,7 +43,7 @@ namespace Larje.Core.Services
                 }
             }
 
-            InstantiatingLevel = true;
+            _isInstantiatingLevel = true;
 
             GetLevelHolder().MMDestroyAllChildren();
             int levelId = GetCurrentLevelIndex();
@@ -72,7 +67,7 @@ namespace Larje.Core.Services
                 Debug.LogError($"Level Service: Prefab with key {levels[levelId].Key} not found");
             }
 
-            InstantiatingLevel = false;
+            _isInstantiatingLevel = false;
             _firstLevelSpawn = false;
         }
 
@@ -114,6 +109,11 @@ namespace Larje.Core.Services
             {
                 _currentLevel.TryStopLevel(data);
             }
+        }
+
+        public bool IsInstantiatingLevel()
+        {
+            return _isInstantiatingLevel;
         }
 
         public float GetCurrentLevelProgress()

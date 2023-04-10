@@ -6,6 +6,8 @@ namespace Larje.Core.Services
 {
     public interface ILevelManagerService
     {
+        public bool IsInstantiatingLevel();
+        
         public int GetCurrentLevelCount();
 
         public int GetCurrentLevelIndex();

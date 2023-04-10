@@ -17,7 +17,7 @@ public class CurrencyCounter : MonoBehaviour
     [SerializeField] private string leftModificator;
     [SerializeField] private string rightModificator = "<sprite index=0>";
         
-    [InjectService] private CurrencyService _currencyService;
+    [InjectService] private ICurrencyService _currencyService;
     
     private TextMeshProUGUI _tmp;
     
