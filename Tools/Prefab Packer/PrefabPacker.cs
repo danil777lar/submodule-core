@@ -12,9 +12,12 @@ namespace Larje.Core.Tools.PrefabPacker
         [SerializeField] private PrefabPackerConfig config;
         [SerializeField, MMReadOnly] private List<PackedObject> packedObjects;
 
+        public event Action EventLevelUnpacked;
+
         private void Start()
         {
             UnpackLevel();
+            EventLevelUnpacked?.Invoke();
         }
 
         [ContextMenu("Pack Level")]
