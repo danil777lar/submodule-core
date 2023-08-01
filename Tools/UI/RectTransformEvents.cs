@@ -8,48 +8,48 @@ namespace Larje.Core.Services.UI
 {
     public class RectTransformEvents : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerMoveHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IDragHandler
     {
-        public event Action<PointerEventData> PointerDown;
-        public event Action<PointerEventData> PointerMove;
-        public event Action<PointerEventData> PointerUp;
-        public event Action<PointerEventData> PointerEnter;
-        public event Action<PointerEventData> PointerExit;
-        public event Action<PointerEventData> PointerClick;
-        public event Action<PointerEventData> PointerDrag;
+        public event Action<PointerEventData> EventPointerDown;
+        public event Action<PointerEventData> EventPointerMove;
+        public event Action<PointerEventData> EventPointerUp;
+        public event Action<PointerEventData> EventPointerEnter;
+        public event Action<PointerEventData> EventPointerExit;
+        public event Action<PointerEventData> EventPointerClick;
+        public event Action<PointerEventData> EventPointerDrag;
 
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            PointerDown?.Invoke(eventData);
+            EventPointerDown?.Invoke(eventData);
         }
 
         public void OnPointerMove(PointerEventData eventData)
         {
-            PointerMove?.Invoke(eventData);
+            EventPointerMove?.Invoke(eventData);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            PointerUp?.Invoke(eventData);
+            EventPointerUp?.Invoke(eventData);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            PointerEnter?.Invoke(eventData);
+            EventPointerEnter?.Invoke(eventData);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            PointerExit?.Invoke(eventData);
+            EventPointerExit?.Invoke(eventData);
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            PointerClick?.Invoke(eventData);
+            EventPointerClick?.Invoke(eventData);
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            PointerDrag?.Invoke(eventData);
+            EventPointerDrag?.Invoke(eventData);
         }
     }
 }

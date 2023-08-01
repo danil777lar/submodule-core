@@ -32,7 +32,7 @@ namespace Larje.Core.Services.UI
 
             if (_closeByBackgroundClick)
             {
-                _background.PointerClick += (x) => Close();
+                _background.EventPointerClick += (x) => Close();
             }
 
             return this;
