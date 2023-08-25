@@ -111,14 +111,14 @@ namespace Larje.Core.Services
             }
         }
 
+        public LevelProcessor.LevelData GetCurrentLevelData()
+        {
+            return _currentLevel.GetLevelData();
+        }
+
         public bool IsInstantiatingLevel()
         {
             return _isInstantiatingLevel;
-        }
-
-        public float GetCurrentLevelProgress()
-        {
-            return _currentLevel.GetLevelProgress();
         }
 
         public int GetCurrentLevelCount()

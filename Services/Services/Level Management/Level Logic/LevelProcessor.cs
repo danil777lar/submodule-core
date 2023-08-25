@@ -13,8 +13,8 @@ namespace Larje.Core.Services
 
         public abstract void TryStopLevel(StopData data);
 
-        public abstract float GetLevelProgress();
-
+        public abstract LevelData GetLevelData();
+        
         protected void StartLevel(StartData data)
         {
             if (!_isLevelPlaying)
@@ -34,6 +34,8 @@ namespace Larje.Core.Services
                 _isLevelPlaying = false;
             }
         }
+
+        public abstract class LevelData { }
 
         public abstract class StartData { }
 

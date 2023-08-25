@@ -50,7 +50,7 @@ namespace Larje.Core.Services
         public bool CheckEnoughCurrency(CurrencyType currency, CurrencyPlacementType placement, int count)
         {
             int currentCount = GetCurrency(currency, placement);
-            return currentCount <= count;
+            return currentCount >= count;
         }
 
         public int GetCurrency(CurrencyType currency, CurrencyPlacementType placement)

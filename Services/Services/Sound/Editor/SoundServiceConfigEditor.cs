@@ -50,7 +50,7 @@ namespace Larje.Core.Services
                     };
                     subList.drawHeaderCallback = (Rect subRect) =>
                     {
-                        string typeName = Enum.GetName(typeof(ProjectConstants.SoundType), (ProjectConstants.SoundType)soundType.enumValueIndex);
+                        string typeName = Enum.GetNames(typeof(ProjectConstants.SoundType))[soundType.enumValueIndex];
                         EditorGUI.LabelField(new Rect(subRect.x, subRect.y, subRect.width, subRect.height), typeName);
                     };
                     _subLists[listKey] = subList;

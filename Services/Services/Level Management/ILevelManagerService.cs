@@ -16,8 +16,6 @@ namespace Larje.Core.Services
         
         public void IncrementLevelId();
         
-        public float GetCurrentLevelProgress();
-
         public void TryStartCurrentLevel(LevelProcessor.StartData data);
 
         public void TryStopCurrentLevel(LevelProcessor.StopData data);
