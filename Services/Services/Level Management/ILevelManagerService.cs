@@ -12,6 +12,8 @@ namespace Larje.Core.Services
 
         public int GetCurrentLevelIndex();
 
+        public LevelProcessor.LevelData GetCurrentLevelData();
+
         public void SpawnCurrentLevel();
         
         public void IncrementLevelId();
