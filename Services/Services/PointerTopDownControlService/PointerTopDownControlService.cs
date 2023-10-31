@@ -11,6 +11,7 @@ using UnityEngine.EventSystems;
 [BindService(typeof(PointerTopDownControlService))]
 public class PointerTopDownControlService : Service
 {
+    [SerializeField, Min(1)] private int cameraMoveSmooth;
     [SerializeField] private float holdTime = 1f;
     [SerializeField] private float cameraSensitivity = 0.01f;
     [SerializeField] private LayerMask mask; 
@@ -21,7 +22,8 @@ public class PointerTopDownControlService : Service
     private GameObject _playCamera;
     private RectTransformEvents _rect;
     private IPlayerInputDragTarget _dragTarget;
-
+    private List<Vector2> _lastDelta;
+        
     public event Action<PlayerInputCommandData> EventPlayerCommand;
     
     public override void Init()
@@ -54,18 +56,21 @@ public class PointerTopDownControlService : Service
         _pointerDragged = true;
 
         TryStopHold();
+
+        Vector2 delta = GetCameraDelta(data.delta);
         if (_dragTarget != null)
         {
-            _dragTarget.GetTransform().position += new Vector3(data.delta.x, 0f, data.delta.y) * cameraSensitivity;
+            _dragTarget.GetTransform().position += new Vector3(delta.x, 0f, delta.y) * cameraSensitivity;
         }
         else
         {
-            _playCamera.transform.position += new Vector3(-data.delta.x, 0f, -data.delta.y) * cameraSensitivity;   
+            _playCamera.transform.position += new Vector3(-delta.x, 0f, -delta.y) * cameraSensitivity;   
         }
     }
 
     private void OnPointerDown(PointerEventData data)
     {
+        _lastDelta = new List<Vector2>();
         Ray ray = _camera.ScreenPointToRay(data.position);
         if (Physics.Raycast(ray, out RaycastHit hit, 1000, mask))
         {
@@ -111,5 +116,19 @@ public class PointerTopDownControlService : Service
     private void TryStopHold()
     {
         _holdTween?.Kill();
+    }
+
+    private Vector2 GetCameraDelta(Vector2 newDelta)
+    {
+        _lastDelta.Add(newDelta);
+        if (_lastDelta.Count > cameraMoveSmooth)
+        {
+            _lastDelta.RemoveAt(0);
+        }
+
+        Vector2 result = Vector2.zero;
+        _lastDelta.ForEach(x => result += x);
+        result /= _lastDelta.Count;
+        return result;
     }
 }
