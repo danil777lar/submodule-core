@@ -1,4 +1,5 @@
-#if UNITY_2022_3_OR_NEWER
+#if DREAMTECK_SPLINES
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -72,8 +73,7 @@ namespace Larje.Core.Tools.RoomGenerator
             BuildPlane(aUp, bUp, dUp, cUp, data.vertOffset + 16, data.verts, data.tris);
         }
 
-        private static void BuildPlane(Vector3 a, Vector3 b, Vector3 c, Vector3 d, int vertOffset, List<Vector3> verts,
-            List<int> tris)
+        private static void BuildPlane(Vector3 a, Vector3 b, Vector3 c, Vector3 d, int vertOffset, List<Vector3> verts, List<int> tris)
         {
             verts.AddRange(new Vector3[] { a, b, c, d });
             tris.AddRange(new int[] { 0 + vertOffset, 1 + vertOffset, 2 + vertOffset });
@@ -120,6 +120,8 @@ namespace Larje.Core.Tools.RoomGenerator
             public int vertOffset;
             public List<Vector3> verts;
             public List<int> tris;
+            
+            public List<SplineWallHole.Data> holes;
         }
     }
 }

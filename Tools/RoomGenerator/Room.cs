@@ -1,4 +1,5 @@
-#if UNITY_2022_3_OR_NEWER
+#if DREAMTECK_SPLINES
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -11,6 +12,8 @@ namespace Larje.Core.Tools.RoomGenerator
     public class Room : MonoBehaviour
     {
         [SerializeField] private float radius;
+        [SerializeField, Range(0f, 360f)] private float rotate;
+        [SerializeField] private Vector2 scale = new Vector2(1f, 1f);
         [SerializeField, Min(3)] private int wallsCount = 3;
         [SerializeField] private List<bool> doors;
         [SerializeField] private bool rebuildOnStart = false;
@@ -166,8 +169,8 @@ namespace Larje.Core.Tools.RoomGenerator
             List<Vector3> vertices = new List<Vector3>();
             for (int i = 0; i < wallsCount; i++)
             {
-                float angle = (360f / wallsCount) * i * Mathf.Deg2Rad;
-                Vector3 vert = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * radius;
+                float angle = (360f / wallsCount * i + rotate) * Mathf.Deg2Rad;
+                Vector3 vert = new Vector3(Mathf.Cos(angle) * scale.x, 0f, Mathf.Sin(angle) * scale.y) * radius;
                 vertices.Add(vert);
             }
 

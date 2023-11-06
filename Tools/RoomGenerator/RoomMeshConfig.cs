@@ -1,4 +1,5 @@
-#if UNITY_2022_3_OR_NEWER
+#if DREAMTECK_SPLINES
+
 using UnityEngine;
 
 namespace Larje.Core.Tools.RoomGenerator

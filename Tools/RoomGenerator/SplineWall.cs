@@ -1,18 +1,35 @@
-#if UNITY_2022_3_OR_NEWER
+#if DREAMTECK_SPLINES
+
 using System.Collections.Generic;
+using System.Linq;
+using Dreamteck.Splines;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Splines;
 
 namespace Larje.Core.Tools.RoomGenerator
 {
-    [RequireComponent(typeof(SplineContainer))]
+    [RequireComponent(typeof(SplineComputer))]
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
     [RequireComponent(typeof(MeshCollider))]
     public class SplineWall : MonoBehaviour
     {
         [SerializeField] private bool rebuildOnStart = false;
+        
+        private SplineComputer _spline;
+        
+        public SplineComputer SplineInstance
+        {
+            get
+            {
+                if (_spline == null)
+                {
+                    _spline = GetComponent<SplineComputer>();
+                }
+
+                return _spline;
+            }
+        }
 
         public void Initialize()
         {
@@ -53,23 +70,24 @@ namespace Larje.Core.Tools.RoomGenerator
         private void Rebuild()
         {
             Mesh mesh = GetMesh();
-
-            SplineContainer spline = GetComponent<SplineContainer>();
-
-            if (spline.Spline == null)
+            
+            if (SplineInstance == null)
             {
                 return;
             }
-
+            
+            List<SplineWallHole.Data> holes = new List<SplineWallHole.Data>();
+            GetComponentsInChildren<SplineWallHole>().ToList().ForEach(x => holes.Add(x.GetData()));
+            
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
 
             List<Vector3> points = new List<Vector3>();
-            BezierKnot[] knots = spline.Spline.ToArray();
+            SplinePoint[] knots = SplineInstance.GetPoints();
 
             for (int i = 0; i < knots.Length; i++)
             {
-                points.Add(knots[i].Position);
+                points.Add(knots[i].position);
             }
 
             float height = RoomMeshConfig.Instance.WallHeight;
@@ -77,12 +95,12 @@ namespace Larje.Core.Tools.RoomGenerator
 
             SubMeshDescriptor subMeshBottom = new SubMeshDescriptor();
             subMeshBottom.indexStart = triangles.Count;
-            BuildWall(points, vertices, triangles, 0, height * percent);
+            BuildWall(points, vertices, triangles, 0, height * percent, holes);
             subMeshBottom.indexCount = triangles.Count - subMeshBottom.indexStart;
 
             SubMeshDescriptor subMeshTop = new SubMeshDescriptor();
             subMeshTop.indexStart = triangles.Count;
-            BuildWall(points, vertices, triangles, height * percent, height * (1f - percent));
+            BuildWall(points, vertices, triangles, height * percent, height * (1f - percent), holes);
             subMeshTop.indexCount = triangles.Count - subMeshTop.indexStart;
 
             mesh.Clear();
@@ -103,12 +121,15 @@ namespace Larje.Core.Tools.RoomGenerator
                 RoomMeshConfig.Instance.WallTopMaterial
             };
 
-            MeshCollider collider = GetComponent<MeshCollider>();
-            collider.sharedMesh = mesh;
+            if (mesh.vertices.Length > 0)
+            {
+                MeshCollider collider = GetComponent<MeshCollider>();
+                collider.sharedMesh = mesh;   
+            }
         }
 
         private void BuildWall(List<Vector3> points, List<Vector3> vertices, List<int> triangles, float offset,
-            float height)
+            float height, List<SplineWallHole.Data> holes)
         {
             for (int i = 0; i < points.Count - 1; i++)
             {
@@ -120,6 +141,7 @@ namespace Larje.Core.Tools.RoomGenerator
                 data.vertOffset = vertices.Count;
                 data.verts = vertices;
                 data.tris = triangles;
+                data.holes = holes;
 
                 if (i > 0)
                 {
