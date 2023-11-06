@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Larje.Core.Tools.RoomGenerator
 {
-    [CreateAssetMenu(fileName = "Wall Config", menuName = "Configs/Wall Config")]
+    [CreateAssetMenu(fileName = "Wall Config", menuName = "Configs/WallConfig")]
     public class RoomMeshConfig : ScriptableObject
     {
         [SerializeField, Min(0f)] private float wallWidth;
