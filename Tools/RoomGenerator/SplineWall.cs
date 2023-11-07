@@ -51,7 +51,7 @@ namespace Larje.Core.Tools.RoomGenerator
             }
         }
 
-        private void OnDrawGizmosSelected()
+        private void OnDrawGizmos()
         {
             if (!Application.isPlaying)
             {
@@ -82,16 +82,10 @@ namespace Larje.Core.Tools.RoomGenerator
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
 
-            List<Vector3> points = new List<Vector3>();
-            SplinePoint[] knots = SplineInstance.GetPoints();
-
-            for (int i = 0; i < knots.Length; i++)
-            {
-                points.Add(knots[i].position);
-            }
-
             float height = RoomMeshConfig.Instance.WallHeight;
             float percent = RoomMeshConfig.Instance.WallDividePercent;
+
+            List<SplinePoint> points = SplineInstance.GetPoints().ToList();
 
             SubMeshDescriptor subMeshBottom = new SubMeshDescriptor();
             subMeshBottom.indexStart = triangles.Count;
@@ -128,14 +122,18 @@ namespace Larje.Core.Tools.RoomGenerator
             }
         }
 
-        private void BuildWall(List<Vector3> points, List<Vector3> vertices, List<int> triangles, float offset,
+        private void BuildWall(List<SplinePoint> points, List<Vector3> vertices, List<int> triangles, float offset,
             float height, List<SplineWallHole.Data> holes)
         {
             for (int i = 0; i < points.Count - 1; i++)
             {
                 MeshBuildUtilities.WallBuildData data = new MeshBuildUtilities.WallBuildData();
-                data.from = points[i] + Vector3.up * offset;
-                data.to = points[i + 1] + Vector3.up * offset;
+                data.from = points[i].position + Vector3.up * offset;
+                data.to = points[i + 1].position + Vector3.up * offset;
+
+                data.fromDistance = SplineInstance.CalculateLength(0f, SplineInstance.GetPointPercent(i)); 
+                data.toDistance = SplineInstance.CalculateLength(0f, SplineInstance.GetPointPercent(i + 1));
+                
                 data.width = RoomMeshConfig.Instance.WallWidth;
                 data.height = height;
                 data.vertOffset = vertices.Count;
@@ -146,13 +144,13 @@ namespace Larje.Core.Tools.RoomGenerator
                 if (i > 0)
                 {
                     data.usePrev = true;
-                    data.prev = points[i - 1] + Vector3.up * offset;
+                    data.prev = points[i - 1].position + Vector3.up * offset;
                 }
 
                 if (i < points.Count - 2)
                 {
                     data.useNext = true;
-                    data.next = points[i + 2] + Vector3.up * offset;
+                    data.next = points[i + 2].position + Vector3.up * offset;
                 }
 
                 MeshBuildUtilities.BuildWall(data);

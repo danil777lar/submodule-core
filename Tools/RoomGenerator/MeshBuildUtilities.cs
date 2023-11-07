@@ -1,6 +1,7 @@
 #if DREAMTECK_SPLINES
 
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Larje.Core.Tools.RoomGenerator
@@ -9,39 +10,61 @@ namespace Larje.Core.Tools.RoomGenerator
     {
         public static void BuildWall(WallBuildData data)
         {
-            List<float> xPositions = new List<float>();
-            xPositions.Add(0f);
-            xPositions.Add(1f);
+            SortedDictionary<float, bool> xPositions = new SortedDictionary<float, bool>();
+            xPositions.Add(0f, true);
+            xPositions.Add(1f, true);
             
-            List<float> yPositions = new List<float>();
-            yPositions.Add(0f);
-            yPositions.Add(1f);
+            SortedDictionary<float, bool> yPositions = new SortedDictionary<float, bool>();
+            yPositions.Add(0f, true);
+            yPositions.Add(1f, true);
 
             if (data.holes != null)
             {
                 data.holes.ForEach(hole =>
                 {
+                    GetHoleBounds(data, hole, out Vector2 min, out Vector2 max);
                     
-                });   
+                    if (min.x is >= 0f and <= 1f)
+                    {
+                        xPositions.Add(min.x, false);   
+                    }
+                    if (max.x is >= 0f and <= 1f)
+                    {
+                        xPositions.Add(max.x, true);   
+                    }
+                    
+                    if (min.x < 0f && max.x > 0f)
+                    {
+                        xPositions[0f] = false;
+                    }
+                });
             }
 
             for (int y = 0; y < yPositions.Count - 1; y++)
             {
                 for (int x = 0; x < xPositions.Count - 1; x++)
                 {
-                    Vector3 upOffset = Vector3.up * data.height * yPositions[y];
-                    
-                    WallBuildData partData = data;
-                    partData.usePrev = data.usePrev && x == 0;
-                    partData.useNext = data.useNext && x == xPositions.Count - 2;
-                    partData.prev += upOffset; 
-                    partData.from = Vector3.Lerp(data.from, data.to, xPositions[x]) + upOffset;
-                    partData.to = Vector3.Lerp(data.from, data.to, xPositions[x + 1]) + upOffset;
-                    partData.next += upOffset;
-                    partData.height = data.height * (yPositions[y + 1] - yPositions[y]); 
-                    
-                    List<Vector3> points = GetBoxPoints(partData);
-                    data.vertOffset = BuildBox(points, data.vertOffset, data.verts, data.tris);       
+                    if (xPositions.Values.ToArray()[x])
+                    {
+                        Vector3 upOffset = Vector3.up * data.height * yPositions.Keys.ToArray()[y];
+
+                        WallBuildData partData = data;
+
+                        partData.usePrev = data.usePrev && x == 0;
+                        partData.useNext = data.useNext && x == xPositions.Count - 2;
+
+                        partData.from = Vector3.Lerp(data.from, data.to, xPositions.Keys.ToArray()[x]) + upOffset;
+                        partData.to = Vector3.Lerp(data.from, data.to, xPositions.Keys.ToArray()[x + 1]) + upOffset;
+
+                        partData.prev += upOffset;
+                        partData.next += upOffset;
+
+                        partData.height =
+                            data.height * (yPositions.Keys.ToArray()[y + 1] - yPositions.Keys.ToArray()[y]);
+
+                        List<Vector3> points = GetBoxPoints(partData);
+                        data.vertOffset = BuildBox(points, data.vertOffset, data.verts, data.tris);
+                    }
                 }
             }
         }
@@ -152,12 +175,26 @@ namespace Larje.Core.Tools.RoomGenerator
             }
         }
 
+        private static void GetHoleBounds(WallBuildData data, SplineWallHole.Data hole, out Vector2 min, out Vector2 max)
+        {
+            min = Vector2.zero;
+            max = Vector2.zero;
+
+            float length = data.toDistance - data.fromDistance;
+            
+            min.x = ((hole.distance - hole.size.x / 2f) - data.fromDistance) / length;
+            max.x = ((hole.distance + hole.size.x / 2f) - data.fromDistance) / length;
+        }
+
         public struct WallBuildData
         {
             public Vector3 prev;
             public Vector3 from;
             public Vector3 to;
             public Vector3 next;
+
+            public float fromDistance;
+            public float toDistance;
 
             public bool usePrev;
             public bool useNext;
