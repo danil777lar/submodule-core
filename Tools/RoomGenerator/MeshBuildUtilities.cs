@@ -9,13 +9,53 @@ namespace Larje.Core.Tools.RoomGenerator
     {
         public static void BuildWall(WallBuildData data)
         {
+            List<float> xPositions = new List<float>();
+            xPositions.Add(0f);
+            xPositions.Add(1f);
+            
+            List<float> yPositions = new List<float>();
+            yPositions.Add(0f);
+            yPositions.Add(1f);
+
+            if (data.holes != null)
+            {
+                data.holes.ForEach(hole =>
+                {
+                    
+                });   
+            }
+
+            for (int y = 0; y < yPositions.Count - 1; y++)
+            {
+                for (int x = 0; x < xPositions.Count - 1; x++)
+                {
+                    Vector3 upOffset = Vector3.up * data.height * yPositions[y];
+                    
+                    WallBuildData partData = data;
+                    partData.usePrev = data.usePrev && x == 0;
+                    partData.useNext = data.useNext && x == xPositions.Count - 2;
+                    partData.prev += upOffset; 
+                    partData.from = Vector3.Lerp(data.from, data.to, xPositions[x]) + upOffset;
+                    partData.to = Vector3.Lerp(data.from, data.to, xPositions[x + 1]) + upOffset;
+                    partData.next += upOffset;
+                    partData.height = data.height * (yPositions[y + 1] - yPositions[y]); 
+                    
+                    List<Vector3> points = GetBoxPoints(partData);
+                    data.vertOffset = BuildBox(points, data.vertOffset, data.verts, data.tris);       
+                }
+            }
+        }
+
+        private static List<Vector3> GetBoxPoints(WallBuildData data)
+        {
             Vector3 perp = (data.to - data.from).normalized;
             perp = new Vector3(perp.z, 0f, -perp.x);
 
-            Vector3 a = data.from + perp * data.width;
-            Vector3 b = data.from - perp * data.width;
-            Vector3 c = data.to + perp * data.width;
-            Vector3 d = data.to - perp * data.width;
+            List<Vector3> points = new List<Vector3>();
+            points.Add(data.from + perp * data.width);
+            points.Add(data.from - perp * data.width);
+            points.Add(data.to + perp * data.width);
+            points.Add(data.to - perp * data.width);
 
             if (data.usePrev)
             {
@@ -27,7 +67,7 @@ namespace Larje.Core.Tools.RoomGenerator
                 if (LineLineIntersection(out Vector3 interA, prevPointA, data.from - data.prev, toPointA,
                         data.from - data.to))
                 {
-                    a = interA;
+                    points[0] = interA;
                 }
 
                 Vector3 prevPointB = data.prev - prevPerp * data.width;
@@ -35,7 +75,7 @@ namespace Larje.Core.Tools.RoomGenerator
                 if (LineLineIntersection(out Vector3 interB, prevPointB, data.from - data.prev, toPointB,
                         data.from - data.to))
                 {
-                    b = interB;
+                    points[1] = interB;
                 }
             }
 
@@ -49,7 +89,7 @@ namespace Larje.Core.Tools.RoomGenerator
                 if (LineLineIntersection(out Vector3 interC, fromPointC, data.to - data.from, nextPointC,
                         data.to - data.next))
                 {
-                    c = interC;
+                    points[2] = interC;
                 }
 
                 Vector3 fromPointD = data.from - perp * data.width;
@@ -57,20 +97,27 @@ namespace Larje.Core.Tools.RoomGenerator
                 if (LineLineIntersection(out Vector3 interD, fromPointD, data.to - data.from, nextPointD,
                         data.to - data.next))
                 {
-                    d = interD;
+                    points[3] = interD;
                 }
             }
 
-            Vector3 aUp = a + Vector3.up * data.height;
-            Vector3 bUp = b + Vector3.up * data.height;
-            Vector3 cUp = c + Vector3.up * data.height;
-            Vector3 dUp = d + Vector3.up * data.height;
+            points.Add(points[0] + Vector3.up * data.height);
+            points.Add(points[1] + Vector3.up * data.height);
+            points.Add(points[2] + Vector3.up * data.height);
+            points.Add(points[3] + Vector3.up * data.height);
 
-            BuildPlane(b, bUp, aUp, a, data.vertOffset, data.verts, data.tris);
-            BuildPlane(c, cUp, dUp, d, data.vertOffset + 4, data.verts, data.tris);
-            BuildPlane(a, aUp, cUp, c, data.vertOffset + 8, data.verts, data.tris);
-            BuildPlane(d, dUp, bUp, b, data.vertOffset + 12, data.verts, data.tris);
-            BuildPlane(aUp, bUp, dUp, cUp, data.vertOffset + 16, data.verts, data.tris);
+            return points;
+        }
+
+        private static int BuildBox(List<Vector3> points, int offset, List<Vector3> verts, List<int> tris)
+        {
+            BuildPlane(points[1], points[5], points[4], points[0], offset, verts, tris);
+            BuildPlane(points[2], points[6], points[7], points[3], offset + 4, verts, tris);
+            BuildPlane(points[0], points[4], points[6], points[2], offset + 8, verts, tris);
+            BuildPlane(points[3], points[7], points[5], points[1], offset + 12, verts, tris);
+            BuildPlane(points[4], points[5], points[7], points[6], offset + 16, verts, tris);
+
+            return offset + 20;
         }
 
         private static void BuildPlane(Vector3 a, Vector3 b, Vector3 c, Vector3 d, int vertOffset, List<Vector3> verts, List<int> tris)
@@ -105,7 +152,7 @@ namespace Larje.Core.Tools.RoomGenerator
             }
         }
 
-        public class WallBuildData
+        public struct WallBuildData
         {
             public Vector3 prev;
             public Vector3 from;
