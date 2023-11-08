@@ -1,5 +1,6 @@
 #if DREAMTECK_SPLINES
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -23,20 +24,18 @@ namespace Larje.Core.Tools.RoomGenerator
                 data.holes.ForEach(hole =>
                 {
                     GetHoleBounds(data, hole, out Vector2 min, out Vector2 max);
-                    
-                    if (min.x is >= 0f and <= 1f)
+
+                    if (IsPairInBounds(min.x, max.x))
                     {
-                        xPositions.Add(min.x, false);   
+                        if (IsPairInBounds(min.y, max.y))
+                        {
+                            TryAddValue(yPositions, min.y, false);
+                            TryAddValue(yPositions, max.y, true);
+                        }
                     }
-                    if (max.x is >= 0f and <= 1f)
-                    {
-                        xPositions.Add(max.x, true);   
-                    }
-                    
-                    if (min.x < 0f && max.x > 0f)
-                    {
-                        xPositions[0f] = false;
-                    }
+
+                    TryAddValue(xPositions, min.x, false);
+                    TryAddValue(xPositions, max.x, true);
                 });
             }
 
@@ -44,7 +43,7 @@ namespace Larje.Core.Tools.RoomGenerator
             {
                 for (int x = 0; x < xPositions.Count - 1; x++)
                 {
-                    if (xPositions.Values.ToArray()[x])
+                    if (xPositions.Values.ToArray()[x] || yPositions.Values.ToArray()[y])
                     {
                         Vector3 upOffset = Vector3.up * data.height * yPositions.Keys.ToArray()[y];
 
@@ -59,12 +58,34 @@ namespace Larje.Core.Tools.RoomGenerator
                         partData.prev += upOffset;
                         partData.next += upOffset;
 
-                        partData.height =
-                            data.height * (yPositions.Keys.ToArray()[y + 1] - yPositions.Keys.ToArray()[y]);
+                        partData.height = data.height * (yPositions.Keys.ToArray()[y + 1] - yPositions.Keys.ToArray()[y]);
 
                         List<Vector3> points = GetBoxPoints(partData);
                         data.vertOffset = BuildBox(points, data.vertOffset, data.verts, data.tris);
                     }
+                }
+            }
+        }
+
+        private static bool IsPairInBounds(float a, float b)
+        {
+            bool result = a is >= 0f and <= 1f || b is >= 0f and <= 1f;
+            result |= a < 0f && b > 1;
+            return result;
+        }
+
+        private static void TryAddValue(SortedDictionary<float, bool> dic, float key, bool value)
+        {
+            key = Mathf.Clamp01(key);
+            if (key is >= 0f and <= 1f)
+            {
+                if (!dic.ContainsKey(key))
+                {
+                    dic.Add(key, value);   
+                }
+                else
+                {
+                    dic[key] &= value;
                 }
             }
         }
@@ -184,6 +205,12 @@ namespace Larje.Core.Tools.RoomGenerator
             
             min.x = ((hole.distance - hole.size.x / 2f) - data.fromDistance) / length;
             max.x = ((hole.distance + hole.size.x / 2f) - data.fromDistance) / length;
+
+            float yPosPercent = hole.yPos / data.height;
+            float ySizePercent = hole.size.y / data.height;
+            
+            min.y = yPosPercent;
+            max.y = yPosPercent + ySizePercent;
         }
 
         public struct WallBuildData

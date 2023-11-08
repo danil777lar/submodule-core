@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dreamteck.Splines;
+using Larje.Core.Services;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -127,6 +128,14 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             for (int i = 0; i < points.Count - 1; i++)
             {
+                List<SplineWallHole.Data> holesEdited = new List<SplineWallHole.Data>();
+                foreach (SplineWallHole.Data h in holes)
+                {
+                    SplineWallHole.Data hole = h;
+                    hole.yPos -= offset;
+                    holesEdited.Add(hole);
+                }
+
                 MeshBuildUtilities.WallBuildData data = new MeshBuildUtilities.WallBuildData();
                 data.from = points[i].position + Vector3.up * offset;
                 data.to = points[i + 1].position + Vector3.up * offset;
@@ -139,7 +148,7 @@ namespace Larje.Core.Tools.RoomGenerator
                 data.vertOffset = vertices.Count;
                 data.verts = vertices;
                 data.tris = triangles;
-                data.holes = holes;
+                data.holes = holesEdited;
 
                 if (i > 0)
                 {

@@ -5,13 +5,14 @@ using System.Collections;
 using System.Collections.Generic;
 using Dreamteck.Splines;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Larje.Core.Tools.RoomGenerator
 {
     [RequireComponent(typeof(SplineProjector))]
     public class SplineWallHole : MonoBehaviour
     {
-        [SerializeField] private float height;
+        [SerializeField] private float yPos;
         [SerializeField] private Vector2 size;
         
         private SplineProjector _projector;
@@ -32,14 +33,14 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             size.x = Mathf.Max(0f, size.x);
             size.y = Mathf.Max(0f, size.y);
-            height = Mathf.Max(0f, height);
+            yPos = Mathf.Max(0f, yPos);
         }
 
         public Data GetData()
         {
             Data data = new Data()
             {
-                height = height,
+                yPos = yPos,
                 distance = Projector.CalculateLength(0f, Projector.GetPercent()),
                 size = size,
                 position = transform.position
@@ -49,9 +50,9 @@ namespace Larje.Core.Tools.RoomGenerator
         }
 
         [Serializable]
-        public class Data
+        public struct Data
         {
-            public float height;
+            public float yPos;
             public float distance;
             public Vector2 size;
             public Vector3 position;
