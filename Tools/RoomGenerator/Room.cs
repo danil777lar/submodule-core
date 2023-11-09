@@ -137,6 +137,7 @@ namespace Larje.Core.Tools.RoomGenerator
                 {
                     SplinePoint splinePoint = new SplinePoint();
                     splinePoint.position = point;
+                    splinePoint.normal = Vector3.up;
                     splinePoints.Add(splinePoint);
                 }
 

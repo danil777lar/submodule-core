@@ -187,12 +187,11 @@ namespace Larje.Core.Tools.RoomGenerator
 
                 SplineSample sampleFrom = new SplineSample();
                 SplineInstance.Project(transform.TransformPoint(points[i]), ref sampleFrom);
-                
+                data.fromDistance = SplineInstance.CalculateLength(0f, sampleFrom.percent);
+
                 SplineSample sampleTo = new SplineSample();
                 SplineInstance.Project(transform.TransformPoint(points[i + 1]), ref sampleTo);
-
-                data.fromDistance = SplineInstance.CalculateLength(0f, sampleFrom.percent); 
-                data.toDistance = SplineInstance.CalculateLength(0f, sampleTo.percent);
+                data.toDistance = SplineInstance.CalculateLength(0f, i == points.Count - 2 ? 1f : sampleTo.percent);
 
                 data.width = width;
                 data.height = height;
