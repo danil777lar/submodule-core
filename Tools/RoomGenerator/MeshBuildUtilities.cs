@@ -61,7 +61,8 @@ namespace Larje.Core.Tools.RoomGenerator
                         partData.height = data.height * (yPositions.Keys.ToArray()[y + 1] - yPositions.Keys.ToArray()[y]);
 
                         List<Vector3> points = GetBoxPoints(partData);
-                        data.vertOffset = BuildBox(points, data.vertOffset, data.verts, data.tris);
+                        data.vertOffset = BuildBox(points, data.vertOffset, 
+                            !partData.usePrev, !partData.useNext, data.verts, data.tris);
                     }
                 }
             }
@@ -153,15 +154,33 @@ namespace Larje.Core.Tools.RoomGenerator
             return points;
         }
 
-        private static int BuildBox(List<Vector3> points, int offset, List<Vector3> verts, List<int> tris)
+        private static int BuildBox(List<Vector3> points, int offset, bool buildFromSide, bool buildToSide, 
+            List<Vector3> verts, List<int> tris)
         {
-            BuildPlane(points[1], points[5], points[4], points[0], offset, verts, tris);
-            BuildPlane(points[2], points[6], points[7], points[3], offset + 4, verts, tris);
-            BuildPlane(points[0], points[4], points[6], points[2], offset + 8, verts, tris);
-            BuildPlane(points[3], points[7], points[5], points[1], offset + 12, verts, tris);
-            BuildPlane(points[4], points[5], points[7], points[6], offset + 16, verts, tris);
+            int newOffset = offset;
 
-            return offset + 20;
+            if (buildFromSide)
+            {
+                BuildPlane(points[1], points[5], points[4], points[0], newOffset, verts, tris);
+                newOffset += 4;
+            }
+
+            if (buildToSide)
+            {
+                BuildPlane(points[2], points[6], points[7], points[3], newOffset, verts, tris);
+                newOffset += 4;
+            }
+
+            BuildPlane(points[0], points[4], points[6], points[2], newOffset, verts, tris);
+            newOffset += 4;
+            
+            BuildPlane(points[3], points[7], points[5], points[1], newOffset, verts, tris);
+            newOffset += 4;
+            
+            BuildPlane(points[4], points[5], points[7], points[6], newOffset, verts, tris);
+            newOffset += 4;
+
+            return newOffset;
         }
 
         private static void BuildPlane(Vector3 a, Vector3 b, Vector3 c, Vector3 d, int vertOffset, List<Vector3> verts, List<int> tris)

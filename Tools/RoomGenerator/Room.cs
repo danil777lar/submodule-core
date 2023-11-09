@@ -11,12 +11,14 @@ namespace Larje.Core.Tools.RoomGenerator
     [RequireComponent(typeof(MeshCollider))]
     public class Room : MonoBehaviour
     {
+        [SerializeField] private float roomBottomHeight;
         [SerializeField] private float radius;
         [SerializeField, Range(0f, 360f)] private float rotate;
         [SerializeField] private Vector2 scale = new Vector2(1f, 1f);
         [SerializeField, Min(3)] private int wallsCount = 3;
         [SerializeField] private List<bool> doors;
         [SerializeField] private bool rebuildOnStart = false;
+        [SerializeField] private Material floorMaterial;
 
         public float Radius => radius;
 
@@ -59,7 +61,7 @@ namespace Larje.Core.Tools.RoomGenerator
 
         private void BuildMesh(Mesh mesh)
         {
-            mesh.Clear();
+            /*mesh.Clear();
 
             List<Vector3> corners = GetCorners();
             List<Vector3> vertices = new List<Vector3>();
@@ -117,13 +119,13 @@ namespace Larje.Core.Tools.RoomGenerator
             };
 
             MeshCollider collider = GetComponent<MeshCollider>();
-            collider.sharedMesh = mesh;
+            collider.sharedMesh = mesh;*/
         }
 
         private void BuildWalls(List<Vector3> corners, List<Vector3> vertices, List<int> triangles, float offset,
             float height)
         {
-            for (int i = 0; i < corners.Count; i++)
+            /*for (int i = 0; i < corners.Count; i++)
             {
                 int parts = doors[i] ? 2 : 1;
                 for (int p = 0; p < parts; p++)
@@ -161,7 +163,7 @@ namespace Larje.Core.Tools.RoomGenerator
 
                     MeshBuildUtilities.BuildWall(data);
                 }
-            }
+            }*/
         }
 
         private List<Vector3> GetCorners()

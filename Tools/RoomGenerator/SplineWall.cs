@@ -15,6 +15,7 @@ namespace Larje.Core.Tools.RoomGenerator
     [RequireComponent(typeof(MeshCollider))]
     public class SplineWall : MonoBehaviour
     {
+        [SerializeField] private SplineWallConfig config;
         [SerializeField, Min(0f)] private float segmentsPerUnit = 0f;
         [SerializeField] private bool rebuildOnStart = false;
 
@@ -73,7 +74,7 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             Mesh mesh = GetMesh();
 
-            if (SplineInstance == null)
+            if (SplineInstance == null || config == null || config.WallParts.Length == 0)
             {
                 return;
             }
@@ -83,39 +84,43 @@ namespace Larje.Core.Tools.RoomGenerator
 
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
-
-            float height = RoomMeshConfig.Instance.WallHeight;
-            float percent = RoomMeshConfig.Instance.WallDividePercent;
-
+            
             List<Vector3> points = GetPoints();
+            List<SubMeshDescriptor> submeshes = new List<SubMeshDescriptor>();
+            List<Material> materials = new List<Material>();
 
-            SubMeshDescriptor subMeshBottom = new SubMeshDescriptor();
-            subMeshBottom.indexStart = triangles.Count;
-            BuildWall(points, vertices, triangles, 0, height * percent, holes);
-            subMeshBottom.indexCount = triangles.Count - subMeshBottom.indexStart;
-
-            SubMeshDescriptor subMeshTop = new SubMeshDescriptor();
-            subMeshTop.indexStart = triangles.Count;
-            BuildWall(points, vertices, triangles, height * percent, height * (1f - percent), holes);
-            subMeshTop.indexCount = triangles.Count - subMeshTop.indexStart;
+            float weightsSum = config.GetWeightsSum();
+            float lastHeights = 0f;
+            foreach (SplineWallConfig.WallPart wallPart in config.WallParts)
+            {
+                float partHeightPercent = wallPart.Weight / weightsSum;
+                float partOffset = lastHeights;
+                float partHeight = config.Height * partHeightPercent;
+                float partWidth = config.Width * wallPart.WidthMultiplier;
+                lastHeights += partHeight;
+                
+                materials.Add(wallPart.Material);
+                
+                SubMeshDescriptor submesh = new SubMeshDescriptor();
+                submesh.indexStart = triangles.Count;
+                BuildWall(points, vertices, triangles, partOffset, partHeight, partWidth, holes);
+                submesh.indexCount = triangles.Count - submesh.indexStart;
+                submeshes.Add(submesh);
+            }
 
             mesh.Clear();
             mesh.vertices = vertices.ToArray();
             mesh.triangles = triangles.ToArray();
 
             mesh.subMeshCount = 2;
-            mesh.SetSubMeshes(new SubMeshDescriptor[] { subMeshBottom, subMeshTop });
+            mesh.SetSubMeshes(submeshes);
 
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
             mesh.RecalculateBounds();
 
             MeshRenderer rend = GetComponent<MeshRenderer>();
-            rend.sharedMaterials = new Material[]
-            {
-                RoomMeshConfig.Instance.WallBottomMaterial,
-                RoomMeshConfig.Instance.WallTopMaterial
-            };
+            rend.sharedMaterials = materials.ToArray();
 
             if (mesh.vertices.Length > 0)
             {
@@ -158,7 +163,7 @@ namespace Larje.Core.Tools.RoomGenerator
         }
 
         private void BuildWall(List<Vector3> points, List<Vector3> vertices, List<int> triangles, float offset,
-            float height, List<SplineWallHole.Data> holes)
+            float height, float width, List<SplineWallHole.Data> holes)
         {
             for (int i = 0; i < points.Count - 1; i++)
             {
@@ -183,7 +188,7 @@ namespace Larje.Core.Tools.RoomGenerator
                 data.fromDistance = SplineInstance.CalculateLength(0f, sampleFrom.percent); 
                 data.toDistance = SplineInstance.CalculateLength(0f, sampleTo.percent);
 
-                data.width = RoomMeshConfig.Instance.WallWidth;
+                data.width = width;
                 data.height = height;
                 data.vertOffset = vertices.Count;
                 data.verts = vertices;
