@@ -133,6 +133,12 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             List<Vector3> points = new List<Vector3>();
             List<SplinePoint> splinePoints = SplineInstance.GetPoints().ToList();
+
+            if (SplineInstance.isClosed)
+            {
+                splinePoints.Add(splinePoints[0]);
+            }
+            
             for (int i = 0; i < splinePoints.Count - 1; i++)
             {
                 points.Add(transform.InverseTransformPoint(splinePoints[i].position));
@@ -195,15 +201,23 @@ namespace Larje.Core.Tools.RoomGenerator
                 data.tris = triangles;
                 data.holes = holesEdited;
 
-                if (i > 0)
+                data.usePrev = i > 0 || SplineInstance.isClosed;
+                if (i == 0)
                 {
-                    data.usePrev = true;
+                    data.prev = points[^2] + Vector3.up * offset;
+                }
+                else
+                {
                     data.prev = points[i - 1] + Vector3.up * offset;
                 }
 
-                if (i < points.Count - 2)
+                data.useNext = i < points.Count - 2 || SplineInstance.isClosed;
+                if (i >= points.Count - 2)
                 {
-                    data.useNext = true;
+                    data.next = points[1] + Vector3.up * offset;
+                }
+                else
+                {
                     data.next = points[i + 2] + Vector3.up * offset;
                 }
 

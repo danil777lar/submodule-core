@@ -1,6 +1,7 @@
 #if DREAMTECK_SPLINES
 
 using System.Collections.Generic;
+using Dreamteck.Splines;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -11,14 +12,15 @@ namespace Larje.Core.Tools.RoomGenerator
     [RequireComponent(typeof(MeshCollider))]
     public class Room : MonoBehaviour
     {
+        [SerializeField] private SplineWallConfig config;
         [SerializeField] private float roomBottomHeight;
-        [SerializeField] private float radius;
+        [SerializeField] private float radius = 5;
         [SerializeField, Range(0f, 360f)] private float rotate;
         [SerializeField] private Vector2 scale = new Vector2(1f, 1f);
         [SerializeField, Min(3)] private int wallsCount = 3;
-        [SerializeField] private List<bool> doors;
         [SerializeField] private bool rebuildOnStart = false;
         [SerializeField] private Material floorMaterial;
+        [SerializeField] private SplineWall wall;
 
         public float Radius => radius;
 
@@ -54,14 +56,15 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             if (!Application.isPlaying)
             {
-                ValidateDoorsList();
                 BuildMesh(GetMesh());
             }
         }
 
         private void BuildMesh(Mesh mesh)
         {
-            /*mesh.Clear();
+            ValidateWall();
+            
+            mesh.Clear();
 
             List<Vector3> corners = GetCorners();
             List<Vector3> vertices = new List<Vector3>();
@@ -78,92 +81,23 @@ namespace Larje.Core.Tools.RoomGenerator
                 triangles.Add(i == wallsCount - 1 ? 1 : i + 2);
                 triangles.Add(i + 1);
             }
-
             subMeshFloor.indexCount = triangles.Count - subMeshFloor.indexStart;
-
-            float height = RoomMeshConfig.Instance.WallHeight;
-            float percent = RoomMeshConfig.Instance.WallDividePercent;
-            float bottomHeight = RoomMeshConfig.Instance.RoomBottomHeight;
-
-            SubMeshDescriptor subMeshBottom = new SubMeshDescriptor();
-            subMeshBottom.indexStart = triangles.Count;
-            BuildWalls(corners, vertices, triangles, -bottomHeight, (height * percent) + bottomHeight);
-            subMeshBottom.indexCount = triangles.Count - subMeshBottom.indexStart;
-
-            SubMeshDescriptor subMeshTop = new SubMeshDescriptor();
-            subMeshTop.indexStart = triangles.Count;
-            BuildWalls(corners, vertices, triangles, height * percent, height * (1f - percent));
-            subMeshTop.indexCount = triangles.Count - subMeshTop.indexStart;
-
+            
             mesh.vertices = vertices.ToArray();
             mesh.triangles = triangles.ToArray();
 
             mesh.subMeshCount = 3;
-            mesh.SetSubMeshes(new SubMeshDescriptor[]
-            {
-                subMeshFloor,
-                subMeshBottom,
-                subMeshTop
-            });
+            mesh.SetSubMeshes(new SubMeshDescriptor[] { subMeshFloor });
 
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
             mesh.RecalculateBounds();
 
             MeshRenderer rend = GetComponent<MeshRenderer>();
-            rend.sharedMaterials = new Material[]
-            {
-                RoomMeshConfig.Instance.FloorMaterial,
-                RoomMeshConfig.Instance.WallBottomMaterial,
-                RoomMeshConfig.Instance.WallTopMaterial
-            };
+            rend.sharedMaterials = new Material[] { floorMaterial };
 
             MeshCollider collider = GetComponent<MeshCollider>();
-            collider.sharedMesh = mesh;*/
-        }
-
-        private void BuildWalls(List<Vector3> corners, List<Vector3> vertices, List<int> triangles, float offset,
-            float height)
-        {
-            /*for (int i = 0; i < corners.Count; i++)
-            {
-                int parts = doors[i] ? 2 : 1;
-                for (int p = 0; p < parts; p++)
-                {
-                    MeshBuildUtilities.WallBuildData data = new MeshBuildUtilities.WallBuildData();
-                    data.prev = corners[i == 0 ? corners.Count - 1 : i - 1] + Vector3.up * offset;
-                    data.from = corners[i] + Vector3.up * offset;
-                    data.to = corners[(i + 1) % corners.Count] + Vector3.up * offset;
-                    data.next = corners[(i + 2) % corners.Count] + Vector3.up * offset;
-
-                    if (doors[i])
-                    {
-                        Vector3 dir = data.to - data.from;
-                        Vector3 center = data.from + dir * 0.5f;
-                        if (p == 0)
-                        {
-                            data.next = data.to;
-                            data.to = center - (dir.normalized * RoomMeshConfig.Instance.DoorWidth * 0.5f);
-                        }
-                        else
-                        {
-                            data.prev = data.from;
-                            data.from = center + (dir.normalized * RoomMeshConfig.Instance.DoorWidth * 0.5f);
-                        }
-                    }
-
-                    data.usePrev = true;
-                    data.useNext = true;
-
-                    data.width = RoomMeshConfig.Instance.WallWidth;
-                    data.height = height;
-                    data.vertOffset = vertices.Count;
-                    data.verts = vertices;
-                    data.tris = triangles;
-
-                    MeshBuildUtilities.BuildWall(data);
-                }
-            }*/
+            collider.sharedMesh = mesh;
         }
 
         private List<Vector3> GetCorners()
@@ -193,18 +127,22 @@ namespace Larje.Core.Tools.RoomGenerator
             return mesh;
         }
 
-        private void ValidateDoorsList()
+        private void ValidateWall()
         {
-            doors ??= new List<bool>();
-
-            while (doors.Count < wallsCount)
+            if (wall != null)
             {
-                doors.Add(new bool());
-            }
+                List<SplinePoint> splinePoints = new List<SplinePoint>();
 
-            while (doors.Count > wallsCount)
-            {
-                doors.RemoveAt(doors.Count - 1);
+                foreach (Vector3 point in GetCorners())
+                {
+                    SplinePoint splinePoint = new SplinePoint();
+                    splinePoint.position = point;
+                    splinePoints.Add(splinePoint);
+                }
+
+                wall.SplineInstance.SetPoints(splinePoints.ToArray(), SplineComputer.Space.Local);
+                wall.SplineInstance.type = Spline.Type.Linear;
+                wall.SplineInstance.Close();
             }
         }
     }
