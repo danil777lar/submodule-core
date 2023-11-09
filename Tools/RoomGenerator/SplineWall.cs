@@ -15,10 +15,11 @@ namespace Larje.Core.Tools.RoomGenerator
     [RequireComponent(typeof(MeshCollider))]
     public class SplineWall : MonoBehaviour
     {
+        [SerializeField, Min(0f)] private float segmentsPerUnit = 0f;
         [SerializeField] private bool rebuildOnStart = false;
-        
+
         private SplineComputer _spline;
-        
+
         public SplineComputer SplineInstance
         {
             get
@@ -71,22 +72,22 @@ namespace Larje.Core.Tools.RoomGenerator
         private void Rebuild()
         {
             Mesh mesh = GetMesh();
-            
+
             if (SplineInstance == null)
             {
                 return;
             }
-            
+
             List<SplineWallHole.Data> holes = new List<SplineWallHole.Data>();
             GetComponentsInChildren<SplineWallHole>().ToList().ForEach(x => holes.Add(x.GetData()));
-            
+
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
 
             float height = RoomMeshConfig.Instance.WallHeight;
             float percent = RoomMeshConfig.Instance.WallDividePercent;
 
-            List<SplinePoint> points = SplineInstance.GetPoints().ToList();
+            List<Vector3> points = GetPoints();
 
             SubMeshDescriptor subMeshBottom = new SubMeshDescriptor();
             subMeshBottom.indexStart = triangles.Count;
@@ -119,11 +120,44 @@ namespace Larje.Core.Tools.RoomGenerator
             if (mesh.vertices.Length > 0)
             {
                 MeshCollider collider = GetComponent<MeshCollider>();
-                collider.sharedMesh = mesh;   
+                collider.sharedMesh = mesh;
             }
         }
 
-        private void BuildWall(List<SplinePoint> points, List<Vector3> vertices, List<int> triangles, float offset,
+        private List<Vector3> GetPoints()
+        {
+            List<Vector3> points = new List<Vector3>();
+            List<SplinePoint> splinePoints = SplineInstance.GetPoints().ToList();
+            for (int i = 0; i < splinePoints.Count - 1; i++)
+            {
+                points.Add(transform.InverseTransformPoint(splinePoints[i].position));
+                float lengthToNext = SplineInstance.CalculateLength(SplineInstance.GetPointPercent(i),
+                    SplineInstance.GetPointPercent(i + 1));
+                int pointsCount = Mathf.RoundToInt(lengthToNext * segmentsPerUnit);
+                for (int j = 1; j < pointsCount; j++)
+                {
+                    float percent = Mathf.Lerp(
+                        (float) SplineInstance.GetPointPercent(i),
+                        (float) SplineInstance.GetPointPercent(i + 1), 
+                        (float)j / (float)pointsCount);
+                    
+                    
+                    points.Add(transform.InverseTransformPoint(SplineInstance.EvaluatePosition(percent)));
+                }
+            }
+            points.Add(transform.InverseTransformPoint(splinePoints.Last().position));
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                Vector3 fixedPoint = points[i];
+                fixedPoint.y = 0f;
+                points[i] = fixedPoint;
+            }
+
+            return points;
+        }
+
+        private void BuildWall(List<Vector3> points, List<Vector3> vertices, List<int> triangles, float offset,
             float height, List<SplineWallHole.Data> holes)
         {
             for (int i = 0; i < points.Count - 1; i++)
@@ -137,12 +171,18 @@ namespace Larje.Core.Tools.RoomGenerator
                 }
 
                 MeshBuildUtilities.WallBuildData data = new MeshBuildUtilities.WallBuildData();
-                data.from = points[i].position + Vector3.up * offset;
-                data.to = points[i + 1].position + Vector3.up * offset;
+                data.from = points[i] + Vector3.up * offset;
+                data.to = points[i + 1] + Vector3.up * offset;
 
-                data.fromDistance = SplineInstance.CalculateLength(0f, SplineInstance.GetPointPercent(i)); 
-                data.toDistance = SplineInstance.CalculateLength(0f, SplineInstance.GetPointPercent(i + 1));
+                SplineSample sampleFrom = new SplineSample();
+                SplineInstance.Project(transform.TransformPoint(points[i]), ref sampleFrom);
                 
+                SplineSample sampleTo = new SplineSample();
+                SplineInstance.Project(transform.TransformPoint(points[i + 1]), ref sampleTo);
+
+                data.fromDistance = SplineInstance.CalculateLength(0f, sampleFrom.percent); 
+                data.toDistance = SplineInstance.CalculateLength(0f, sampleTo.percent);
+
                 data.width = RoomMeshConfig.Instance.WallWidth;
                 data.height = height;
                 data.vertOffset = vertices.Count;
@@ -153,13 +193,13 @@ namespace Larje.Core.Tools.RoomGenerator
                 if (i > 0)
                 {
                     data.usePrev = true;
-                    data.prev = points[i - 1].position + Vector3.up * offset;
+                    data.prev = points[i - 1] + Vector3.up * offset;
                 }
 
                 if (i < points.Count - 2)
                 {
                     data.useNext = true;
-                    data.next = points[i + 2].position + Vector3.up * offset;
+                    data.next = points[i + 2] + Vector3.up * offset;
                 }
 
                 MeshBuildUtilities.BuildWall(data);
