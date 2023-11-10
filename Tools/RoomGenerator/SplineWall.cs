@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dreamteck.Splines;
 using Larje.Core.Services;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -96,14 +97,16 @@ namespace Larje.Core.Tools.RoomGenerator
                 float partHeightPercent = wallPart.Weight / weightsSum;
                 float partOffset = lastHeights;
                 float partHeight = config.Height * partHeightPercent;
-                float partWidth = config.Width * wallPart.WidthMultiplier;
+                float partWidthTop = config.Width * wallPart.TopWidthMultiplier;
+                float partWidthBottom = config.Width * wallPart.BottomWidthMultiplier;
                 lastHeights += partHeight;
                 
                 materials.Add(wallPart.Material);
                 
                 SubMeshDescriptor submesh = new SubMeshDescriptor();
                 submesh.indexStart = triangles.Count;
-                BuildWall(points, vertices, triangles, partOffset, partHeight, partWidth, holes);
+                BuildWall(points, vertices, triangles, partOffset, partHeight, partWidthTop, 
+                    partWidthBottom, wallPart.DrawTop, wallPart.DrawBottom, holes);
                 submesh.indexCount = triangles.Count - submesh.indexStart;
                 submeshes.Add(submesh);
             }
@@ -169,7 +172,7 @@ namespace Larje.Core.Tools.RoomGenerator
         }
 
         private void BuildWall(List<Vector3> points, List<Vector3> vertices, List<int> triangles, float offset,
-            float height, float width, List<SplineWallHole.Data> holes)
+            float height, float widthTop, float widthBottom, bool buildTop, bool buildBottom, List<SplineWallHole.Data> holes)
         {
             for (int i = 0; i < points.Count - 1; i++)
             {
@@ -180,10 +183,15 @@ namespace Larje.Core.Tools.RoomGenerator
                     hole.yPos -= offset;
                     holesEdited.Add(hole);
                 }
-
+                
                 MeshBuildUtilities.WallBuildData data = new MeshBuildUtilities.WallBuildData();
+                data.isClosed = SplineInstance.isClosed;
+                
                 data.from = points[i] + Vector3.up * offset;
                 data.to = points[i + 1] + Vector3.up * offset;
+
+                data.buildTop = buildTop;
+                data.buildBottom = buildBottom;
 
                 SplineSample sampleFrom = new SplineSample();
                 SplineInstance.Project(transform.TransformPoint(points[i]), ref sampleFrom);
@@ -193,7 +201,10 @@ namespace Larje.Core.Tools.RoomGenerator
                 SplineInstance.Project(transform.TransformPoint(points[i + 1]), ref sampleTo);
                 data.toDistance = SplineInstance.CalculateLength(0f, i == points.Count - 2 ? 1f : sampleTo.percent);
 
-                data.width = width;
+                data.fullDistance = SplineInstance.CalculateLength(1f);
+
+                data.widthTop = widthTop;
+                data.widthBottom = widthBottom;
                 data.height = height;
                 data.vertOffset = vertices.Count;
                 data.verts = vertices;

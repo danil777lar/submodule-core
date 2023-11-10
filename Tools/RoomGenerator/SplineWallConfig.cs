@@ -26,11 +26,20 @@ namespace Larje.Core.Tools.RoomGenerator
         [Serializable]
         public class WallPart
         {
-            [SerializeField, Min(0f)] private float widthMultiplier = 1;
+            [Header("Width")]
+            [SerializeField, Min(0f)] private float topWidthMultiplier = 1;
+            [SerializeField, Min(0f)] private float bottomWidthMultiplier = 1;
+            [Header("Sides")] 
+            [SerializeField] private bool drawTop = true;
+            [SerializeField] private bool drawBottom = true;
+            [Header("Other")]
             [SerializeField, Min(0)] private float weight = 1;
             [SerializeField] private Material material;
 
-            public float WidthMultiplier => widthMultiplier;
+            public float TopWidthMultiplier => topWidthMultiplier;
+            public float BottomWidthMultiplier => bottomWidthMultiplier;
+            public bool DrawTop => drawTop;
+            public  bool DrawBottom => drawBottom;
             public float Weight => weight;
             public Material Material => material;
         }
