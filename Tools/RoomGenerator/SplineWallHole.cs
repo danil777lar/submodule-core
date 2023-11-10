@@ -34,6 +34,11 @@ namespace Larje.Core.Tools.RoomGenerator
             size.x = Mathf.Max(0f, size.x);
             size.y = Mathf.Max(0f, size.y);
             yPos = Mathf.Max(0f, yPos);
+            Projector.targetObject = gameObject;
+            if (Projector.spline == null)
+            {
+                Projector.spline = GetComponentInParent<SplineComputer>();
+            }            
         }
 
         public Data GetData()
