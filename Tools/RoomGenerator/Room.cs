@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Dreamteck.Splines;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 
 namespace Larje.Core.Tools.RoomGenerator
 {
@@ -12,15 +13,16 @@ namespace Larje.Core.Tools.RoomGenerator
     [RequireComponent(typeof(MeshCollider))]
     public class Room : MonoBehaviour
     {
-        [SerializeField] private SplineWallConfig config;
-        [SerializeField] private float roomBottomHeight;
         [SerializeField] private float radius = 5;
         [SerializeField, Range(0f, 360f)] private float rotate;
         [SerializeField] private Vector2 scale = new Vector2(1f, 1f);
         [SerializeField, Min(3)] private int wallsCount = 3;
         [SerializeField] private bool rebuildOnStart = false;
         [SerializeField] private Material floorMaterial;
-        [SerializeField] private SplineWall wall;
+        [Header("Walls")]
+        [SerializeField] private float bottomWallHeight;
+        [SerializeField] private SplineWall mainWall;
+        [SerializeField] private SplineWall bottomWall;
 
         public float Radius => radius;
 
@@ -129,22 +131,35 @@ namespace Larje.Core.Tools.RoomGenerator
 
         private void ValidateWall()
         {
-            if (wall != null)
+            List<SplinePoint> splinePoints = new List<SplinePoint>();
+
+            foreach (Vector3 point in GetCorners())
             {
-                List<SplinePoint> splinePoints = new List<SplinePoint>();
-
-                foreach (Vector3 point in GetCorners())
-                {
-                    SplinePoint splinePoint = new SplinePoint();
-                    splinePoint.position = point;
-                    splinePoint.normal = Vector3.up;
-                    splinePoints.Add(splinePoint);
-                }
-
-                wall.SplineInstance.SetPoints(splinePoints.ToArray(), SplineComputer.Space.Local);
-                wall.SplineInstance.type = Spline.Type.Linear;
-                wall.SplineInstance.Close();
+                SplinePoint splinePoint = new SplinePoint();
+                splinePoint.position = point;
+                splinePoint.normal = Vector3.up;
+                splinePoints.Add(splinePoint);
             }
+
+            if (mainWall != null)
+            {
+                SetSplineValues(mainWall, splinePoints);
+            }
+
+            if (bottomWall != null)
+            {
+                Vector3 bottomPosition = transform.position;
+                bottomPosition -= Vector3.up * bottomWallHeight;
+                bottomWall.transform.position = bottomPosition; 
+                SetSplineValues(bottomWall, splinePoints);
+            }
+        }
+
+        private void SetSplineValues(SplineWall splineWall, List<SplinePoint> points)
+        {
+            splineWall.SplineInstance.SetPoints(points.ToArray(), SplineComputer.Space.Local);
+            splineWall.SplineInstance.type = Spline.Type.Linear;
+            splineWall.SplineInstance.Close();
         }
     }
 }
