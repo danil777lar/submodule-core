@@ -46,7 +46,7 @@ namespace Larje.Core.Tools.RoomGenerator
             }
         }
 
-        private void OnDrawGizmosSelected()
+        private void OnDrawGizmos()
         {
             if (!Application.isPlaying)
             {
@@ -136,7 +136,7 @@ namespace Larje.Core.Tools.RoomGenerator
             foreach (Vector3 point in GetCorners())
             {
                 SplinePoint splinePoint = new SplinePoint();
-                splinePoint.position = point;
+                splinePoint.position = transform.TransformPoint(point);
                 splinePoint.normal = Vector3.up;
                 splinePoints.Add(splinePoint);
             }
@@ -157,7 +157,7 @@ namespace Larje.Core.Tools.RoomGenerator
 
         private void SetSplineValues(SplineWall splineWall, List<SplinePoint> points)
         {
-            splineWall.SplineInstance.SetPoints(points.ToArray(), SplineComputer.Space.Local);
+            splineWall.SplineInstance.SetPoints(points.ToArray());
             splineWall.SplineInstance.type = Spline.Type.Linear;
             splineWall.SplineInstance.Close();
         }
