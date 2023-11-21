@@ -57,6 +57,7 @@ namespace Larje.Core.Tools
         {
             this.DOKill();
             transform.DOScale(options.ScaleValue, options.InAnimDuration)
+                .SetUpdate(UpdateType.Normal, true)
                 .SetTarget(this)
                 .SetEase(options.InAnimEase);
 
@@ -75,6 +76,7 @@ namespace Larje.Core.Tools
         {
             this.DOKill();
             transform.DOScale(1f, options.OutAnimDuration)
+                .SetUpdate(UpdateType.Normal, true)
                 .SetTarget(this)
                 .SetEase(options.OutAnimEase);
         }
