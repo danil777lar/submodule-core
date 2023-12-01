@@ -65,7 +65,8 @@ namespace Larje.Core.Tools.RoomGenerator
 
                         List<Vector3> points = GetBoxPoints(partData);
                         data.vertOffset = BuildBox(points, data.vertOffset, !partData.usePrev, 
-                            !partData.useNext, partData.buildTop, partData.buildBottom, data.verts, data.tris);
+                            !partData.useNext, partData.buildTop, partData.buildBottom, data.verts, data.tris,
+                            data.vertexColors, data.topColor, data.bottomColor);
                     }
                 }
             }
@@ -159,37 +160,44 @@ namespace Larje.Core.Tools.RoomGenerator
         }
 
         private static int BuildBox(List<Vector3> points, int offset, bool buildFromSide, bool buildToSide, 
-            bool buildTop, bool buildBottom, List<Vector3> verts, List<int> tris)
+            bool buildTop, bool buildBottom, List<Vector3> verts, List<int> tris, 
+            List<Color> colors, Color tColor, Color bColor)
         {
             int newOffset = offset;
 
             if (buildFromSide)
             {
                 BuildPlane(points[1], points[5], points[4], points[0], newOffset, verts, tris);
+                colors.Add(bColor); colors.Add(tColor); colors.Add(tColor); colors.Add(bColor);
                 newOffset += 4;
             }
 
             if (buildToSide)
             {
                 BuildPlane(points[2], points[6], points[7], points[3], newOffset, verts, tris);
+                colors.Add(bColor); colors.Add(tColor); colors.Add(tColor); colors.Add(bColor);
                 newOffset += 4;
             }
 
             BuildPlane(points[0], points[4], points[6], points[2], newOffset, verts, tris);
+            colors.Add(bColor); colors.Add(tColor); colors.Add(tColor); colors.Add(bColor);
             newOffset += 4;
             
             BuildPlane(points[3], points[7], points[5], points[1], newOffset, verts, tris);
+            colors.Add(bColor); colors.Add(tColor); colors.Add(tColor); colors.Add(bColor);
             newOffset += 4;
 
             if (buildTop)
             {
                 BuildPlane(points[4], points[5], points[7], points[6], newOffset, verts, tris);
+                colors.Add(tColor); colors.Add(tColor); colors.Add(tColor); colors.Add(tColor);
                 newOffset += 4;
             }
 
             if (buildBottom)
             {
                 BuildPlane(points[0], points[2], points[3], points[1], newOffset, verts, tris);
+                colors.Add(bColor); colors.Add(bColor); colors.Add(bColor); colors.Add(bColor);
             }
 
             newOffset += 4;
@@ -270,10 +278,14 @@ namespace Larje.Core.Tools.RoomGenerator
 
             public float height;
             public int vertOffset;
+            
             public List<Vector3> verts;
             public List<int> tris;
-            
+            public List<Color> vertexColors;
             public List<SplineWallHole.Data> holes;
+
+            public Color topColor;
+            public Color bottomColor;
         }
     }
 }

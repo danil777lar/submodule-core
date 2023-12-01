@@ -35,6 +35,9 @@ namespace Larje.Core.Tools.RoomGenerator
             [Header("Other")]
             [SerializeField, Min(0)] private float weight = 1;
             [SerializeField] private Material material;
+            [Header("Vertex Colors")] 
+            [SerializeField] private Color vertexColorTop;
+            [SerializeField] private Color vertexColorBottom;
 
             public float TopWidthMultiplier => topWidthMultiplier;
             public float BottomWidthMultiplier => bottomWidthMultiplier;
@@ -42,6 +45,8 @@ namespace Larje.Core.Tools.RoomGenerator
             public  bool DrawBottom => drawBottom;
             public float Weight => weight;
             public Material Material => material;
+            public Color VertexColorTop => vertexColorTop;
+            public Color VertexColorBottom => vertexColorBottom;
         }
     }
 }

@@ -85,6 +85,7 @@ namespace Larje.Core.Tools.RoomGenerator
 
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
+            List<Color> vertexColors = new List<Color>();
             
             List<Vector3> points = GetPoints();
             List<SubMeshDescriptor> submeshes = new List<SubMeshDescriptor>();
@@ -105,8 +106,20 @@ namespace Larje.Core.Tools.RoomGenerator
                 
                 SubMeshDescriptor submesh = new SubMeshDescriptor();
                 submesh.indexStart = triangles.Count;
-                BuildWall(points, vertices, triangles, partOffset, partHeight, partWidthTop, 
-                    partWidthBottom, wallPart.DrawTop, wallPart.DrawBottom, holes);
+                BuildWall(
+                    points, 
+                    vertices, 
+                    triangles, 
+                    vertexColors, 
+                    partOffset, 
+                    partHeight, 
+                    partWidthTop,
+                    partWidthBottom, 
+                    wallPart.DrawTop,
+                    wallPart.DrawBottom,
+                    wallPart.VertexColorTop, 
+                    wallPart.VertexColorBottom,  
+                    holes);
                 submesh.indexCount = triangles.Count - submesh.indexStart;
                 submeshes.Add(submesh);
             }
@@ -114,6 +127,7 @@ namespace Larje.Core.Tools.RoomGenerator
             mesh.Clear();
             mesh.vertices = vertices.ToArray();
             mesh.triangles = triangles.ToArray();
+            mesh.colors = vertexColors.ToArray();
 
             mesh.subMeshCount = 2;
             mesh.SetSubMeshes(submeshes);
@@ -151,11 +165,10 @@ namespace Larje.Core.Tools.RoomGenerator
                 for (int j = 1; j < pointsCount; j++)
                 {
                     float percent = Mathf.Lerp(
-                        (float) SplineInstance.GetPointPercent(i),
-                        (float) SplineInstance.GetPointPercent(i + 1), 
+                        (float)SplineInstance.GetPointPercent(i),
+                        (float)SplineInstance.GetPointPercent(i + 1),
                         (float)j / (float)pointsCount);
-                    
-                    
+
                     points.Add(transform.InverseTransformPoint(SplineInstance.EvaluatePosition(percent)));
                 }
             }
@@ -171,8 +184,10 @@ namespace Larje.Core.Tools.RoomGenerator
             return points;
         }
 
-        private void BuildWall(List<Vector3> points, List<Vector3> vertices, List<int> triangles, float offset,
-            float height, float widthTop, float widthBottom, bool buildTop, bool buildBottom, List<SplineWallHole.Data> holes)
+        private void BuildWall(List<Vector3> points, List<Vector3> vertices, List<int> triangles, List<Color> vertexColors, 
+            float offset, float height, float widthTop, float widthBottom, bool buildTop, bool buildBottom, 
+            Color topColor, Color bottomColor,
+            List<SplineWallHole.Data> holes)
         {
             for (int i = 0; i < points.Count - 1; i++)
             {
@@ -209,7 +224,11 @@ namespace Larje.Core.Tools.RoomGenerator
                 data.vertOffset = vertices.Count;
                 data.verts = vertices;
                 data.tris = triangles;
+                data.vertexColors = vertexColors;
                 data.holes = holesEdited;
+                
+                data.topColor = topColor;
+                data.bottomColor = bottomColor;
 
                 data.usePrev = i > 0 || SplineInstance.isClosed;
                 if (i == 0)
