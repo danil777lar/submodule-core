@@ -37,7 +37,6 @@ public class SliderBlink : MonoBehaviour
 
     private void Update()
     {
-        MMDebug.DebugOnScreen(_blinkValue.ToString());
         _fill.color = Color.Lerp(minColor, maxColor, colorLerpCurve.Evaluate(Percent));
         _fill.color = Color.Lerp(_fill.color, blinkColor, _blinkValue);
 
@@ -49,7 +48,6 @@ public class SliderBlink : MonoBehaviour
 
     private void Blink()
     {
-        Debug.Log("BLINK");
         _blinkStarted = true;
 
         float duration = blinkFrequencyCurve.Evaluate(Percent) * blinkDuration;
