@@ -53,7 +53,12 @@ namespace Larje.Core.Services
                 _timeScaleLayerTween[animation.Layer]?.Kill();
                 _timeScaleLayerTween[animation.Layer] = DOTween.To(
                         () => 0f,
-                        (x) => SetTimeScale(animation.Layer, animation.Curve.Evaluate(x)),
+                        (x) =>
+                        {
+                            float value = Mathf.Lerp(animation.RemapValues.x, animation.RemapValues.y, 
+                                animation.Curve.Evaluate(x));
+                            SetTimeScale(animation.Layer, value);
+                        },
                         1f, animation.Duration)
                     .SetUpdate(UpdateType.Normal, true);
             }
