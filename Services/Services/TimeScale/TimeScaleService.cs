@@ -81,7 +81,7 @@ namespace Larje.Core.Services
         {
             float timeScale = 1f;
             _timeScaleLayerValues.Values.ToList().ForEach((x) => timeScale *= x);
-            timeScale = Mathf.Max(timeScale, 0f);
+            timeScale = Mathf.Max(timeScale, config.MinTimescale);
 
             Time.timeScale = timeScale;
             Time.fixedDeltaTime = DEFAULT_FIXED_DELTA_TIME * timeScale;
