@@ -8,6 +8,8 @@ using UnityEngine.AddressableAssets;
 using MoreMountains.Tools;
 using UnityEditor;
 using Larje.Core.Services;
+using UnityEditor.AddressableAssets.Settings;
+using UnityEngine.Serialization;
 
 namespace Larje.Core.Services
 {
@@ -17,7 +19,7 @@ namespace Larje.Core.Services
         [SerializeField] private bool editorMode;
         [SerializeField] private Transform levelHolder;
         [SerializeField, HideInInspector] private LevelOptions[] levels;
-        
+
         [InjectService] private DataService _dataService;
 
         private bool _firstLevelSpawn = true;
@@ -50,7 +52,7 @@ namespace Larje.Core.Services
             _dataService.Data.levelManagerAddressablesData.LastLevelIndex = levelId;
             _dataService.Save();
             
-            GameObject levelInstance = await Addressables.InstantiateAsync("Levels/" + levels[levelId].Key, GetLevelHolder()).Task;
+            GameObject levelInstance = await Addressables.InstantiateAsync(levels[levelId].LevelPrefab, GetLevelHolder()).Task;
             if (levelInstance != null)
             {
                 if (levelInstance.TryGetComponent(out LevelProcessor level))
@@ -64,18 +66,18 @@ namespace Larje.Core.Services
             }
             else
             {
-                Debug.LogError($"Level Service: Prefab with key {levels[levelId].Key} not found");
+                Debug.LogError($"Level Service: Prefab with key {levels[levelId].LevelPrefab} not found");
             }
 
             _isInstantiatingLevel = false;
             _firstLevelSpawn = false;
         }
 
-        public async void SpawnLevelInDebugMode(string key)
+        public async void SpawnLevelInDebugMode(AssetReference prefab)
         {
 #if UNITY_EDITOR
             GetLevelHolder().MMDestroyAllChildren();
-            var handle = Addressables.LoadAssetAsync<GameObject>($"Levels/{key}");
+            var handle = Addressables.LoadAssetAsync<GameObject>(prefab);
             while (!handle.IsDone)
             {
                 await Task.Yield();
@@ -161,10 +163,10 @@ namespace Larje.Core.Services
         public class LevelOptions
         {
             [SerializeField] private bool addToRandomList = true;
-            [SerializeField] private string key = "";
+            [SerializeField] private AssetReference levelPrefab;
 
             public bool AddToRandomList => addToRandomList;
-            public string Key => key;
+            public AssetReference LevelPrefab => levelPrefab;
         }
     }
 }
