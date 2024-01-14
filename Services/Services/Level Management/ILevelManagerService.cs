@@ -12,7 +12,7 @@ namespace Larje.Core.Services
 
         public int GetCurrentLevelIndex();
 
-        public LevelProcessor.LevelData GetCurrentLevelData();
+        public T GetCurrentLevelData<T>() where T : LevelProcessor.LevelData;
 
         public void SpawnCurrentLevel();
         

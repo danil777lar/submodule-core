@@ -17,6 +17,7 @@ namespace Larje.Core.Services
     public class LevelManagerAddressablesService : Service, ILevelManagerService
     {
         [SerializeField] private bool editorMode;
+        [SerializeField] private bool spawnLevelOnInit;
         [SerializeField] private Transform levelHolder;
         [SerializeField, HideInInspector] private LevelOptions[] levels;
 
@@ -31,6 +32,11 @@ namespace Larje.Core.Services
             #if !UNITY_EDITOR
             editorMode = false;
             #endif
+
+            if (spawnLevelOnInit)
+            {
+                SpawnCurrentLevel();   
+            }
         }
 
         public async void SpawnCurrentLevel()
@@ -113,9 +119,16 @@ namespace Larje.Core.Services
             }
         }
 
-        public LevelProcessor.LevelData GetCurrentLevelData()
+        public T GetCurrentLevelData<T>() where T : LevelProcessor.LevelData 
         {
-            return _currentLevel.GetLevelData();
+            if (_currentLevel.GetLevelData() is T levelData)
+            {
+                return levelData;   
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public bool IsInstantiatingLevel()
