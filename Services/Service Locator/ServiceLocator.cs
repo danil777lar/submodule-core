@@ -9,8 +9,10 @@ namespace Larje.Core.Services
     public class ServiceLocator : MonoBehaviour
     {
         #region Default
+
         private static ServiceLocator _default;
         public static ServiceLocator Default => _default;
+
         #endregion
 
         [SerializeField] private bool _dontDestroyOnLoad;
@@ -25,6 +27,7 @@ namespace Larje.Core.Services
 
             BindChildren();
             InjectChildren();
+            InitChildren();
             if (_dontDestroyOnLoad)
             {
                 DontDestroyOnLoad(this);
@@ -37,9 +40,9 @@ namespace Larje.Core.Services
             return _services[typeof(T)].GetComponent<T>();
         }
 
-        public void BindService<T>(Service service) 
+        public void BindService<T>(Service service)
         {
-            if (!_services.ContainsKey(typeof(T))) 
+            if (!_services.ContainsKey(typeof(T)))
             {
                 _services.Add(typeof(T), service);
             }
@@ -53,7 +56,7 @@ namespace Larje.Core.Services
             {
                 fields.AddRange(type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
             }
-            else 
+            else
             {
                 fields.AddRange(component.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
             }
@@ -63,7 +66,8 @@ namespace Larje.Core.Services
             {
                 if (_services.ContainsKey(field.FieldType))
                 {
-                    MethodInfo getService = typeof(ServiceLocator).GetMethod("GetService").MakeGenericMethod(field.FieldType);
+                    MethodInfo getService = typeof(ServiceLocator).GetMethod("GetService")
+                        .MakeGenericMethod(field.FieldType);
                     field.SetValue(component, getService.Invoke(this, null));
                 }
             }
@@ -77,9 +81,11 @@ namespace Larje.Core.Services
                 Service service = child.gameObject.GetComponent<Service>();
                 if (service)
                 {
-                    BindServiceAttribute attribute = Attribute.GetCustomAttribute(service.GetType(), typeof(BindServiceAttribute)) as BindServiceAttribute;
+                    BindServiceAttribute attribute =
+                        Attribute.GetCustomAttribute(service.GetType(), typeof(BindServiceAttribute)) as
+                            BindServiceAttribute;
 
-                    if (attribute != null && !_services.ContainsKey(attribute.type)) 
+                    if (attribute != null && !_services.ContainsKey(attribute.type))
                     {
                         _services.Add(attribute.type, service);
                     }
@@ -87,23 +93,37 @@ namespace Larje.Core.Services
             }
         }
 
-        private void InjectChildren() 
+        private void InjectChildren()
         {
             foreach (Transform child in transform)
             {
                 Service service = child.gameObject.GetComponent<Service>();
                 if (service)
                 {
-                    List<FieldInfo> fields = new List<FieldInfo>(service.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
+                    List<FieldInfo> fields =
+                        new List<FieldInfo>(service.GetType()
+                            .GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
                     fields = fields.FindAll((f) => Attribute.IsDefined(f, typeof(InjectServiceAttribute)));
-                    foreach (FieldInfo field in fields) 
+                    foreach (FieldInfo field in fields)
                     {
                         if (_services.ContainsKey(field.FieldType))
                         {
-                            MethodInfo getService = typeof(ServiceLocator).GetMethod("GetService").MakeGenericMethod(field.FieldType);
+                            MethodInfo getService = typeof(ServiceLocator).GetMethod("GetService")
+                                .MakeGenericMethod(field.FieldType);
                             field.SetValue(service, getService.Invoke(this, null));
                         }
                     }
+                }
+            }
+        }
+
+        private void InitChildren()
+        {
+            foreach (Transform child in transform)
+            {
+                Service service = child.gameObject.GetComponent<Service>();
+                if (service)
+                {
                     service.Init();
                 }
             }
