@@ -63,14 +63,6 @@ namespace Larje.Core.Tools.RoomGenerator
             }
         }
 
-        private void OnValidate()
-        {
-            if (!Application.isPlaying)
-            {
-                Rebuild();
-            }
-        }
-
         private void Rebuild()
         {
             Mesh mesh = GetMesh();

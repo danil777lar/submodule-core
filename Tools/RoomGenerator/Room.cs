@@ -24,6 +24,21 @@ namespace Larje.Core.Tools.RoomGenerator
         [SerializeField] private SplineWall mainWall;
         [SerializeField] private SplineWall bottomWall;
 
+        private MeshFilter _meshFilter;
+
+        private MeshFilter MeshFilter
+        {
+            get
+            {
+                if (_meshFilter == null)
+                {
+                    _meshFilter = GetComponent<MeshFilter>();
+                }
+
+                return _meshFilter;
+            }
+        }
+        
         public float Radius => radius;
 
         public void Initialize()
@@ -52,15 +67,7 @@ namespace Larje.Core.Tools.RoomGenerator
             {
                 BuildMesh(GetMesh());
             }
-        }
-
-        private void OnValidate()
-        {
-            if (!Application.isPlaying)
-            {
-                BuildMesh(GetMesh());
-            }
-        }
+        }//
 
         private void BuildMesh(Mesh mesh)
         {
@@ -117,13 +124,12 @@ namespace Larje.Core.Tools.RoomGenerator
 
         private Mesh GetMesh()
         {
-            MeshFilter meshFilter = GetComponent<MeshFilter>();
-            Mesh mesh = meshFilter.sharedMesh;
+            Mesh mesh = MeshFilter.sharedMesh;
             if (mesh == null || !mesh.name.Equals(gameObject.GetInstanceID().ToString()))
             {
                 mesh = new Mesh();
                 mesh.name = gameObject.GetInstanceID().ToString();
-                meshFilter.sharedMesh = mesh;
+                MeshFilter.sharedMesh = mesh;
             }
 
             return mesh;

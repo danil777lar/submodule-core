@@ -108,7 +108,10 @@ namespace Larje.Core.Tools.PhysicsBodyProjections
                         {
                             propertyInfo.SetValue(newJoint, propertyInfo.GetValue(JointPrefab));
                         }
-                        catch (Exception ex) { }
+                        catch (Exception ex)
+                        {
+                            Debug.LogWarning(ex);
+                        }
                     }
                     newJoint.connectedBody = animBone;
                 }
