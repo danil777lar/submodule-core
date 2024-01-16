@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -46,6 +47,11 @@ public class SliderBlink : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        this.DOKill();
+    }
+
     private void Blink()
     {
         _blinkStarted = true;
@@ -57,11 +63,13 @@ public class SliderBlink : MonoBehaviour
                 _blinkValue = blinkValueCurve.Evaluate(x);
                 transform.localScale = defaultScale + (addScale * _blinkValue);
             }, 1f, duration)
+            .SetTarget(this)
             .SetEase(Ease.InOutQuad)
             .SetUpdate(UpdateType.Normal, true)
             .OnComplete(() =>
             {
                 DOTween.To(() => 0f, (x) => { }, 1f, duration)
+                    .SetTarget(this)
                     .SetUpdate(UpdateType.Normal, true)
                     .OnComplete(Blink);
             });
