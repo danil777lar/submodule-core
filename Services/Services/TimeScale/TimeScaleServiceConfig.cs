@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using ProjectConstants;
 using UnityEngine;
 
 namespace Larje.Core.Services
@@ -31,6 +32,11 @@ namespace Larje.Core.Services
             {
                 TimeScaleAnimations.ToList().ForEach(x => x.Validate());
             }
+        }
+
+        public TimeScaleAnimation GetAnimationByType(TimeScaleAnimationType type)
+        {
+            return TimeScaleAnimations.ToList().Find(x => x.Type == type);
         }
     }
 }

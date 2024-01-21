@@ -58,6 +58,7 @@ namespace Larje.Core.Services
                             SetTimeScale(animation.Layer, value);
                         },
                         1f, animation.Duration)
+                    .SetEase(Ease.Linear)
                     .SetUpdate(UpdateType.Normal, true);
             }
         }
