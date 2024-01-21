@@ -11,9 +11,7 @@ namespace Larje.Core.Services
     public class TimeScaleService : Service
     {
         private const float DEFAULT_FIXED_DELTA_TIME = 0.02f;
-
-        [SerializeField] private TimeScaleServiceConfig config;
-
+        
         private Dictionary<TimeScaleLayerType, float> _timeScaleLayerValues;
         private Dictionary<TimeScaleLayerType, Tween> _timeScaleLayerTween;
 
@@ -45,7 +43,7 @@ namespace Larje.Core.Services
 
         public void PlayTimeScaleAnim(TimeScaleAnimationType type)
         {
-            TimeScaleAnimation animation = config.TimeScaleAnimations.ToList()
+            TimeScaleAnimation animation = TimeScaleServiceConfig.Instance.TimeScaleAnimations.ToList()
                 .Find(x => x.Type == type);
 
             if (animation != null)
@@ -81,7 +79,7 @@ namespace Larje.Core.Services
         {
             float timeScale = 1f;
             _timeScaleLayerValues.Values.ToList().ForEach((x) => timeScale *= x);
-            timeScale = Mathf.Max(timeScale, config.MinTimescale);
+            timeScale = Mathf.Max(timeScale, TimeScaleServiceConfig.Instance.MinTimescale);
 
             Time.timeScale = timeScale;
             Time.fixedDeltaTime = DEFAULT_FIXED_DELTA_TIME * timeScale;
