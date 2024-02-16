@@ -81,13 +81,16 @@ namespace Larje.Core.Services
                 Service service = child.gameObject.GetComponent<Service>();
                 if (service)
                 {
-                    BindServiceAttribute attribute =
-                        Attribute.GetCustomAttribute(service.GetType(), typeof(BindServiceAttribute)) as
-                            BindServiceAttribute;
-
-                    if (attribute != null && !_services.ContainsKey(attribute.type))
+                    Attribute attr = Attribute.GetCustomAttribute(service.GetType(), typeof(BindServiceAttribute));
+                    if (attr is BindServiceAttribute attribute)
                     {
-                        _services.Add(attribute.type, service);
+                        foreach (Type type in attribute.type)
+                        {
+                            if (!_services.ContainsKey(type))
+                            {
+                                _services.Add(type, service);       
+                            }
+                        }
                     }
                 }
             }

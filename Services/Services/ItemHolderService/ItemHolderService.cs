@@ -18,6 +18,7 @@ namespace Larje.Core.Services
 
         public override void Init()
         {
+            ServiceLocator.Default.InjectServicesInComponent(this, typeof(ItemHolderService));
         }
 
         public void UnlockItem(ItemType itemType, string itemName)
@@ -49,8 +50,17 @@ namespace Larje.Core.Services
         {
             return GetConfigByType(itemType).Items.ToList();
         }
+        public List<Item> GetLockedItems(ItemType itemType)
+        {
+            return GetConfigByType(itemType).Items.ToList().FindAll(x => !IsItemUnlocked(itemType, x.Name));
+        }
+        
+        public List<Item> GetUnlockedItems(ItemType itemType)
+        {
+            return GetConfigByType(itemType).Items.ToList().FindAll(x => IsItemUnlocked(itemType, x.Name));
+        }
 
-        private ItemsData GetSkinsData(ItemType itemType)
+        protected ItemsData GetSkinsData(ItemType itemType)
         {
             ItemsData data = _dataService.Data.ItemsData
                 .ToList().Find(x => x.ItemType == itemType);
@@ -70,7 +80,7 @@ namespace Larje.Core.Services
             return data;
         }
 
-        private ItemsHolderConfig GetConfigByType(ItemType itemType)
+        protected ItemsHolderConfig GetConfigByType(ItemType itemType)
         {
             return configs.Find(x => x.ItemType == itemType);
         }
