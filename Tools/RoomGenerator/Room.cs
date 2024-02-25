@@ -13,7 +13,10 @@ namespace Larje.Core.Tools.RoomGenerator
     [RequireComponent(typeof(MeshCollider))]
     public class Room : MonoBehaviour
     {
+        [Header("Radius")] 
+        [SerializeField] private bool radiusToEdge; 
         [SerializeField] private float radius = 5;
+        [Space]
         [SerializeField, Range(0f, 360f)] private float rotate;
         [SerializeField] private Vector2 scale = new Vector2(1f, 1f);
         [SerializeField, Min(3)] private int wallsCount = 3;
@@ -114,8 +117,16 @@ namespace Larje.Core.Tools.RoomGenerator
             List<Vector3> vertices = new List<Vector3>();
             for (int i = 0; i < wallsCount; i++)
             {
-                float angle = (360f / wallsCount * i + rotate) * Mathf.Deg2Rad;
-                Vector3 vert = new Vector3(Mathf.Cos(angle) * scale.x, 0f, Mathf.Sin(angle) * scale.y) * radius;
+                float angleStep = 360f / wallsCount; 
+                float angle = (angleStep * i + rotate) * Mathf.Deg2Rad;
+                float distance = radius;
+                if (radiusToEdge)
+                {
+                    distance -= distance - radius / Mathf.Sin((180f - angleStep) / 2f);
+                    //distance = height / radius;
+                }
+                
+                Vector3 vert = new Vector3(Mathf.Cos(angle) * scale.x, 0f, Mathf.Sin(angle) * scale.y) * distance;
                 vertices.Add(vert);
             }
 
