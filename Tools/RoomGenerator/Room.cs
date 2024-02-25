@@ -122,8 +122,8 @@ namespace Larje.Core.Tools.RoomGenerator
                 float distance = radius;
                 if (radiusToEdge)
                 {
-                    distance -= distance - radius / Mathf.Sin((180f - angleStep) / 2f);
-                    //distance = height / radius;
+                    float a = 180f - (angleStep / 2) - 90f;
+                    distance = radius / Mathf.Sin(a * Mathf.Deg2Rad);
                 }
                 
                 Vector3 vert = new Vector3(Mathf.Cos(angle) * scale.x, 0f, Mathf.Sin(angle) * scale.y) * distance;
