@@ -7,9 +7,12 @@ namespace Larje.Core.Tools.TopDownEngine
 {
     public class MoveBasedCharacterOrientation3D : CharacterAbility
     {
+        public Transform forceTarget;
+        
         [SerializeField] private float minRotationSpeed;
         [SerializeField] private float maxRotationSpeed;
-        [Space] [SerializeField] private Transform model;
+        [Space] 
+        [SerializeField] private Transform model;
 
         private Vector3 _lastPosition;
         private Vector3 _currentDirection;
@@ -46,7 +49,14 @@ namespace Larje.Core.Tools.TopDownEngine
 
         private void CatchDirection()
         {
-            _currentDirection = (transform.position - _lastPosition).normalized;
+            if (forceTarget)
+            {
+                _currentDirection = (forceTarget.position - transform.position).normalized;
+            }
+            else
+            {
+                _currentDirection = (transform.position - _lastPosition).normalized;   
+            }
             _lastPosition = transform.position;
         }
 
