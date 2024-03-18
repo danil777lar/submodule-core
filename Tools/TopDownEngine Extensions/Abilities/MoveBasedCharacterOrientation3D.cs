@@ -15,6 +15,7 @@ namespace Larje.Core.Tools.TopDownEngine
         [SerializeField] private Transform model;
 
         private Vector3 _lastPosition;
+        private float _lastRotateTime;
         private Vector3 _currentDirection;
         private ActualSpeedCharacterMovement _actualSpeedMovement;
 
@@ -62,13 +63,15 @@ namespace Larje.Core.Tools.TopDownEngine
 
         private void Rotate()
         {
+            float timeDelta = Time.time - _lastRotateTime; 
             if (_currentDirection != Vector3.zero)
             {
                 float rotationSpeed = Mathf.Lerp(minRotationSpeed, maxRotationSpeed,
-                    _actualSpeedMovement.ActualSpeedPercent);
+                    _actualSpeedMovement.ActualSpeedPercent) * timeDelta;
                 Quaternion rotation = Quaternion.LookRotation(_currentDirection);
                 model.rotation = Quaternion.RotateTowards(model.rotation, rotation, rotationSpeed);
             }
+            _lastRotateTime = Time.time;
         }
     }
 }
