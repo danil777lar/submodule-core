@@ -10,14 +10,18 @@ namespace Larje.Core.Services.UI
     public class UIService : Service
     {
         [SerializeField] private bool useDeviceBackButton = true;
-        [SerializeField] private int minSortOrder;
+        [SerializeField] private int maxSortOrder;
 
         private List<UIProcessor> _processors;
         
         public override void Init()
         {
             _processors = new List<UIProcessor>(GetComponentsInChildren<UIProcessor>());
-            _processors.ForEach(x => x.Init());
+            _processors.ForEach(x =>
+            {
+                x.Init(maxSortOrder);
+                x.EventOpenedObjectsChanged += OnProcessorOpenedObjectsChanged;
+            });
         }
         
         public T GetProcessor<T>() where T : UIProcessor
@@ -36,7 +40,7 @@ namespace Larje.Core.Services.UI
             {
                 if (Input.GetKeyDown(KeyCode.Escape))
                 {
-                    _processors.OrderBy(x => x.Priority).Reverse().ToList().ForEach(x =>
+                    GetProcessorsByPriority().ForEach(x =>
                     {
                         if (x.ComputeDeviceBackButton())
                         {
@@ -45,6 +49,26 @@ namespace Larje.Core.Services.UI
                     });
                 }
             }
+        }
+        
+        private void OnProcessorOpenedObjectsChanged()
+        {
+            int offset = 0;
+            foreach (UIProcessor processor in GetProcessorsByPriority())
+            {
+                offset += processor.SetSortingOrders(offset);
+            }
+        }
+        
+        private List<UIProcessor> GetProcessorsByPriority()
+        {
+            return _processors.OrderBy(x => x.Priority).Reverse().ToList();
+        }
+        
+        [ContextMenu("Show Test Toast")]
+        private void ShowTestToast()
+        {
+            GetProcessor<UIToastProcessor>().OpenToast(new UIToast.Args(UIToastType.Info, "Test toast message"));
         }
     }
 }

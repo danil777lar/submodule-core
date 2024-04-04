@@ -22,9 +22,14 @@ namespace Larje.Core.Services.UI
                 {
                     _openedToast.Close();
                 }
-                _openedToast = GameObject.Instantiate(toast, holder);
-                _openedToast.Open(args);
-                _openedToast.EventClose += () => _openedToast = null;
+                
+                UIToast toastInstance = GameObject.Instantiate(toast, holder);
+                toastInstance.Open(args);
+                toastInstance.EventClose += () => OnToastClosed(toastInstance);
+                
+                _openedToast = toastInstance;
+                
+                AddOpenedUIObject(_openedToast);
             }
         }
         
@@ -36,6 +41,12 @@ namespace Larje.Core.Services.UI
             }
             
             return false;
+        }
+        
+        private void OnToastClosed(UIToast toast)
+        {
+            _openedToast = null;
+            RemoveOpenedUIObject(toast);
         }
     }
 }

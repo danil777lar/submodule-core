@@ -20,9 +20,10 @@ namespace Larje.Core.Services.UI
 
         public Action<UIScreenType, UIScreenType> ScreenChanged;
         
-        public override void Init()
+        public override void Init(int maxSortingOrder)
         {
-            base.Init();
+            base.Init(maxSortingOrder);
+            
             OpenScreen(new UIScreen.Args(startScreen));
         }
 
@@ -41,9 +42,12 @@ namespace Larje.Core.Services.UI
                     _openedScreenProperties = args;
                 }
 
-                _openedScreen = GameObject.Instantiate(screenToOpen, holder);
-                _openedScreen.Open(args);
-                //_openedScreen.GetComponent<Canvas>().sortingOrder = options.StartSortOrder;
+                UIScreen screenInstance = Instantiate(screenToOpen, holder);
+                screenInstance.Open(args);
+                screenInstance.EventClose += () => OnScreenClosed(screenInstance);
+                _openedScreen = screenInstance;
+                
+                AddOpenedUIObject(screenInstance);
 
                 if (screenToClose)
                 {
@@ -66,6 +70,11 @@ namespace Larje.Core.Services.UI
                 return true;
             }
             return false;
+        }
+
+        private void OnScreenClosed(UIScreen closedScreen)
+        {
+            RemoveOpenedUIObject(closedScreen);   
         }
     }
 }

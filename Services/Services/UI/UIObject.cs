@@ -11,12 +11,14 @@ namespace Larje.Core.Services.UI
     public abstract class UIObject : MonoBehaviour
     {
         [SerializeField] private bool useDeviceBackButton = true;
-        [SerializeField] private bool blockDeviceBackButtonInvoke = true;
+        [SerializeField] private bool blockNextDeviceBackButtonInvokes = true;
         
         private bool _opened;
         private bool _closed;
         private bool _hidden;
         private bool _focused;
+        
+        private Canvas _canvas;
         private List<IUIObjectEventDelay> _eventDelays = new List<IUIObjectEventDelay>();
         
         public bool Opened => _opened;
@@ -37,6 +39,7 @@ namespace Larje.Core.Services.UI
             {
                 _opened = true;
                 
+                _canvas = GetComponent<Canvas>();
                 _eventDelays = new List<IUIObjectEventDelay>(GetComponentsInChildren<IUIObjectEventDelay>());
 
                 OnBeforeOpen(args);
@@ -57,7 +60,6 @@ namespace Larje.Core.Services.UI
                 _closed = true;
                 
                 OnBeforeClose();
-                EventClose?.Invoke();
             
                 this.DOKill();
                 DOTween.Sequence()
@@ -66,7 +68,8 @@ namespace Larje.Core.Services.UI
                     .AppendCallback(() =>
                     {
                         OnAfterClose();
-                        Destroy(gameObject);
+                        DestroyImmediate(gameObject);
+                        EventClose?.Invoke();
                     });   
             }
         }
@@ -143,12 +146,20 @@ namespace Larje.Core.Services.UI
                     .AppendCallback(OnAfterUnfocus);   
             }
         }
+
+        public void SetSortingOrder(int sortingOrder)
+        {
+            if (_canvas != null)
+            {
+                _canvas.sortingOrder = sortingOrder;
+            }
+        }
         
         public bool ComputeDeviceBackButton()
         {
             if (useDeviceBackButton)
             {
-                return OnDeviceBackButton() && blockDeviceBackButtonInvoke;
+                return OnDeviceBackButton() && blockNextDeviceBackButtonInvokes;
             }
             return false;
         }

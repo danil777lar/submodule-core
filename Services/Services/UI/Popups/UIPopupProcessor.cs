@@ -26,9 +26,9 @@ namespace Larje.Core.Services.UI
 
                 UIPopup popupInstance = GameObject.Instantiate(popupPrefab, holder);
                 popupInstance.Open(args);
-                //popupInstance.GetComponent<Canvas>().sortingOrder = _options.StartSortOrder + _openedPopups.Count;
                 popupInstance.EventClose += () => OnPopupClosed(popupInstance);
                 _openedPopups.Add(popupInstance);
+                AddOpenedUIObject(popupInstance);
                 
                 return popupInstance;
             }
@@ -72,6 +72,7 @@ namespace Larje.Core.Services.UI
                 _openedPopups[^2].Show();
             }
             _openedPopups.Remove(popup);
+            RemoveOpenedUIObject(popup);
         }
     }
 }
