@@ -36,20 +36,18 @@ namespace Larje.Core.Services.UI
             return null;
         }
 
-        public bool TryClosePopupByBackButton() 
+        public override bool ComputeDeviceBackButton() 
         {
-            if (_openedPopups.Count > 0)
+            while (_openedPopups.Count > 0)
             {
-                if (_openedPopups.Last().CloseByBackDeviceKey)
+                bool result = _openedPopups.Last().ComputeDeviceBackButton();
+                if (result)
                 {
-                    _openedPopups.Last().Close();
-                }
-                return true;
+                    return true;
+                }   
             }
-            else 
-            {
-                return false;
-            }
+            
+            return false;
         }
 
         private void HandleLastPopup(UIPopupCombinationType combinationType) 

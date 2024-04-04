@@ -53,12 +53,8 @@ namespace Larje.Core.Services.UI
             }
         }
 
-        public bool ComputeDeviceBackButton()
+        public override bool ComputeDeviceBackButton()
         {
-            if (!_openedScreen.RewriteDeviceBackButton)
-            {
-                return TryOpenPreviousScreen();
-            }
             return false;
         }
         

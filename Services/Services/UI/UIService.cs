@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ProjectConstants;
 using UnityEngine;
 
@@ -35,6 +36,13 @@ namespace Larje.Core.Services.UI
             {
                 if (Input.GetKeyDown(KeyCode.Escape))
                 {
+                    _processors.OrderBy(x => x.Priority).Reverse().ToList().ForEach(x =>
+                    {
+                        if (x.ComputeDeviceBackButton())
+                        {
+                            return;
+                        }
+                    });
                 }
             }
         }

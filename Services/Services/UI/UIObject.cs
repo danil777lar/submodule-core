@@ -10,6 +10,9 @@ namespace Larje.Core.Services.UI
     [RequireComponent(typeof(Canvas))]
     public abstract class UIObject : MonoBehaviour
     {
+        [SerializeField] private bool useDeviceBackButton = true;
+        [SerializeField] private bool blockDeviceBackButtonInvoke = true;
+        
         private bool _opened;
         private bool _closed;
         private bool _hidden;
@@ -141,6 +144,15 @@ namespace Larje.Core.Services.UI
             }
         }
         
+        public bool ComputeDeviceBackButton()
+        {
+            if (useDeviceBackButton)
+            {
+                return OnDeviceBackButton() && blockDeviceBackButtonInvoke;
+            }
+            return false;
+        }
+        
         protected virtual void OnBeforeOpen(Args args) {}
         
         protected virtual void OnAfterOpen(Args args) {}
@@ -164,6 +176,17 @@ namespace Larje.Core.Services.UI
         protected virtual void OnBeforeUnfocus() {}
         
         protected virtual void OnAfterUnfocus() {}
+
+        protected virtual bool OnDeviceBackButton()
+        {
+            if (_opened && !_closed)
+            {
+                Close();
+                return true;
+            }
+            
+            return false;
+        }
         
         public class Args
         {

@@ -10,20 +10,6 @@ namespace Larje.Core.Services.UI
     public class UIScreen : UIObject
     {
         [field: SerializeField] public UIScreenType ScreenType { get; private set; }
-        [field: SerializeField] public bool RewriteDeviceBackButton { get; private set; }
-
-        protected virtual void OnDeviceBackButton()
-        {
-            
-        }
-
-        private void Update()
-        {
-            if (RewriteDeviceBackButton && Input.GetKeyDown(KeyCode.Escape))
-            {
-                OnDeviceBackButton();
-            }
-        }
 
         public class Args : UIObject.Args
         {

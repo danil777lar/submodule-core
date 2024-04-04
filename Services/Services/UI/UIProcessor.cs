@@ -7,7 +7,7 @@ namespace Larje.Core.Services.UI
 {
     public abstract class UIProcessor : MonoBehaviour
     {
-        [SerializeField] private int priority;
+        [field: SerializeField] public int Priority { get; private set; }
         
         protected Transform holder;
         
@@ -18,5 +18,7 @@ namespace Larje.Core.Services.UI
             holder.localPosition = Vector3.zero;
             holder.localScale = Vector3.one;
         }
+        
+        public abstract bool ComputeDeviceBackButton();
     }
 }

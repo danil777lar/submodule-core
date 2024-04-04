@@ -12,13 +12,11 @@ namespace Larje.Core.Services.UI
     {
         [SerializeField] private UIPopupType _popupType;
         [Space]
-        [SerializeField] private bool _closeByBackDeviceKey;
         [SerializeField] private bool _closeByBackgroundClick;
         [Space]
         [SerializeField] private RectTransformEvents _background;
         private bool _isHidden;
-
-        public bool CloseByBackDeviceKey => _closeByBackDeviceKey;
+        
         public UIPopupType PopupType => _popupType;
 
         public override void Open(UIObject.Args args)

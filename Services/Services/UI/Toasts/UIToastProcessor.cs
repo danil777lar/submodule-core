@@ -27,5 +27,15 @@ namespace Larje.Core.Services.UI
                 _openedToast.EventClose += () => _openedToast = null;
             }
         }
+        
+        public override bool ComputeDeviceBackButton()
+        {
+            if (_openedToast != null)
+            {
+                return _openedToast.ComputeDeviceBackButton();
+            }
+            
+            return false;
+        }
     }
 }
