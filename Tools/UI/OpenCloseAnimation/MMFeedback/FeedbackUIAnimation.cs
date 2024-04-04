@@ -12,7 +12,20 @@ namespace Larje.Core.Services.UI
         [SerializeField] private bool useForceDelay;
         [SerializeField, MMCondition("useForceDelay")] private float forceDelay;
         [SerializeField] private EventType _eventType;
+        
         private MMF_Player _feedback;
+        private MMF_Player Feedback
+        {
+            get
+            {
+                if (_feedback == null)
+                {
+                    _feedback = GetComponent<MMF_Player>();
+                }
+
+                return _feedback;
+            }
+        }
 
         public float OnOpen()
         {
@@ -43,12 +56,12 @@ namespace Larje.Core.Services.UI
         {
             return OnEvent(EventType.Unfocus);
         }
-
+        
         private float OnEvent(EventType eventType)
         {
             if (_eventType.HasFlag(eventType))
             {
-                _feedback.PlayFeedbacks();
+                Feedback.PlayFeedbacks();
                 return GetDelay();
             }
             else
@@ -59,7 +72,7 @@ namespace Larje.Core.Services.UI
         
         private float GetDelay()
         {
-            return useForceDelay ? forceDelay : _feedback.TotalDuration;
+            return useForceDelay ? forceDelay : Feedback.TotalDuration;
         }
 
         [Flags]

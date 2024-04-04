@@ -37,7 +37,7 @@ namespace Larje.Core.Services.UI
                 _eventDelays = new List<IUIObjectEventDelay>(GetComponentsInChildren<IUIObjectEventDelay>());
 
                 OnBeforeOpen(args);
-                EventOpen.Invoke();
+                EventOpen?.Invoke();
 
                 this.DOKill();
                 DOTween.Sequence()
@@ -54,7 +54,7 @@ namespace Larje.Core.Services.UI
                 _closed = true;
                 
                 OnBeforeClose();
-                EventClose.Invoke();
+                EventClose?.Invoke();
             
                 this.DOKill();
                 DOTween.Sequence()
@@ -76,7 +76,7 @@ namespace Larje.Core.Services.UI
                 
                 gameObject.SetActive(true);
                 OnBeforeShow();
-                EventShow.Invoke();
+                EventShow?.Invoke();
 
                 this.DOKill();
                 DOTween.Sequence()
@@ -93,7 +93,7 @@ namespace Larje.Core.Services.UI
                 _hidden = true;
                 
                 OnBeforeHide();
-                EventHide.Invoke();
+                EventHide?.Invoke();
             
                 this.DOKill();
                 DOTween.Sequence()
@@ -114,7 +114,7 @@ namespace Larje.Core.Services.UI
                 _focused = true;
                 
                 OnBeforeFocus();
-                EventFocus.Invoke();
+                EventFocus?.Invoke();
 
                 this.DOKill();
                 DOTween.Sequence()
@@ -131,7 +131,7 @@ namespace Larje.Core.Services.UI
                 _focused = false;
                 
                 OnBeforeUnfocus();
-                EventUnfocus.Invoke();
+                EventUnfocus?.Invoke();
             
                 this.DOKill();
                 DOTween.Sequence()
