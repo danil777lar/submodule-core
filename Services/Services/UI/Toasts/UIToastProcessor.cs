@@ -33,11 +33,11 @@ namespace Larje.Core.Services.UI
             }
         }
         
-        public override bool ComputeDeviceBackButton()
+        public override bool Back()
         {
             if (_openedToast != null)
             {
-                return _openedToast.ComputeDeviceBackButton();
+                return _openedToast.Back();
             }
             
             return false;

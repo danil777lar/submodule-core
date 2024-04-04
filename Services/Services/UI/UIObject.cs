@@ -64,7 +64,7 @@ namespace Larje.Core.Services.UI
                 this.DOKill();
                 DOTween.Sequence()
                     .SetTarget(this)
-                    .AppendInterval(_eventDelays.Max(x => x.OnClose()))
+                    .AppendInterval(_hidden ? 0f : _eventDelays.Max(x => x.OnClose()))
                     .AppendCallback(() =>
                     {
                         OnAfterClose();
@@ -155,11 +155,11 @@ namespace Larje.Core.Services.UI
             }
         }
         
-        public bool ComputeDeviceBackButton()
+        public bool Back()
         {
             if (useDeviceBackButton)
             {
-                return OnDeviceBackButton() && blockNextDeviceBackButtonInvokes;
+                return OnBack() && blockNextDeviceBackButtonInvokes;
             }
             return false;
         }
@@ -188,7 +188,7 @@ namespace Larje.Core.Services.UI
         
         protected virtual void OnAfterUnfocus() {}
 
-        protected virtual bool OnDeviceBackButton()
+        protected virtual bool OnBack()
         {
             if (_opened && !_closed)
             {

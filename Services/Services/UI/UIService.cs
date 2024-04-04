@@ -23,6 +23,17 @@ namespace Larje.Core.Services.UI
                 x.EventOpenedObjectsChanged += OnProcessorOpenedObjectsChanged;
             });
         }
+
+        public void Back()
+        {
+            foreach (UIProcessor processor in GetProcessorsByPriority())
+            {
+                if (processor.Back())
+                {
+                    return;
+                }
+            }
+        }
         
         public T GetProcessor<T>() where T : UIProcessor
         {
@@ -40,13 +51,7 @@ namespace Larje.Core.Services.UI
             {
                 if (Input.GetKeyDown(KeyCode.Escape))
                 {
-                    GetProcessorsByPriority().ForEach(x =>
-                    {
-                        if (x.ComputeDeviceBackButton())
-                        {
-                            return;
-                        }
-                    });
+                    Back();
                 }
             }
         }

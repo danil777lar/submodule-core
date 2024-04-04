@@ -36,11 +36,11 @@ namespace Larje.Core.Services.UI
             return null;
         }
 
-        public override bool ComputeDeviceBackButton() 
+        public override bool Back() 
         {
-            while (_openedPopups.Count > 0)
+            for (int i = _openedPopups.Count - 1; i >= 0; i--)
             {
-                bool result = _openedPopups.Last().ComputeDeviceBackButton();
+                bool result = _openedPopups[i].Back();
                 if (result)
                 {
                     return true;

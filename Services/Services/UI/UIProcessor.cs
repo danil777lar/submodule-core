@@ -43,7 +43,7 @@ namespace Larje.Core.Services.UI
             return _openedUIObjects.Count;
         }
         
-        public abstract bool ComputeDeviceBackButton();
+        public abstract bool Back();
         
         protected void AddOpenedUIObject(UIObject uiObject)
         {

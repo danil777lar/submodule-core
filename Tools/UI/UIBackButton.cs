@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace Larje.Core.Services.UI
 {
     [RequireComponent(typeof(Button))]
-    public class PreviousScreenButton : MonoBehaviour
+    public class UIBackButton : MonoBehaviour
     {
         [InjectService] private UIService _uiService;
 
@@ -24,8 +24,7 @@ namespace Larje.Core.Services.UI
         private void OnButtonClicked() 
         {
             _button.interactable = false;
-            _uiService.GetProcessor<UIScreenProcessor>()
-                .TryOpenPreviousScreen();
+            _uiService.Back();
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Larje.Core.Services.UI
     [RequireComponent(typeof(Canvas))]
     public class UIScreen : UIObject
     {
+        [field: SerializeField] public bool ClearHistoryOnOpen { get; private set; }
         [field: SerializeField] public UIScreenType ScreenType { get; private set; }
 
         public class Args : UIObject.Args

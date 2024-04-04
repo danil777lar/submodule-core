@@ -13,12 +13,11 @@ namespace Larje.Core.Services.UI
         [Space]
         [SerializeField] private UIScreenType startScreen;
         [SerializeField] private UIScreen[] screens;
-        
-        private UIScreen _openedScreen;
-        private UIScreen.Args _openedScreenProperties;
-        private Stack<UIScreen.Args> _history = new Stack<UIScreen.Args>();
 
-        public Action<UIScreenType, UIScreenType> ScreenChanged;
+        private List<UIScreen> _openedScreens = new List<UIScreen>();
+        
+        public event Action<UIScreenType> EventScreenOpened;
+        public event Action<UIScreenType> EventScreenClosed;
         
         public override void Init(int maxSortingOrder)
         {
@@ -27,54 +26,57 @@ namespace Larje.Core.Services.UI
             OpenScreen(new UIScreen.Args(startScreen));
         }
 
-        public void OpenScreen(UIScreen.Args args, bool pushToHistory = true, bool saveProperties = true)
+        public void OpenScreen(UIScreen.Args args)
         {
             UIScreen screenToOpen = screens.First((screen) => screen.ScreenType == args.screenType);
             if (screenToOpen != null)
             {
-                UIScreen screenToClose = _openedScreen;
-                if (_openedScreenProperties != null && pushToHistory)
+                if (screenToOpen.ClearHistoryOnOpen)
                 {
-                    _history.Push(_openedScreenProperties);
+                    _openedScreens.ForEach(x => x.Close());
                 }
-                if (saveProperties)
+                else if (_openedScreens.Count > 0)
                 {
-                    _openedScreenProperties = args;
+                    _openedScreens.Last().Hide();
                 }
 
                 UIScreen screenInstance = Instantiate(screenToOpen, holder);
                 screenInstance.Open(args);
                 screenInstance.EventClose += () => OnScreenClosed(screenInstance);
-                _openedScreen = screenInstance;
+                _openedScreens.Add(screenInstance);
+                EventScreenOpened?.Invoke(screenInstance.ScreenType);
                 
                 AddOpenedUIObject(screenInstance);
+            }
+        }
 
-                if (screenToClose)
+        public override bool Back()
+        {
+            if (_openedScreens.Count > 1)
+            {
+                for (int i = _openedScreens.Count - 1; i >= 0; i--)
                 {
-                    ScreenChanged?.Invoke(screenToClose.ScreenType, args.screenType);
-                    screenToClose.Close();
+                    bool result = _openedScreens[i].Back();
+                    if (result)
+                    {
+                        if (i > 0)
+                        {
+                            _openedScreens[i - 1].Show();
+                        }
+
+                        return true;
+                    }
                 }
             }
-        }
 
-        public override bool ComputeDeviceBackButton()
-        {
-            return false;
-        }
-        
-        public bool TryOpenPreviousScreen()
-        {
-            if (_history.Count > 0)
-            {
-                OpenScreen(_history.Pop(), false);
-                return true;
-            }
             return false;
         }
 
         private void OnScreenClosed(UIScreen closedScreen)
         {
+            _openedScreens.Remove(closedScreen);
             RemoveOpenedUIObject(closedScreen);   
+            EventScreenClosed?.Invoke(closedScreen.ScreenType);
         }
     }
 }
