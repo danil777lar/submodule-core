@@ -10,7 +10,7 @@ using UnityEngine.EventSystems;
 namespace Larje.Core.Services.UI
 {
     [RequireComponent(typeof(Canvas))]
-    public sealed class UIToast : MonoBehaviour, IOpenCloseUI, IPointerDownHandler
+    public sealed class UIToast : UIObject, IPointerDownHandler
     {
         [SerializeField] private UIToastType toastType;
         [SerializeField] private float closeDelay;
@@ -18,33 +18,19 @@ namespace Larje.Core.Services.UI
         [Header("Links")]
         [SerializeField] private TextMeshProUGUI tmp;
         [SerializeField] private ContentSizeFitter sizeFitter;
-        private Action _toastClosed;
-        public UIToastType ToastType => toastType;
         
-        public event Action EventOpen;
-        public event Action EventClose;
+        public UIToastType ToastType => toastType;
 
-        public UIToast Open(string text, Action toastClosed)
+        public override void Open(UIObject.Args args)
         {
-            _toastClosed = toastClosed;
-            tmp.text = text;
-            StartCoroutine(OpenCoroutine());
-            StartCoroutine(CloseDelayCoroutine());
-            EventOpen?.Invoke();
-            return this;
-        }
-
-        public void Close()
-        {
-            _toastClosed?.Invoke();
-            EventClose?.Invoke();
-            float delay = 0f;
-            IUIPartCloseDelay[] closeDelays = GetComponentsInChildren<IUIPartCloseDelay>();
-            if (closeDelays.Length > 0) 
+            if (!Opened && args is Args toastArgs)
             {
-                delay = closeDelays.Max((delay) => delay.GetDelay());
+                tmp.text = toastArgs.Text;
+                StartCoroutine(OpenCoroutine());
+                StartCoroutine(CloseDelayCoroutine());
             }
-            Destroy(gameObject, delay);
+            
+            base.Open(args);
         }
         
         public void OnPointerDown(PointerEventData eventData)
@@ -69,6 +55,18 @@ namespace Larje.Core.Services.UI
         {
             yield return new WaitForSeconds(closeDelay);
             Close();
+        }
+        
+        public class Args : UIObject.Args
+        {
+            public readonly UIToastType ToastType;
+            public readonly string Text;
+
+            public Args(UIToastType toastType, string text)
+            {
+                ToastType = toastType;
+                Text = text;
+            }
         }
     }
 }

@@ -2,38 +2,30 @@ using System;
 using System.Linq;
 using ProjectConstants;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Larje.Core.Services.UI
 {
     public class UIToastProcessor : UIProcessor
     {
-        private Options _options;
+        [Space]
+        [SerializeField] private UIToast[] toasts;
+        
         private UIToast _openedToast;
 
-
-        public UIToastProcessor(Options options)
+        public void OpenToast(UIToast.Args args)
         {
-            _options = options;
-        }
-
-        public void ShowToast(UIToastType toastType, string text)
-        {
-            UIToast toast = _options.Toasts.First(x => x.ToastType == toastType);
+            UIToast toast = toasts.First(x => x.ToastType == args.ToastType);
             if (toast != null)
             {
                 if (_openedToast != null)
                 {
                     _openedToast.Close();
                 }
-                _openedToast = GameObject.Instantiate(toast, _options.Holder).Open(text, () => _openedToast = null);
+                _openedToast = GameObject.Instantiate(toast, holder);
+                _openedToast.Open(args);
+                _openedToast.EventClose += () => _openedToast = null;
             }
-        }
-
-
-        [Serializable]
-        public class Options : UIProcessor.Options
-        {
-            [field: SerializeField] public UIToast[] Toasts { get; private set; }
         }
     }
 }

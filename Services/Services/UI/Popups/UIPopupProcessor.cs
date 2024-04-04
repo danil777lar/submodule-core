@@ -3,22 +3,20 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Larje.Core.Services.UI
 {
     public class UIPopupProcessor : UIProcessor
     {
-        private Options _options;
+        [Space]
+        [SerializeField] private List<UIPopup> popups;
+        
         private List<UIPopup> _openedPopups = new List<UIPopup>();
-
-        public UIPopupProcessor(Options options)
-        {
-            _options = options;
-        }
 
         public UIPopup OpenPopup(UIPopup.Args args) 
         {
-            UIPopup popupPrefab = _options.Popups.First(x => x.PopupType == args.PopupType);
+            UIPopup popupPrefab = popups.First(x => x.PopupType == args.PopupType);
             if (popupPrefab != null) 
             {
                 if (_openedPopups.Count > 0)
@@ -26,9 +24,9 @@ namespace Larje.Core.Services.UI
                     HandleLastPopup(args.CombinationType);
                 }
 
-                UIPopup popupInstance = GameObject.Instantiate(popupPrefab, _options.Holder);
+                UIPopup popupInstance = GameObject.Instantiate(popupPrefab, holder);
                 popupInstance.Open(args);
-                popupInstance.GetComponent<Canvas>().sortingOrder = _options.StartSortOrder + _openedPopups.Count;
+                //popupInstance.GetComponent<Canvas>().sortingOrder = _options.StartSortOrder + _openedPopups.Count;
                 popupInstance.EventClose += () => OnPopupClosed(popupInstance);
                 _openedPopups.Add(popupInstance);
                 
@@ -76,13 +74,6 @@ namespace Larje.Core.Services.UI
                 _openedPopups[^2].Show();
             }
             _openedPopups.Remove(popup);
-        }
-
-
-        [Serializable]
-        public class Options : UIProcessor.Options
-        {
-            [field: SerializeField] public List<UIPopup> Popups {get; private set;}
         }
     }
 }

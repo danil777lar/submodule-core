@@ -8,45 +8,33 @@ namespace Larje.Core.Services.UI
     [BindService(typeof(UIService))]
     public class UIService : Service
     {
-        [SerializeField] private bool _useDeviceBackButton = true;
-        [Space]
-        [SerializeField] private UIScreenProcessor.Options _screenProcessorOptions;
-        [SerializeField] private UIPopupProcessor.Options _popupProcessorOptions;
-        [SerializeField] private UIToastProcessor.Options _toastProcessorOptions;
+        [SerializeField] private bool useDeviceBackButton = true;
+        [SerializeField] private int minSortOrder;
 
-        private List<UIProcessor> _processors = new List<UIProcessor>();
+        private List<UIProcessor> _processors;
         
-        public UIScreenProcessor Screens { get; private set; }
-        public UIPopupProcessor Popups { get; private set; }
-        public UIToastProcessor Toasts { get; private set; }
+        public override void Init()
+        {
+            _processors = new List<UIProcessor>(GetComponentsInChildren<UIProcessor>());
+            _processors.ForEach(x => x.Init());
+        }
+        
+        public T GetProcessor<T>() where T : UIProcessor
+        {
+            return _processors.Find((processor) => processor is T) as T;
+        }
         
         private void Update()
         {
             UpdateDeviceBackButton();
         }
 
-        public override void Init() 
-        {
-            Screens = new UIScreenProcessor(_screenProcessorOptions);
-            _processors.Add(Screens);
-            
-            Popups = new UIPopupProcessor(_popupProcessorOptions);
-            _processors.Add(Popups);
-            
-            Toasts = new UIToastProcessor(_toastProcessorOptions);
-            _processors.Add(Toasts);
-        }
-
         private void UpdateDeviceBackButton() 
         {
-            if (_useDeviceBackButton)
+            if (useDeviceBackButton)
             {
                 if (Input.GetKeyDown(KeyCode.Escape))
                 {
-                    if (!Popups.TryClosePopupByBackButton())
-                    {
-                        Screens.ComputeDeviceBackButton();
-                    }
                 }
             }
         }

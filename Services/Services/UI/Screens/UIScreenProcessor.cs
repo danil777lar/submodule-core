@@ -4,27 +4,31 @@ using System.Collections;
 using System.Collections.Generic;
 using ProjectConstants;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Larje.Core.Services.UI
 {
     public class UIScreenProcessor : UIProcessor
     {
-        private Options _options;
+        [Space]
+        [SerializeField] private UIScreenType startScreen;
+        [SerializeField] private UIScreen[] screens;
+        
         private UIScreen _openedScreen;
         private UIScreen.Args _openedScreenProperties;
         private Stack<UIScreen.Args> _history = new Stack<UIScreen.Args>();
 
         public Action<UIScreenType, UIScreenType> ScreenChanged;
         
-        public UIScreenProcessor(Options options)
+        public override void Init()
         {
-            _options = options;
-            OpenScreen(new UIScreen.Args(_options.StartScreen), true, true);
+            base.Init();
+            OpenScreen(new UIScreen.Args(startScreen));
         }
 
         public void OpenScreen(UIScreen.Args args, bool pushToHistory = true, bool saveProperties = true)
         {
-            UIScreen screenToOpen = _options.Screens.First((screen) => screen.ScreenType == args.screenType);
+            UIScreen screenToOpen = screens.First((screen) => screen.ScreenType == args.screenType);
             if (screenToOpen != null)
             {
                 UIScreen screenToClose = _openedScreen;
@@ -37,9 +41,9 @@ namespace Larje.Core.Services.UI
                     _openedScreenProperties = args;
                 }
 
-                _openedScreen = GameObject.Instantiate(screenToOpen, _options.Holder);
+                _openedScreen = GameObject.Instantiate(screenToOpen, holder);
                 _openedScreen.Open(args);
-                _openedScreen.GetComponent<Canvas>().sortingOrder = _options.StartSortOrder;
+                //_openedScreen.GetComponent<Canvas>().sortingOrder = options.StartSortOrder;
 
                 if (screenToClose)
                 {
@@ -66,14 +70,6 @@ namespace Larje.Core.Services.UI
                 return true;
             }
             return false;
-        }
-
-
-        [Serializable]
-        public class Options : UIProcessor.Options
-        {
-            [field: SerializeField] public UIScreenType StartScreen {get; private set;}
-            [field: SerializeField] public UIScreen[] Screens {get; private set;}
         }
     }
 }
