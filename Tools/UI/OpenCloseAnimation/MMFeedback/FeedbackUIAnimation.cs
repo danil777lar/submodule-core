@@ -7,70 +7,70 @@ namespace Larje.Core.Services.UI
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(MMF_Player))]
-    public class FeedbackUIAnimation : MonoBehaviour, IUIPartCloseDelay
+    public class FeedbackUIAnimation : MonoBehaviour, IUIObjectEventDelay
     {
         [SerializeField] private bool useForceDelay;
         [SerializeField, MMCondition("useForceDelay")] private float forceDelay;
         [SerializeField] private EventType _eventType;
         private MMF_Player _feedback;
 
-        private void Awake()
+        public float OnOpen()
         {
-            _feedback = GetComponent<MMF_Player>();
-            IOpenCloseUI openCloseUI = GetComponentInParent<IOpenCloseUI>(); 
-            IShowHideUI showHideUI = GetComponentInParent<IShowHideUI>();
-
-            if (openCloseUI != null) 
-            {
-                if (_eventType.HasFlag(EventType.Open)) 
-                {
-                    openCloseUI.Opened += () => _feedback.PlayFeedbacks();
-                }
-                if (_eventType.HasFlag(EventType.Close))
-                {
-                    openCloseUI.Closed += () => _feedback.PlayFeedbacks();
-                }
-            }
-
-            if (showHideUI != null)
-            {
-                if (_eventType.HasFlag(EventType.Show))
-                {
-                    showHideUI.Shown += () => _feedback.PlayFeedbacks();
-                }
-                if (_eventType.HasFlag(EventType.Hide))
-                {
-                    showHideUI.Hidden += () => _feedback.PlayFeedbacks();
-                }
-            }
+            return OnEvent(EventType.Open);
         }
 
-        public float GetDelay()
+        public float OnClose()
         {
-            if (useForceDelay)
+            return OnEvent(EventType.Close);
+        }
+
+        public float OnShow()
+        {
+            return OnEvent(EventType.Show);
+        }
+
+        public float OnHide()
+        {
+            return OnEvent(EventType.Hide);
+        }
+
+        public float OnFocus()
+        {
+            return OnEvent(EventType.Focus);
+        }
+
+        public float OnUnfocus()
+        {
+            return OnEvent(EventType.Unfocus);
+        }
+
+        private float OnEvent(EventType eventType)
+        {
+            if (_eventType.HasFlag(eventType))
             {
-                return forceDelay;
+                _feedback.PlayFeedbacks();
+                return GetDelay();
             }
             else
             {
-                if (_eventType.HasFlag(EventType.Close) || _eventType.HasFlag(EventType.Hide))
-                {
-                    return _feedback.TotalDuration;
-                }
-                else
-                {
-                    return 0f;
-                }
+                return 0f;
             }
         }
         
+        private float GetDelay()
+        {
+            return useForceDelay ? forceDelay : _feedback.TotalDuration;
+        }
+
         [Flags]
         private enum EventType 
         {
             Open = 1, 
             Close = 2, 
             Show = 4,
-            Hide = 8
+            Hide = 8,
+            Focus = 16,
+            Unfocus = 32
         }
     }
 }

@@ -7,43 +7,10 @@ using UnityEngine;
 namespace Larje.Core.Services.UI
 {
     [RequireComponent(typeof(Canvas))]
-    public class UIScreen : MonoBehaviour, IOpenCloseUI
+    public class UIScreen : UIObject
     {
-        [SerializeField] private UIScreenType _screenType;
-        [SerializeField] private bool rewriteDeviceBackButton;
-        public UIScreenType ScreenType => _screenType;
-        public bool RewriteDeviceBackButton => rewriteDeviceBackButton;
-        public event Action Opened;
-        public event Action Closed;
-
-
-        public UIScreen Open(ScreenOpenProperties screenOpenProperties)
-        {
-            OnOpen(screenOpenProperties);
-            return this;
-        }
-
-        public void Close()
-        {
-            OnClose();
-            float delay = 0f;
-            IUIPartCloseDelay[] closeDelays = GetComponentsInChildren<IUIPartCloseDelay>();
-            if (closeDelays.Length > 0)
-            {
-                delay = closeDelays.Max((delay) => delay.GetDelay());
-            }
-            Destroy(gameObject, delay);
-        }
-
-        protected virtual void OnOpen(ScreenOpenProperties screenOpenProperties)
-        {
-            Opened?.Invoke();   
-        }
-
-        protected virtual void OnClose()
-        {
-            Closed?.Invoke();
-        }
+        [field: SerializeField] public UIScreenType ScreenType { get; private set; }
+        [field: SerializeField] public bool RewriteDeviceBackButton { get; private set; }
 
         protected virtual void OnDeviceBackButton()
         {
@@ -55,6 +22,16 @@ namespace Larje.Core.Services.UI
             if (RewriteDeviceBackButton && Input.GetKeyDown(KeyCode.Escape))
             {
                 OnDeviceBackButton();
+            }
+        }
+
+        public class Args : UIObject.Args
+        {
+            public readonly UIScreenType screenType;
+
+            public Args(UIScreenType screenType)
+            {
+                this.screenType = screenType;
             }
         }
     }

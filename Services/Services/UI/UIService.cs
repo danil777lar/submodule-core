@@ -9,33 +9,17 @@ namespace Larje.Core.Services.UI
     public class UIService : Service
     {
         [SerializeField] private bool _useDeviceBackButton = true;
-        [SerializeField] private bool _saveFirstScreen = false;
-        [Space]
-        [SerializeField] private UIScreenType _defaultScreenType;
         [Space]
         [SerializeField] private UIScreenProcessor.Options _screenProcessorOptions;
         [SerializeField] private UIPopupProcessor.Options _popupProcessorOptions;
         [SerializeField] private UIToastProcessor.Options _toastProcessorOptions;
 
-        public UIScreenProcessor Screens 
-        {
-            get;
-            private set;
-        }
-        public UIPopupProcessor Popups
-        {
-            get;
-            private set;
-        }
-        public UIToastProcessor Toasts
-        {
-            get;
-            private set;
-        }
-
-        public Action<UIScreenType, UIScreenType> ScreenChanged => Screens.ScreenChanged;
-
-
+        private List<UIProcessor> _processors = new List<UIProcessor>();
+        
+        public UIScreenProcessor Screens { get; private set; }
+        public UIPopupProcessor Popups { get; private set; }
+        public UIToastProcessor Toasts { get; private set; }
+        
         private void Update()
         {
             UpdateDeviceBackButton();
@@ -44,12 +28,14 @@ namespace Larje.Core.Services.UI
         public override void Init() 
         {
             Screens = new UIScreenProcessor(_screenProcessorOptions);
+            _processors.Add(Screens);
+            
             Popups = new UIPopupProcessor(_popupProcessorOptions);
+            _processors.Add(Popups);
+            
             Toasts = new UIToastProcessor(_toastProcessorOptions);
-
-            Screens.OpenScreen(new ScreenOpenProperties(_defaultScreenType), true, _saveFirstScreen);
+            _processors.Add(Toasts);
         }
-
 
         private void UpdateDeviceBackButton() 
         {

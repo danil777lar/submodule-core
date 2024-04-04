@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Larje.Core.Services.UI
 {
     [RequireComponent(typeof(Canvas))]
-    public class UIPopup : MonoBehaviour, IOpenCloseUI, IShowHideUI
+    public class UIPopup : UIObject
     {
         [SerializeField] private UIPopupType _popupType;
         [Space]
@@ -21,73 +21,34 @@ namespace Larje.Core.Services.UI
         public bool CloseByBackDeviceKey => _closeByBackDeviceKey;
         public UIPopupType PopupType => _popupType;
 
-        public event Action Opened;
-        public event Action Closed;
-        public event Action Shown;
-        public event Action Hidden;
-
-        public UIPopup Open(PopupOpenProperties args)
+        public override void Open(UIObject.Args args)
         {
-            OnOpened(args);
-
-            if (_closeByBackgroundClick)
+            if (!Opened)
             {
-                _background.EventPointerClick += (x) => Close();
+                if (_closeByBackgroundClick)
+                {
+                    _background.EventPointerClick += (x) => Close();
+                }
             }
-
-            return this;
-        }
-
-        public void Close()
-        {
-            OnClosed();
-            float delay = 0f;
-            IUIPartCloseDelay[] closeDelays = GetComponentsInChildren<IUIPartCloseDelay>();
-            if (closeDelays.Length > 0) 
-            {
-                delay = closeDelays.Max((delay) => delay.GetDelay());
-            }
-            Destroy(gameObject, delay);
-        }
-
-        public void TryHide() 
-        {
-            if (!_isHidden) 
-            {
-                OnHidden();
-                _isHidden = true;
-                gameObject.SetActive(false);
-            }
-        }
-
-        public void TryShow() 
-        {
-            if (_isHidden) 
-            {
-                OnShowed();
-                _isHidden = false;
-                gameObject.SetActive(true);
-            }
-        }
-
-        protected virtual void OnOpened(PopupOpenProperties args)
-        {
-            Opened?.Invoke();
-        }
-
-        protected virtual void OnClosed()
-        {
-            Closed?.Invoke();
+            
+            base.Open(args);
         }
         
-        protected virtual void OnHidden()
+        public class Args : UIObject.Args
         {
-            Hidden?.Invoke();
-        }
+            public readonly UIPopupType PopupType;
+            public readonly UIPopupCombinationType CombinationType = UIPopupCombinationType.Close;
 
-        protected virtual void OnShowed()
-        {
-            Shown?.Invoke();
+            public Args(UIPopupType popupType)
+            {
+                PopupType = popupType;
+            }
+            
+            public Args(UIPopupType popupType, UIPopupCombinationType combinationType)
+            {
+                PopupType = popupType;
+                CombinationType = combinationType;
+            }
         }
     }
 }

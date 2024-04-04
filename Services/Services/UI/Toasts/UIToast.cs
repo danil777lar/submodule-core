@@ -21,8 +21,8 @@ namespace Larje.Core.Services.UI
         private Action _toastClosed;
         public UIToastType ToastType => toastType;
         
-        public event Action Opened;
-        public event Action Closed;
+        public event Action EventOpen;
+        public event Action EventClose;
 
         public UIToast Open(string text, Action toastClosed)
         {
@@ -30,14 +30,14 @@ namespace Larje.Core.Services.UI
             tmp.text = text;
             StartCoroutine(OpenCoroutine());
             StartCoroutine(CloseDelayCoroutine());
-            Opened?.Invoke();
+            EventOpen?.Invoke();
             return this;
         }
 
         public void Close()
         {
             _toastClosed?.Invoke();
-            Closed?.Invoke();
+            EventClose?.Invoke();
             float delay = 0f;
             IUIPartCloseDelay[] closeDelays = GetComponentsInChildren<IUIPartCloseDelay>();
             if (closeDelays.Length > 0) 

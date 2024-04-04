@@ -6,31 +6,33 @@ using UnityEngine;
 
 namespace Larje.Core.Services.UI
 {
-    public class UIPopupProcessor
+    public class UIPopupProcessor : UIProcessor
     {
         private Options _options;
-        private Stack<UIPopup> _openedPopups = new Stack<UIPopup>();
-
+        private List<UIPopup> _openedPopups = new List<UIPopup>();
 
         public UIPopupProcessor(Options options)
         {
             _options = options;
         }
 
-        public UIPopup OpenPopup(PopupOpenProperties properties) 
+        public UIPopup OpenPopup(UIPopup.Args args) 
         {
-            UIPopup popupPrefab = _options.Popups.First(x => x.PopupType == properties.popupType);
+            UIPopup popupPrefab = _options.Popups.First(x => x.PopupType == args.PopupType);
             if (popupPrefab != null) 
             {
                 if (_openedPopups.Count > 0)
                 {
-                    _openedPopups.Peek().Closed -= OnLastClosed;
-                    HandleLastPopup(properties.combinationType);
+                    HandleLastPopup(args.CombinationType);
                 }
-                _openedPopups.Push(GameObject.Instantiate(popupPrefab, _options.PopupHolder).Open(properties));
-                _openedPopups.Peek().GetComponent<Canvas>().sortingOrder = _options.StartSortOrder + _openedPopups.Count;
-                _openedPopups.Peek().Closed += OnLastClosed;
-                return _openedPopups.Peek();
+
+                UIPopup popupInstance = GameObject.Instantiate(popupPrefab, _options.Holder);
+                popupInstance.Open(args);
+                popupInstance.GetComponent<Canvas>().sortingOrder = _options.StartSortOrder + _openedPopups.Count;
+                popupInstance.EventClose += () => OnPopupClosed(popupInstance);
+                _openedPopups.Add(popupInstance);
+                
+                return popupInstance;
             }
 
             return null;
@@ -40,9 +42,9 @@ namespace Larje.Core.Services.UI
         {
             if (_openedPopups.Count > 0)
             {
-                if (_openedPopups.Peek().CloseByBackDeviceKey)
+                if (_openedPopups.Last().CloseByBackDeviceKey)
                 {
-                    _openedPopups.Peek().Close();
+                    _openedPopups.Last().Close();
                 }
                 return true;
             }
@@ -52,42 +54,35 @@ namespace Larje.Core.Services.UI
             }
         }
 
-        private void HandleLastPopup(PopupCombinationType combinationType) 
+        private void HandleLastPopup(UIPopupCombinationType combinationType) 
         {
             switch (combinationType) 
             {
-                case PopupCombinationType.Overlay:
+                case UIPopupCombinationType.Overlay:
                     break;
-                case PopupCombinationType.Close:
-                    _openedPopups.Peek().Close();
+                case UIPopupCombinationType.Close:
+                    _openedPopups.Last().Close();
                     break;
-                case PopupCombinationType.Hide:
-                    _openedPopups.Peek().TryHide();
+                case UIPopupCombinationType.Hide:
+                    _openedPopups.Last().Hide();
                     break;
             }
         }
 
-        private void OnLastClosed() 
+        private void OnPopupClosed(UIPopup popup) 
         {
-            _openedPopups.Pop().Closed -= OnLastClosed;
-            if (_openedPopups.Count > 0)
+            if (_openedPopups.Count > 1 && _openedPopups.Last() == popup)
             {
-                _openedPopups.Peek().Closed += OnLastClosed;
-                _openedPopups.Peek().TryShow();
+                _openedPopups[^2].Show();
             }
+            _openedPopups.Remove(popup);
         }
 
 
         [Serializable]
-        public class Options
+        public class Options : UIProcessor.Options
         {
-            [SerializeField] private int _startSortOrder;
-            [SerializeField] private Transform _popupHolder;
-            [SerializeField] private UIPopup[] _popups;
-
-            public int StartSortOrder => _startSortOrder;
-            public Transform PopupHolder => _popupHolder;
-            public UIPopup[] Popups => _popups;
+            [field: SerializeField] public List<UIPopup> Popups {get; private set;}
         }
     }
 }

@@ -7,23 +7,22 @@ using UnityEngine;
 
 namespace Larje.Core.Services.UI
 {
-    public class UIScreenProcessor
+    public class UIScreenProcessor : UIProcessor
     {
         private Options _options;
         private UIScreen _openedScreen;
-        private ScreenOpenProperties _openedScreenProperties;
-        private Stack<ScreenOpenProperties> _history = new Stack<ScreenOpenProperties>();
+        private UIScreen.Args _openedScreenProperties;
+        private Stack<UIScreen.Args> _history = new Stack<UIScreen.Args>();
 
         public Action<UIScreenType, UIScreenType> ScreenChanged;
-
-
+        
         public UIScreenProcessor(Options options)
         {
             _options = options;
+            OpenScreen(new UIScreen.Args(_options.StartScreen), true, true);
         }
 
-
-        public void OpenScreen(ScreenOpenProperties args, bool pushToHistory = true, bool saveProperties = true)
+        public void OpenScreen(UIScreen.Args args, bool pushToHistory = true, bool saveProperties = true)
         {
             UIScreen screenToOpen = _options.Screens.First((screen) => screen.ScreenType == args.screenType);
             if (screenToOpen != null)
@@ -38,7 +37,8 @@ namespace Larje.Core.Services.UI
                     _openedScreenProperties = args;
                 }
 
-                _openedScreen = GameObject.Instantiate(screenToOpen, _options.ScreenHolder).Open(args);
+                _openedScreen = GameObject.Instantiate(screenToOpen, _options.Holder);
+                _openedScreen.Open(args);
                 _openedScreen.GetComponent<Canvas>().sortingOrder = _options.StartSortOrder;
 
                 if (screenToClose)
@@ -70,15 +70,10 @@ namespace Larje.Core.Services.UI
 
 
         [Serializable]
-        public class Options 
+        public class Options : UIProcessor.Options
         {
-            [SerializeField] private int _startSortOrder;
-            [SerializeField] private Transform _screenHolder;
-            [SerializeField] private UIScreen[] _screens;
-
-            public int StartSortOrder => _startSortOrder;
-            public Transform ScreenHolder => _screenHolder;
-            public UIScreen[] Screens => _screens;
+            [field: SerializeField] public UIScreenType StartScreen {get; private set;}
+            [field: SerializeField] public UIScreen[] Screens {get; private set;}
         }
     }
 }
