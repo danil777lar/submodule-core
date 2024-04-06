@@ -32,20 +32,20 @@ namespace Larje.Core.Services.UI
             base.Open(args);
         }
         
-        public class Args : UIObject.Args
+        public new class Args : UIObject.Args
         {
             public readonly UIPopupType PopupType;
             public readonly UIPopupCombinationType CombinationType = UIPopupCombinationType.Close;
 
             public Args(UIPopupType popupType)
             {
-                PopupType = popupType;
+                this.PopupType = popupType;
             }
             
             public Args(UIPopupType popupType, UIPopupCombinationType combinationType)
             {
-                PopupType = popupType;
-                CombinationType = combinationType;
+                this.PopupType = popupType;
+                this.CombinationType = combinationType;
             }
         }
     }

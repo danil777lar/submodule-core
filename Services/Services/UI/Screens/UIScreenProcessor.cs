@@ -52,20 +52,17 @@ namespace Larje.Core.Services.UI
 
         public override bool Back()
         {
-            if (_openedScreens.Count > 1)
+            for (int i = _openedScreens.Count - 1; i >= 0; i--)
             {
-                for (int i = _openedScreens.Count - 1; i >= 0; i--)
+                bool result = _openedScreens[i].Back();
+                if (result)
                 {
-                    bool result = _openedScreens[i].Back();
-                    if (result)
+                    if (i > 0)
                     {
-                        if (i > 0)
-                        {
-                            _openedScreens[i - 1].Show();
-                        }
-
-                        return true;
+                        _openedScreens[i - 1].Show();
                     }
+
+                    return true;
                 }
             }
 

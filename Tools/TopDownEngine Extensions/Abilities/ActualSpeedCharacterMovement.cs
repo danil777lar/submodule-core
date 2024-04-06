@@ -57,7 +57,15 @@ namespace Larje.Core.Tools.TopDownEngine
         {
             ActualSpeed = Vector3.Distance(transform.position, _lastPosition) / Time.fixedDeltaTime;
             _lastPosition = transform.position;
-            ActualSpeedPercent = ActualSpeed / MovementSpeed;
+            
+            if (MovementSpeed > 0f)
+            {
+                ActualSpeedPercent = ActualSpeed / MovementSpeed;   
+            }
+            else
+            {
+                ActualSpeedPercent = 0f;
+            }
         }
 
         protected override void HandleDirection()

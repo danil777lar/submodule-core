@@ -54,7 +54,7 @@ namespace Larje.Core.Services
             }
         }
 
-        public abstract class StopData
+        public class StopData
         {
             public readonly LevelStopType StopType;
 

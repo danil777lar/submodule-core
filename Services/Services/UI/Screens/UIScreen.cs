@@ -12,7 +12,7 @@ namespace Larje.Core.Services.UI
         [field: SerializeField] public bool ClearHistoryOnOpen { get; private set; }
         [field: SerializeField] public UIScreenType ScreenType { get; private set; }
 
-        public class Args : UIObject.Args
+        public new class Args : UIObject.Args
         {
             public readonly UIScreenType screenType;
 
