@@ -12,6 +12,7 @@ namespace Larje.Core.Services.UI
     {
         [SerializeField] private bool useDeviceBackButton = true;
         [SerializeField] private bool blockNextDeviceBackButtonInvokes = true;
+        [SerializeField] private bool focusTarget = true;
         
         private bool _opened;
         private bool _closed;
@@ -25,6 +26,7 @@ namespace Larje.Core.Services.UI
         public bool Closed => _closed;
         public bool Hidden => _hidden;
         public bool Focused => _focused;
+        public bool FocusTarget => focusTarget;
         
         public event Action EventOpen;
         public event Action EventClose;
@@ -76,7 +78,7 @@ namespace Larje.Core.Services.UI
         
         public virtual void Show()
         {
-            if (_hidden)
+            if (_hidden && !_closed)
             {
                 _hidden = false;
                 
@@ -94,7 +96,7 @@ namespace Larje.Core.Services.UI
         
         public virtual void Hide()
         {
-            if (!_hidden)
+            if (!_hidden && !_closed)
             {
                 _hidden = true;
                 
@@ -115,7 +117,7 @@ namespace Larje.Core.Services.UI
         
         public virtual void Focus()
         {
-            if (!_focused)
+            if (!_focused && focusTarget && !_closed)
             {
                 _focused = true;
                 
@@ -132,7 +134,7 @@ namespace Larje.Core.Services.UI
 
         public virtual void Unfocus()
         {
-            if (_focused)
+            if (_focused && focusTarget && !_closed)
             {
                 _focused = false;
                 

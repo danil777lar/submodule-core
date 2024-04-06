@@ -16,7 +16,6 @@ namespace Larje.Core.Services
 
         public GameData Data => _data;
 
-
         public override void Init()
         {
             Load();

@@ -16,6 +16,7 @@ namespace Larje.Core.Services.UI
         private List<UIObject> _openedUIObjects = new List<UIObject>();
         
         public event Action EventOpenedObjectsChanged;
+        public event Action EventShownObjectsChanged;
         
         public virtual void Init(int maxSortingOrder)
         {
@@ -42,6 +43,28 @@ namespace Larje.Core.Services.UI
             
             return _openedUIObjects.Count;
         }
+
+        public GameObject SetFocusStates(bool canBeFocused)
+        {
+            GameObject focusedObject = null; 
+            foreach (UIObject uiObject in _openedUIObjects.ToArray().Reverse())
+            {
+                if (uiObject != null && uiObject.FocusTarget)
+                {
+                    if (focusedObject != null || !canBeFocused)
+                    {
+                        uiObject.Unfocus();
+                    }
+                    else
+                    {
+                        uiObject.Focus();
+                        focusedObject = uiObject.gameObject;   
+                    }
+                }
+            }
+            
+            return focusedObject;
+        }
         
         public abstract bool Back();
         
@@ -50,7 +73,12 @@ namespace Larje.Core.Services.UI
             if (!_openedUIObjects.Contains(uiObject))
             {
                 _openedUIObjects.Add(uiObject);
+                
+                uiObject.EventShow += OnUiObjectShowHide;
+                uiObject.EventHide += OnUiObjectShowHide;
+                
                 EventOpenedObjectsChanged?.Invoke();
+                EventShownObjectsChanged?.Invoke();
             }
         }
         
@@ -60,7 +88,13 @@ namespace Larje.Core.Services.UI
             {
                 _openedUIObjects.Remove(uiObject);
                 EventOpenedObjectsChanged?.Invoke();
+                EventShownObjectsChanged?.Invoke();
             }
+        }
+        
+        private void OnUiObjectShowHide()
+        {
+            EventShownObjectsChanged?.Invoke();
         }
     }
 }

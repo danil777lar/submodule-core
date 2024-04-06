@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MoreMountains.Tools;
 using ProjectConstants;
 using UnityEngine;
 
@@ -11,7 +12,9 @@ namespace Larje.Core.Services.UI
     {
         [SerializeField] private bool useDeviceBackButton = true;
         [SerializeField] private int maxSortOrder;
-
+        [field: Space]
+        [field: SerializeField, MMReadOnly] public GameObject FocusedObject { get; private set; }
+        
         private List<UIProcessor> _processors;
         
         public override void Init()
@@ -21,6 +24,7 @@ namespace Larje.Core.Services.UI
             {
                 x.Init(maxSortOrder);
                 x.EventOpenedObjectsChanged += OnProcessorOpenedObjectsChanged;
+                x.EventShownObjectsChanged += OnProcessorShownObjectsChanged;
             });
         }
 
@@ -63,6 +67,21 @@ namespace Larje.Core.Services.UI
             {
                 offset += processor.SetSortingOrders(offset);
             }
+        }
+        
+        private void OnProcessorShownObjectsChanged()
+        {
+            GameObject focusedObject = null;
+            foreach (UIProcessor processor in GetProcessorsByPriority())
+            {
+                GameObject focused = processor.SetFocusStates(focusedObject == null);
+                if (focused != null)
+                {
+                    focusedObject = focused;
+                }
+            }
+
+            FocusedObject = focusedObject;
         }
         
         private List<UIProcessor> GetProcessorsByPriority()
