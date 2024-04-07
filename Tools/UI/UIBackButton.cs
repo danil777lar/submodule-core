@@ -15,7 +15,7 @@ namespace Larje.Core.Services.UI
 
         private void Start()
         {
-            ServiceLocator.Default.InjectServicesInComponent(this);
+            ServiceLocator.Instance.InjectServicesInComponent(this);
 
             _button = GetComponent<Button>();
             _button.onClick.AddListener(OnButtonClicked);

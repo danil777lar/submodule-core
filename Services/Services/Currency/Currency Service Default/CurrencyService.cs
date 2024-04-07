@@ -13,7 +13,7 @@ namespace Larje.Core.Services
         [InjectService] private DataService _dataService;
         private List<CurrencyData> _currencyDatas;
 
-        public event Action CurrencyChanged;
+        public event Action EventCurrencyChanged;
         
         public override void Init()
         {
@@ -87,7 +87,7 @@ namespace Larje.Core.Services
             }
 
             placementData.count = count;
-            CurrencyChanged?.Invoke();
+            EventCurrencyChanged?.Invoke();
             _dataService.Save();
         }
     }

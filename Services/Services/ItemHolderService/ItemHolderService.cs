@@ -18,7 +18,7 @@ namespace Larje.Core.Services
 
         public override void Init()
         {
-            ServiceLocator.Default.InjectServicesInComponent(this, typeof(ItemHolderService));
+            ServiceLocator.Instance.InjectServicesInComponent(this, typeof(ItemHolderService));
         }
 
         public void UnlockItem(ItemType itemType, string itemName)

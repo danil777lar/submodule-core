@@ -10,8 +10,8 @@ namespace Larje.Core.Services
     {
         #region Default
 
-        private static ServiceLocator _default;
-        public static ServiceLocator Default => _default;
+        private static ServiceLocator _instance;
+        public static ServiceLocator Instance => _instance;
 
         #endregion
 
@@ -22,7 +22,7 @@ namespace Larje.Core.Services
 
         private void Awake()
         {
-            _default = this;
+            _instance = this;
             _services = new Dictionary<Type, Service>();
 
             BindChildren();

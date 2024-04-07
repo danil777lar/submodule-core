@@ -40,7 +40,7 @@ namespace Larje.Core.Tools
 
         private void Start()
         {
-            ServiceLocator.Default.InjectServicesInComponent(this);
+            ServiceLocator.Instance.InjectServicesInComponent(this);
             selectable = GetComponent<Selectable>();
             if (config == null)
             {

@@ -23,22 +23,22 @@ public class CurrencyCounter : MonoBehaviour
     
     private void Awake()
     {
-        ServiceLocator.Default.InjectServicesInComponent(this);
+        ServiceLocator.Instance.InjectServicesInComponent(this);
         _tmp = GetComponent<TextMeshProUGUI>();
     }
 
     private void OnEnable()
     {
-        _currencyService.CurrencyChanged += OnCurrencyUpdated;
-        OnCurrencyUpdated();
+        _currencyService.EventCurrencyChanged += OnEventCurrencyUpdated;
+        OnEventCurrencyUpdated();
     }
     
     private void OnDisable()
     {
-        _currencyService.CurrencyChanged -= OnCurrencyUpdated;
+        _currencyService.EventCurrencyChanged -= OnEventCurrencyUpdated;
     }
 
-    private void OnCurrencyUpdated()
+    private void OnEventCurrencyUpdated()
     {
         int sum = 0;
         foreach (CurrencyPlacementType placement in Enum.GetValues(typeof(CurrencyPlacementType)))

@@ -5,7 +5,7 @@ namespace Larje.Core.Services
 {
     public interface ICurrencyService
     {
-        public event Action CurrencyChanged;
+        public event Action EventCurrencyChanged;
 
         public void AddCurrency(CurrencyType currency, CurrencyPlacementType placement, int count);
 
