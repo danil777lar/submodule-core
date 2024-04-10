@@ -8,22 +8,21 @@ namespace Larje.Core.Tools.TopDownEngine
     public class MoveBasedCharacterOrientation3D : CharacterAbility
     {
         public Transform forceTarget;
+        public Transform forceLookTarget;
         
         [SerializeField] private float minRotationSpeed;
         [SerializeField] private float maxRotationSpeed;
         [Space] 
         [SerializeField] private Transform model;
+        [SerializeField] private Transform modelLook;
 
-        private Vector3 _lastPosition;
         private float _lastRotateTime;
+        private Vector3 _lastPosition;
         private Vector3 _currentDirection;
+        private Vector3 _currentLookDirection;
         private ActualSpeedCharacterMovement _actualSpeedMovement;
-
-        protected override void Initialization()
-        {
-            base.Initialization();
-            _actualSpeedMovement = _character.FindAbility<ActualSpeedCharacterMovement>();
-        }
+        
+        public Vector3 LookDirection => _currentLookDirection;
 
         public override void ProcessAbility()
         {
@@ -46,6 +45,15 @@ namespace Larje.Core.Tools.TopDownEngine
 
             CatchDirection();
             Rotate();
+            
+            CatchLookDirection();
+            RotateLook();
+        }
+
+        protected override void Initialization()
+        {
+            base.Initialization();
+            _actualSpeedMovement = _character.FindAbility<ActualSpeedCharacterMovement>();
         }
 
         private void CatchDirection()
@@ -61,6 +69,18 @@ namespace Larje.Core.Tools.TopDownEngine
             _lastPosition = transform.position;
         }
 
+        private void CatchLookDirection()
+        {
+            if (forceLookTarget)
+            {
+                _currentLookDirection = (forceLookTarget.position - transform.position).normalized.XZ();
+            }
+            else
+            {
+                _currentLookDirection = _currentDirection;
+            }
+        }
+
         private void Rotate()
         {
             float timeDelta = Time.time - _lastRotateTime; 
@@ -72,6 +92,14 @@ namespace Larje.Core.Tools.TopDownEngine
                 model.rotation = Quaternion.RotateTowards(model.rotation, rotation, rotationSpeed);
             }
             _lastRotateTime = Time.time;
+        }
+
+        private void RotateLook()
+        {
+            if (modelLook != null && _currentLookDirection != Vector3.zero)
+            {
+                modelLook.rotation = Quaternion.LookRotation(_currentLookDirection);
+            }
         }
     }
 }
