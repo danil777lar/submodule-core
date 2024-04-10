@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Larje.Core.Tools.TopDownEngine
 {
-    public class MoveBasedCharacterOrientation3D : CharacterAbility
+    public class CoreCharacterOrientation3D : CharacterAbility
     {
         public Transform forceTarget;
         public Transform forceLookTarget;
@@ -13,14 +13,13 @@ namespace Larje.Core.Tools.TopDownEngine
         [SerializeField] private float minRotationSpeed;
         [SerializeField] private float maxRotationSpeed;
         [Space] 
-        [SerializeField] private Transform model;
         [SerializeField] private Transform modelLook;
 
         private float _lastRotateTime;
         private Vector3 _lastPosition;
         private Vector3 _currentDirection;
         private Vector3 _currentLookDirection;
-        private ActualSpeedCharacterMovement _actualSpeedMovement;
+        private CoreCharacterMovement _coreMovement;
         
         public Vector3 LookDirection => _currentLookDirection;
 
@@ -29,11 +28,6 @@ namespace Larje.Core.Tools.TopDownEngine
             base.ProcessAbility();
 
             if (_condition.CurrentState != CharacterStates.CharacterConditions.Normal)
-            {
-                return;
-            }
-
-            if (model == null)
             {
                 return;
             }
@@ -53,7 +47,7 @@ namespace Larje.Core.Tools.TopDownEngine
         protected override void Initialization()
         {
             base.Initialization();
-            _actualSpeedMovement = _character.FindAbility<ActualSpeedCharacterMovement>();
+            _coreMovement = _character.FindAbility<CoreCharacterMovement>();
         }
 
         private void CatchDirection()
@@ -87,9 +81,10 @@ namespace Larje.Core.Tools.TopDownEngine
             if (_currentDirection != Vector3.zero)
             {
                 float rotationSpeed = Mathf.Lerp(minRotationSpeed, maxRotationSpeed,
-                    _actualSpeedMovement.ActualSpeedPercent) * timeDelta;
+                    _coreMovement.ActualSpeedPercent) * timeDelta;
                 Quaternion rotation = Quaternion.LookRotation(_currentDirection);
-                model.rotation = Quaternion.RotateTowards(model.rotation, rotation, rotationSpeed);
+                _character.CharacterModel.transform.rotation = Quaternion.RotateTowards(
+                    _character.CharacterModel.transform.rotation, rotation, rotationSpeed);
             }
             _lastRotateTime = Time.time;
         }

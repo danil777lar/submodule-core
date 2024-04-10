@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Larje.Core.Tools.TopDownEngine
 {
-    public class ActualSpeedCharacterMovement : CharacterMovement
+    public class CoreCharacterMovement : CharacterMovement
     {
         [SerializeField] private bool drawLimitsGizmo = true;
         
@@ -17,28 +17,50 @@ namespace Larje.Core.Tools.TopDownEngine
 
         protected const string _blendAnimationParameterName = "MoveBlend";
         protected const string _actualSpeedAnimationParameterName = "ActualSpeed";
+        protected const string _modelRelativeDirectionXParameterName = "ModelRelativeDirectionX";
+        protected const string _modelRelativeDirectionYParameterName = "ModelRelativeDirectionY";
         protected int _blendAnimationParameter;
         protected int _actualSpeedAnimationParameter;
+        protected int _modelRelativeDirectionXParameter;
+        protected int _modelRelativeDirectionYParameter;
 
         public float ActualSpeed { get; private set; }
         public float ActualSpeedPercent { get; private set; }
+        public Vector3 ActualDirection { get; private set; }
+        public Vector3 ModelRelativeDirection { get; private set; }
 
         protected override void InitializeAnimatorParameters()
         {
             base.InitializeAnimatorParameters();
+            
             RegisterAnimatorParameter(_blendAnimationParameterName, AnimatorControllerParameterType.Float,
                 out _blendAnimationParameter);
+            
             RegisterAnimatorParameter(_actualSpeedAnimationParameterName, AnimatorControllerParameterType.Float,
                 out _actualSpeedAnimationParameter);
+            
+            RegisterAnimatorParameter(_modelRelativeDirectionXParameterName, AnimatorControllerParameterType.Float, 
+                out _modelRelativeDirectionXParameter);
+            
+            RegisterAnimatorParameter(_modelRelativeDirectionYParameterName, AnimatorControllerParameterType.Float, 
+                out _modelRelativeDirectionYParameter);
         }
 
         public override void UpdateAnimator()
         {
             base.UpdateAnimator();
+            
             MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _blendAnimationParameter, ActualSpeedPercent,
                 _character._animatorParameters, _character.RunAnimatorSanityChecks);
+            
             MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _actualSpeedAnimationParameter, ActualSpeed,
                 _character._animatorParameters, _character.RunAnimatorSanityChecks);
+            
+            MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _modelRelativeDirectionXParameter, 
+                ModelRelativeDirection.x, _character._animatorParameters, _character.RunAnimatorSanityChecks);
+            
+            MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _modelRelativeDirectionYParameter, 
+                ModelRelativeDirection.z, _character._animatorParameters, _character.RunAnimatorSanityChecks);
         }
 
         public void SetLimit(Vector3 direction, float range)
@@ -56,6 +78,8 @@ namespace Larje.Core.Tools.TopDownEngine
         protected void FixedUpdate()
         {
             ActualSpeed = Vector3.Distance(transform.position, _lastPosition) / Time.fixedDeltaTime;
+            ActualDirection = (transform.position - _lastPosition).normalized;
+            ModelRelativeDirection = _character.CharacterModel.transform.InverseTransformDirection(ActualDirection);
             _lastPosition = transform.position;
             
             if (MovementSpeed > 0f)
