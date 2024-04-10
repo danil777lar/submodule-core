@@ -71,7 +71,8 @@ namespace Larje.Core.Tools.TopDownEngine
             }
             else
             {
-                _currentLookDirection = _currentDirection;
+                float angle = Mathf.Sin(Time.time) * 45f;
+                _currentLookDirection = Quaternion.Euler(0f, angle, 0f) * _currentDirection;
             }
         }
 
