@@ -11,6 +11,9 @@ namespace Larje.Core.Tools.TopDownEngine
         public Transform forceLookTarget;
         
         [SerializeField] private Vector3 rotationMultiplier = Vector3.one;
+        [Space] 
+        [SerializeField] private float lookAngle;
+        [Space]
         [SerializeField] private float minRotationSpeed;
         [SerializeField] private float maxRotationSpeed;
         [Space] 
@@ -40,6 +43,7 @@ namespace Larje.Core.Tools.TopDownEngine
             }
 
             CatchDirection();
+            ApplyLimit();
             Rotate();
             
             CatchLookDirection();
@@ -60,7 +64,11 @@ namespace Larje.Core.Tools.TopDownEngine
             }
             else
             {
-                _currentDirection = (transform.position - _lastPosition).normalized;   
+                Vector3 actualDirection = (transform.position - _lastPosition).normalized;
+                if (actualDirection != Vector3.zero)
+                {
+                    _currentDirection = actualDirection;
+                }
             }
             _lastPosition = transform.position;
         }
@@ -78,6 +86,24 @@ namespace Larje.Core.Tools.TopDownEngine
             }
         }
 
+        private void ApplyLimit()
+        {
+            if (forceLookTarget)
+            {
+                Vector3 limitDirection = transform.position - forceLookTarget.position;
+                
+                float angle = Vector3.Angle(limitDirection, _currentDirection);
+                float signedAngle = Vector3.SignedAngle(limitDirection, _currentDirection, Vector3.up);
+
+                if (angle < lookAngle * 0.5f)
+                {
+                    float rotateAngle = lookAngle * 0.5f - angle;
+                    rotateAngle *= signedAngle < 0f ? -1 : 1f;
+                    _currentDirection = Quaternion.Euler(0, rotateAngle, 0) * _currentDirection;
+                }   
+            }
+        }
+        
         private void Rotate()
         {
             float timeDelta = Time.time - _lastRotateTime; 
