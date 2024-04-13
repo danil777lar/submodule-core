@@ -80,15 +80,9 @@ namespace Larje.Core.Tools.TopDownEngine
 
         private void CatchLookDirection()
         {
-            if (forceLookTarget)
-            {
-                _currentLookDirection = (forceLookTarget.position - transform.position).normalized.XZ();
-            }
-            else
-            {
-                float angle = Mathf.Sin(Time.time) * 45f;
-                _currentLookDirection = Quaternion.Euler(0f, angle, 0f) * _currentDirection;
-            }
+            _currentLookDirection = forceLookTarget ? 
+                (forceLookTarget.position - transform.position).normalized.XZ() : 
+                _currentDirection;
         }
 
         private void ApplyLimit()
