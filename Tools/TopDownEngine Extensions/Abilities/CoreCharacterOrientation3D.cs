@@ -38,7 +38,7 @@ namespace Larje.Core.Tools.TopDownEngine
                 return;
             }
 
-            if (!AbilityAuthorized)
+            if (!AbilityAuthorized || !AbilityPermitted)
             {
                 return;
             }

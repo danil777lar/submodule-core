@@ -12,6 +12,7 @@ namespace Larje.Core.Tools.TopDownEngine
         
         private bool _useLimit;
         private float _limitRange;
+        private float _lastUpdateTime;
         private Vector3 _limitDirection;
         private Vector3 _lastPosition;
 
@@ -28,23 +29,6 @@ namespace Larje.Core.Tools.TopDownEngine
         public float ActualSpeedPercent { get; private set; }
         public Vector3 ActualDirection { get; private set; }
         public Vector3 ModelRelativeDirection { get; private set; }
-
-        protected override void InitializeAnimatorParameters()
-        {
-            base.InitializeAnimatorParameters();
-            
-            RegisterAnimatorParameter(_blendAnimationParameterName, AnimatorControllerParameterType.Float,
-                out _blendAnimationParameter);
-            
-            RegisterAnimatorParameter(_actualSpeedAnimationParameterName, AnimatorControllerParameterType.Float,
-                out _actualSpeedAnimationParameter);
-            
-            RegisterAnimatorParameter(_modelRelativeDirectionXParameterName, AnimatorControllerParameterType.Float, 
-                out _modelRelativeDirectionXParameter);
-            
-            RegisterAnimatorParameter(_modelRelativeDirectionYParameterName, AnimatorControllerParameterType.Float, 
-                out _modelRelativeDirectionYParameter);
-        }
 
         public override void UpdateAnimator()
         {
@@ -69,15 +53,27 @@ namespace Larje.Core.Tools.TopDownEngine
             _limitDirection = direction;
             _limitRange = range;
         }
-        
+
         public void RemoveLimit()
         {
             _useLimit = false;
         }
 
-        protected void FixedUpdate()
+        public override void ProcessAbility()
         {
-            ActualSpeed = Vector3.Distance(transform.position, _lastPosition) / Time.fixedDeltaTime;
+            base.ProcessAbility();
+
+            float deltaTime = Time.time - _lastUpdateTime;
+            if (AbilityPermitted && AbilityAuthorized)
+            {
+                UpdateMovement(deltaTime);
+            }
+            _lastUpdateTime = Time.time;        
+        }
+        
+        protected void UpdateMovement(float deltaTime)
+        {
+            ActualSpeed = Vector3.Distance(transform.position, _lastPosition) / deltaTime;
             ActualDirection = (transform.position - _lastPosition).normalized;
             ModelRelativeDirection = _character.CharacterModel.transform.InverseTransformDirection(ActualDirection);
             _lastPosition = transform.position;
@@ -90,6 +86,23 @@ namespace Larje.Core.Tools.TopDownEngine
             {
                 ActualSpeedPercent = 0f;
             }
+        }
+
+        protected override void InitializeAnimatorParameters()
+        {
+            base.InitializeAnimatorParameters();
+            
+            RegisterAnimatorParameter(_blendAnimationParameterName, AnimatorControllerParameterType.Float,
+                out _blendAnimationParameter);
+            
+            RegisterAnimatorParameter(_actualSpeedAnimationParameterName, AnimatorControllerParameterType.Float,
+                out _actualSpeedAnimationParameter);
+            
+            RegisterAnimatorParameter(_modelRelativeDirectionXParameterName, AnimatorControllerParameterType.Float, 
+                out _modelRelativeDirectionXParameter);
+            
+            RegisterAnimatorParameter(_modelRelativeDirectionYParameterName, AnimatorControllerParameterType.Float, 
+                out _modelRelativeDirectionYParameter);
         }
 
         protected override void HandleDirection()
