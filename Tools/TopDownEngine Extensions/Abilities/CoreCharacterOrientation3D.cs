@@ -21,6 +21,7 @@ namespace Larje.Core.Tools.TopDownEngine
         private Vector3 _currentLookDirection;
         private CoreCharacterMovement _coreMovement;
         
+        public Vector3 Direction => _currentDirection;
         public Vector3 LookDirection => _currentLookDirection;
 
         public override void ProcessAbility()
