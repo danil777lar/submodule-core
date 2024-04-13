@@ -10,6 +10,7 @@ namespace Larje.Core.Tools.TopDownEngine
         public Transform forceTarget;
         public Transform forceLookTarget;
         
+        [SerializeField] private Vector3 rotationMultiplier = Vector3.one;
         [SerializeField] private float minRotationSpeed;
         [SerializeField] private float maxRotationSpeed;
         [Space] 
@@ -85,6 +86,7 @@ namespace Larje.Core.Tools.TopDownEngine
                 float rotationSpeed = Mathf.Lerp(minRotationSpeed, maxRotationSpeed,
                     _coreMovement.ActualSpeedPercent) * timeDelta;
                 Quaternion rotation = Quaternion.LookRotation(_currentDirection);
+                rotation = Quaternion.Euler(Vector3.Scale(rotation.eulerAngles, rotationMultiplier));
                 _character.CharacterModel.transform.rotation = Quaternion.RotateTowards(
                     _character.CharacterModel.transform.rotation, rotation, rotationSpeed);
             }
