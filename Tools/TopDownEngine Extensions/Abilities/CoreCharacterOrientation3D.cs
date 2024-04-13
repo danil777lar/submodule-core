@@ -94,7 +94,8 @@ namespace Larje.Core.Tools.TopDownEngine
         {
             if (modelLook != null && _currentLookDirection != Vector3.zero)
             {
-                modelLook.rotation = Quaternion.LookRotation(_currentLookDirection);
+                Quaternion rotation = Quaternion.LookRotation(_currentLookDirection);
+                modelLook.rotation = Quaternion.Lerp(modelLook.rotation, rotation, Time.fixedDeltaTime * 10f);
             }
         }
     }
