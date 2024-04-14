@@ -131,13 +131,16 @@ namespace Larje.Core.Tools.TopDownEngine
 
         private void FixedUpdate()
         {
-            if (AbilityPermitted && AbilityAuthorized)
+            UpdateMovement(Time.fixedDeltaTime);
+            if (!AbilityPermitted || !AbilityAuthorized)
             {
-                UpdateMovement(Time.fixedDeltaTime);
+                _horizontalMovement = 0f;
+                _verticalMovement = 0f;
+                SetMovement();
             }
         }
 
-    private Vector3 RotateVector(Vector3 vector, float angle)
+        private Vector3 RotateVector(Vector3 vector, float angle)
         {
             return (Quaternion.Euler(0, angle, 0) * vector);
         }
