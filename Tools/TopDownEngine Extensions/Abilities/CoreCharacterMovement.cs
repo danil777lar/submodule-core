@@ -9,10 +9,9 @@ namespace Larje.Core.Tools.TopDownEngine
     public class CoreCharacterMovement : CharacterMovement
     {
         [SerializeField] private bool drawLimitsGizmo = true;
-        
+
         private bool _useLimit;
         private float _limitRange;
-        private float _lastUpdateTime;
         private Vector3 _limitDirection;
         private Vector3 _lastPosition;
 
@@ -33,17 +32,17 @@ namespace Larje.Core.Tools.TopDownEngine
         public override void UpdateAnimator()
         {
             base.UpdateAnimator();
-            
+
             MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _blendAnimationParameter, ActualSpeedPercent,
                 _character._animatorParameters, _character.RunAnimatorSanityChecks);
-            
+
             MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _actualSpeedAnimationParameter, ActualSpeed,
                 _character._animatorParameters, _character.RunAnimatorSanityChecks);
-            
-            MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _modelRelativeDirectionXParameter, 
+
+            MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _modelRelativeDirectionXParameter,
                 ModelRelativeDirection.x, _character._animatorParameters, _character.RunAnimatorSanityChecks);
-            
-            MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _modelRelativeDirectionYParameter, 
+
+            MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _modelRelativeDirectionYParameter,
                 ModelRelativeDirection.z, _character._animatorParameters, _character.RunAnimatorSanityChecks);
         }
 
@@ -59,49 +58,40 @@ namespace Larje.Core.Tools.TopDownEngine
             _useLimit = false;
         }
 
-        public override void ProcessAbility()
-        {
-            base.ProcessAbility();
-
-            float deltaTime = Time.time - _lastUpdateTime;
-            if (AbilityPermitted && AbilityAuthorized)
-            {
-                UpdateMovement(deltaTime);
-            }
-            _lastUpdateTime = Time.time;        
-        }
-        
         protected void UpdateMovement(float deltaTime)
         {
-            ActualSpeed = Vector3.Distance(transform.position, _lastPosition) / deltaTime;
-            ActualDirection = (transform.position - _lastPosition).normalized;
-            ModelRelativeDirection = _character.CharacterModel.transform.InverseTransformDirection(ActualDirection);
-            _lastPosition = transform.position;
-            
-            if (MovementSpeed > 0f)
+            if (deltaTime > 0f)
             {
-                ActualSpeedPercent = ActualSpeed / MovementSpeed;   
-            }
-            else
-            {
-                ActualSpeedPercent = 0f;
+                ActualSpeed = Vector3.Distance(transform.position, _lastPosition) / deltaTime;
+                ActualDirection = (transform.position - _lastPosition).normalized;
+                ModelRelativeDirection = _character.CharacterModel.transform.InverseTransformDirection(ActualDirection);
+                _lastPosition = transform.position;
+
+                if (MovementSpeed > 0f)
+                {
+                    ActualSpeedPercent = ActualSpeed / MovementSpeed;
+                }
+                else
+                {
+                    ActualSpeedPercent = 0f;
+                }
             }
         }
 
         protected override void InitializeAnimatorParameters()
         {
             base.InitializeAnimatorParameters();
-            
+
             RegisterAnimatorParameter(_blendAnimationParameterName, AnimatorControllerParameterType.Float,
                 out _blendAnimationParameter);
-            
+
             RegisterAnimatorParameter(_actualSpeedAnimationParameterName, AnimatorControllerParameterType.Float,
                 out _actualSpeedAnimationParameter);
-            
-            RegisterAnimatorParameter(_modelRelativeDirectionXParameterName, AnimatorControllerParameterType.Float, 
+
+            RegisterAnimatorParameter(_modelRelativeDirectionXParameterName, AnimatorControllerParameterType.Float,
                 out _modelRelativeDirectionXParameter);
-            
-            RegisterAnimatorParameter(_modelRelativeDirectionYParameterName, AnimatorControllerParameterType.Float, 
+
+            RegisterAnimatorParameter(_modelRelativeDirectionYParameterName, AnimatorControllerParameterType.Float,
                 out _modelRelativeDirectionYParameter);
         }
 
@@ -111,7 +101,7 @@ namespace Larje.Core.Tools.TopDownEngine
 
             if (_useLimit && _limitDirection != Vector3.zero)
             {
-                Vector3 direction = new Vector3(_horizontalMovement,0f, _verticalMovement);
+                Vector3 direction = new Vector3(_horizontalMovement, 0f, _verticalMovement);
                 if (direction != Vector3.zero)
                 {
                     float angle = Vector3.Angle(_limitDirection, direction);
@@ -139,7 +129,15 @@ namespace Larje.Core.Tools.TopDownEngine
             }
         }
 
-        private Vector3 RotateVector(Vector3 vector, float angle)
+        private void FixedUpdate()
+        {
+            if (AbilityPermitted && AbilityAuthorized)
+            {
+                UpdateMovement(Time.fixedDeltaTime);
+            }
+        }
+
+    private Vector3 RotateVector(Vector3 vector, float angle)
         {
             return (Quaternion.Euler(0, angle, 0) * vector);
         }

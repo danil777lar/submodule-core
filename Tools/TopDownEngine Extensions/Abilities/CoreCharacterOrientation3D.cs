@@ -18,9 +18,7 @@ namespace Larje.Core.Tools.TopDownEngine
         [SerializeField, Range(0f, 360f)] private float lookAngle;
         [SerializeField] private float lookSpeed;
         [SerializeField] private Transform modelLook;
-        
 
-        private float _lastUpdateTime;
         private Vector3 _lastPosition;
         private Vector3 _currentDirection;
         private Vector3 _currentLookDirection;
@@ -43,16 +41,12 @@ namespace Larje.Core.Tools.TopDownEngine
                 return;
             }
 
-            float deltaTime = Time.time - _lastUpdateTime;
-
             CatchLookDirection();
-            RotateLook(deltaTime);
+            RotateLook();
             
             CatchDirection();
             ApplyLimit();
-            Rotate(deltaTime);
-
-            _lastUpdateTime = Time.time;
+            Rotate();
         }
 
         protected override void Initialization()
@@ -101,12 +95,12 @@ namespace Larje.Core.Tools.TopDownEngine
             }
         }
         
-        private void Rotate(float deltaTime)
+        private void Rotate()
         {
             if (_currentDirection != Vector3.zero)
             {
                 float rotationSpeed = Mathf.Lerp(minRotationSpeed, maxRotationSpeed,
-                    _coreMovement.ActualSpeedPercent) * deltaTime;
+                    _coreMovement.ActualSpeedPercent) * Time.deltaTime;
                 Quaternion rotation = Quaternion.LookRotation(_currentDirection);
                 rotation = Quaternion.Euler(Vector3.Scale(rotation.eulerAngles, rotationMultiplier));
                 _character.CharacterModel.transform.rotation = Quaternion.RotateTowards(
@@ -114,13 +108,13 @@ namespace Larje.Core.Tools.TopDownEngine
             }
         }
 
-        private void RotateLook(float deltaTime)
+        private void RotateLook()
         {
             if (modelLook != null && _currentLookDirection != Vector3.zero)
             {
                 Quaternion rotation = Quaternion.LookRotation(_currentLookDirection);
                 modelLook.rotation = Quaternion.RotateTowards(modelLook.rotation, rotation, 
-                    lookSpeed * deltaTime);
+                    lookSpeed * Time.deltaTime);
             }
         }
     }
