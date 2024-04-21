@@ -9,6 +9,7 @@ namespace Larje.Core.Tools.TopDownEngine
     public class CoreCharacterMovement : CharacterMovement
     {
         [SerializeField] private bool drawLimitsGizmo = true;
+        [SerializeField, Min(0f)] private float minActualSpeedAnimator; 
 
         private bool _useLimit;
         private float _limitRange;
@@ -36,7 +37,8 @@ namespace Larje.Core.Tools.TopDownEngine
             MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _blendAnimationParameter, ActualSpeedPercent,
                 _character._animatorParameters, _character.RunAnimatorSanityChecks);
 
-            MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _actualSpeedAnimationParameter, ActualSpeed,
+            float actualSpeedAnimator = Mathf.Max(ActualSpeed, minActualSpeedAnimator);
+            MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _actualSpeedAnimationParameter, actualSpeedAnimator,
                 _character._animatorParameters, _character.RunAnimatorSanityChecks);
 
             MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _modelRelativeDirectionXParameter,
