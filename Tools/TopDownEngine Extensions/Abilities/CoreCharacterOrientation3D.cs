@@ -2,6 +2,7 @@
 
 using MoreMountains.TopDownEngine;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Larje.Core.Tools.TopDownEngine
 {
@@ -10,7 +11,7 @@ namespace Larje.Core.Tools.TopDownEngine
         public Transform forceTarget;
         public Transform forceLookTarget;
         
-        [SerializeField] private Vector3 rotationMultiplier = Vector3.one;
+        [SerializeField] private Vector3 directionMultiplier = Vector3.one;
         [Header("Main")]
         [SerializeField] private float minRotationSpeed;
         [SerializeField] private float maxRotationSpeed;
@@ -41,11 +42,11 @@ namespace Larje.Core.Tools.TopDownEngine
                 return;
             }
 
-            CatchLookDirection();
-            RotateLook();
-            
             CatchDirection();
+            CatchLookDirection();
+
             ApplyLimit();
+            RotateLook();
             Rotate();
         }
 
@@ -53,30 +54,32 @@ namespace Larje.Core.Tools.TopDownEngine
         {
             base.Initialization();
             _coreMovement = _character.FindAbility<CoreCharacterMovement>();
+
+            _lastPosition = transform.position;
+            _currentDirection = _character.CharacterModel.transform.forward;
+            _currentLookDirection = _currentDirection;
         }
 
         private void CatchDirection()
         {
-            if (forceTarget)
-            {
-                _currentDirection = (forceTarget.position - transform.position).normalized;
-            }
-            else
-            {
-                Vector3 actualDirection = (transform.position - _lastPosition).normalized;
-                if (actualDirection != Vector3.zero)
-                {
-                    _currentDirection = actualDirection;
-                }
-            }
+            Vector3 newDirection = forceTarget ? 
+                (forceTarget.position - transform.position).normalized : 
+                (transform.position - _lastPosition).normalized;
+
+            newDirection = Vector3.Scale(newDirection, directionMultiplier);
+            _currentDirection = newDirection != Vector3.zero ? newDirection : _currentDirection;
+            
             _lastPosition = transform.position;
         }
 
         private void CatchLookDirection()
         {
-            _currentLookDirection = forceLookTarget ? 
-                (forceLookTarget.position - transform.position).normalized.XZ() : 
+            Vector3 newDirection = forceLookTarget ? 
+                forceLookTarget.position - transform.position : 
                 _currentDirection;
+            
+            newDirection = Vector3.Scale(newDirection, directionMultiplier);
+            _currentLookDirection = newDirection != Vector3.zero ? newDirection : _currentLookDirection;
         }
 
         private void ApplyLimit()
@@ -101,8 +104,8 @@ namespace Larje.Core.Tools.TopDownEngine
             {
                 float rotationSpeed = Mathf.Lerp(minRotationSpeed, maxRotationSpeed,
                     _coreMovement.ActualSpeedPercent) * Time.deltaTime;
+                
                 Quaternion rotation = Quaternion.LookRotation(_currentDirection);
-                rotation = Quaternion.Euler(Vector3.Scale(rotation.eulerAngles, rotationMultiplier));
                 _character.CharacterModel.transform.rotation = Quaternion.RotateTowards(
                     _character.CharacterModel.transform.rotation, rotation, rotationSpeed);
             }
