@@ -28,6 +28,7 @@ namespace Larje.Core.Tools.TopDownEngine
         public float ActualSpeed { get; private set; }
         public float ActualSpeedPercent { get; private set; }
         public Vector3 ActualDirection { get; private set; }
+        public Vector3 RawDirection { get; private set; }
         public Vector3 ModelRelativeDirection { get; private set; }
 
         public override void UpdateAnimator()
@@ -100,6 +101,8 @@ namespace Larje.Core.Tools.TopDownEngine
         protected override void HandleDirection()
         {
             base.HandleDirection();
+            
+            RawDirection = new Vector3(_horizontalMovement, 0f, _verticalMovement);
 
             if (_useLimit && _limitDirection != Vector3.zero)
             {

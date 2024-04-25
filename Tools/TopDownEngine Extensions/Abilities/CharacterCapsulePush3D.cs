@@ -10,45 +10,27 @@ namespace Larje.Core.Tools.TopDownEngine
 {
 	public class CharacterCapsulePush3D : CharacterAbility
 	{
-		[Header("Physics interaction")]
-		/// if this is true, the controller will be able to apply forces to colliding rigidbodies
-		[Tooltip("if this is true, the controller will be able to apply forces to colliding rigidbodies")]
-		public bool AllowPhysicsInteractions = true;
-
-		/// the length of the ray to cast in front of the character to detect pushables
-		[Tooltip("the length of the ray to cast in front of the character to detect pushables")]
-		public float PhysicsInteractionsRaycastLength = 0.05f;
-
-		/// the offset to apply to the origin of the physics interaction raycast (by default, the character's collider's center
-		[Tooltip(
-			"the offset to apply to the origin of the physics interaction raycast (by default, the character's collider's center")]
-		public Vector3 PhysicsInteractionsRaycastOffset = Vector3.zero;
-
-		/// the force to apply when colliding with rigidbodies
-		[Tooltip("the force to apply when colliding with rigidbodies")]
-		public float PushPower = 1850f;
-
 		protected const string _pushingAnimationParameterName = "Pushing";
+		
+		[Header("Physics interaction")]
+		public bool AllowPhysicsInteractions = true;
+		public float PhysicsInteractionsRaycastLength = 0.05f;
+		public float PushPower = 1850f;
+		public ForceMode ForceMode = ForceMode.VelocityChange;
+		
+		protected bool _pushing = false;
 		protected int _pushingAnimationParameter;
 		protected CharacterController _characterController;
-		protected RaycastHit _raycastHit;
-		protected Rigidbody _pushedRigidbody;
-		protected Vector3 _pushDirection;
-		protected bool _pushing = false;
+		protected CoreCharacterMovement _characterMovement;
 
-		/// <summary>
-		/// On init, grabs controllers
-		/// </summary>
 		protected override void Initialization()
 		{
 			base.Initialization();
 			_characterController = _controller.GetComponent<CharacterController>();
 			_controller3D = _controller.GetComponent<TopDownController3D>();
+			_characterMovement = _character.FindAbility<CoreCharacterMovement>();
 		}
 
-		/// <summary>
-		/// Every frame, handles physics interactions
-		/// </summary>
 		public override void ProcessAbility()
 		{
 			base.ProcessAbility();
@@ -63,9 +45,6 @@ namespace Larje.Core.Tools.TopDownEngine
 			HandlePhysicsInteractions();
 		}
 
-		/// <summary>
-		/// Checks for a pushable object and applies the specified force
-		/// </summary>
 		protected virtual void HandlePhysicsInteractions()
 		{
 			if (!AllowPhysicsInteractions)
@@ -73,60 +52,44 @@ namespace Larje.Core.Tools.TopDownEngine
 				return;
 			}
 
-			// we cast a ray towards our move direction to handle pushing objects
-			Physics.CapsuleCast(
-				_controller3D.ColliderBottom,
-				_controller3D.ColliderTop,
-				_characterController.radius,
-				_controller.CurrentMovement.normalized,
-				out _raycastHit,
-				_characterController.radius + _characterController.skinWidth + PhysicsInteractionsRaycastLength,
-				_controller3D.ObstaclesLayerMask);
-
-			/*Physics.Raycast(_controller3D.transform.position + _characterController.center + PhysicsInteractionsRaycastOffset, _controller.CurrentMovement.normalized, out _raycastHit, 
-				_characterController.radius + _characterController.skinWidth + PhysicsInteractionsRaycastLength, _controller3D.ObstaclesLayerMask);*/
-
-			_pushing = (_raycastHit.collider != null);
-
+			Vector3 point1 = _controller3D.ColliderBottom;
+			Vector3 point2 = _controller3D.ColliderTop;
+			Vector3 direction = _characterMovement.RawDirection;
+			Debug.DrawRay(transform.position, direction * 5f, Color.red);
+			float radius = _characterController.radius;
+			float maxDistance = radius + _characterController.skinWidth + PhysicsInteractionsRaycastLength;
+			
+			RaycastHit[] hits = Physics.CapsuleCastAll(point1, point2, radius, direction, maxDistance, _controller3D.ObstaclesLayerMask);
+			_pushing = (hits.Length > 0);
 			if (_pushing)
 			{
-				HandlePush(_controller3D, _raycastHit, _raycastHit.point);
+				foreach (RaycastHit hit in hits)
+				{
+					HandlePush(hit);	
+				}
 			}
 		}
-
-		/// <summary>
-		/// Adds a force to the colliding object at the hit position, to interact with the physics world
-		/// </summary>
-		/// <param name="hit"></param>
-		/// <param name="hitPosition"></param>
-		protected virtual void HandlePush(TopDownController3D controller3D, RaycastHit hit, Vector3 hitPosition)
+		
+		protected virtual void HandlePush(RaycastHit hit)
 		{
-			_pushedRigidbody = hit.collider.attachedRigidbody;
-
-			if ((_pushedRigidbody == null) || (_pushedRigidbody.isKinematic))
+			Rigidbody pushedRigidbody = hit.collider.attachedRigidbody;
+			if ((pushedRigidbody == null) || (pushedRigidbody.isKinematic))
 			{
 				return;
 			}
 
-			_pushDirection.x = controller3D.CurrentMovement.normalized.x;
-			_pushDirection.y = 0;
-			_pushDirection.z = controller3D.CurrentMovement.normalized.z;
-
-			_pushedRigidbody.AddForceAtPosition(_pushDirection * PushPower * Time.deltaTime, hitPosition);
+			Vector3 direction = -hit.normal;
+			Debug.DrawRay(hit.point, direction * 5f, Color.green);
+			Vector3 force = direction * (PushPower * Time.deltaTime);
+			pushedRigidbody.AddForceAtPosition(force, hit.point, ForceMode);
 		}
-
-		/// <summary>
-		/// Adds required animator parameters to the animator parameters list if they exist
-		/// </summary>
+		
 		protected override void InitializeAnimatorParameters()
 		{
 			RegisterAnimatorParameter(_pushingAnimationParameterName, AnimatorControllerParameterType.Float,
 				out _pushingAnimationParameter);
 		}
 
-		/// <summary>
-		/// Sends the current speed and the current value of the pushing state to the animator
-		/// </summary>
 		public override void UpdateAnimator()
 		{
 			MMAnimatorExtensions.UpdateAnimatorBool(_animator, _pushingAnimationParameter, _pushing,
