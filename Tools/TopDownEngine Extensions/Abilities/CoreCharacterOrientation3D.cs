@@ -11,9 +11,9 @@ namespace Larje.Core.Tools.TopDownEngine
         public Transform forceTarget;
         public Transform forceLookTarget;
         
+        [Space(40f)]
         [SerializeField] private Vector3 directionMultiplier = Vector3.one;
-        [Header("Main")]
-        [SerializeField] private float minRotationSpeed;
+        [Header("Main")] [SerializeField] private float minRotationSpeed;
         [SerializeField] private float maxRotationSpeed;
         [Header("Look")] 
         [SerializeField, Range(0f, 360f)] private float lookAngle;
@@ -24,23 +24,23 @@ namespace Larje.Core.Tools.TopDownEngine
         private Vector3 _currentDirection;
         private Vector3 _currentLookDirection;
         private CoreCharacterMovement _coreMovement;
-        
+
         public Vector3 Direction => _currentDirection;
         public Vector3 LookDirection => modelLook.forward;
+        public bool PermitLook { get; private set; }
 
         public override void ProcessAbility()
         {
             base.ProcessAbility();
 
-            if (_condition.CurrentState != CharacterStates.CharacterConditions.Normal)
+            if (_condition.CurrentState != CharacterStates.CharacterConditions.Normal || 
+                !AbilityAuthorized || !AbilityPermitted)
             {
+                PermitLook = false;
                 return;
             }
 
-            if (!AbilityAuthorized || !AbilityPermitted)
-            {
-                return;
-            }
+            PermitLook = true;
 
             CatchDirection();
             CatchLookDirection();
