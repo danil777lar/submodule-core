@@ -21,14 +21,14 @@ namespace Larje.Core.Tools.TopDownEngine
 		protected bool _pushing = false;
 		protected int _pushingAnimationParameter;
 		protected CharacterController _characterController;
-		protected CoreCharacterMovement _characterMovement;
+		protected CoreCharacterMovement _coreMovement;
 
 		protected override void Initialization()
 		{
 			base.Initialization();
 			_characterController = _controller.GetComponent<CharacterController>();
 			_controller3D = _controller.GetComponent<TopDownController3D>();
-			_characterMovement = _character.FindAbility<CoreCharacterMovement>();
+			_coreMovement = _character.FindAbility<CoreCharacterMovement>();
 		}
 
 		public override void ProcessAbility()
@@ -54,7 +54,7 @@ namespace Larje.Core.Tools.TopDownEngine
 
 			Vector3 point1 = _controller3D.ColliderBottom;
 			Vector3 point2 = _controller3D.ColliderTop;
-			Vector3 direction = _characterMovement.RawDirection;
+			Vector3 direction = _coreMovement.RawDirection;
 			Debug.DrawRay(transform.position, direction * 5f, Color.red);
 			float radius = _characterController.radius;
 			float maxDistance = radius + _characterController.skinWidth + PhysicsInteractionsRaycastLength;
