@@ -16,6 +16,7 @@ namespace Larje.Core.Tools.TopDownEngine
 		public bool AllowPhysicsInteractions = true;
 		public float PhysicsInteractionsRaycastLength = 0.05f;
 		public float PushPower = 1850f;
+		public LayerMask InteractionMask;
 		public ForceMode ForceMode = ForceMode.VelocityChange;
 		
 		protected bool _pushing = false;
@@ -59,7 +60,7 @@ namespace Larje.Core.Tools.TopDownEngine
 			float radius = _characterController.radius;
 			float maxDistance = radius + _characterController.skinWidth + PhysicsInteractionsRaycastLength;
 			
-			RaycastHit[] hits = Physics.CapsuleCastAll(point1, point2, radius, direction, maxDistance, _controller3D.ObstaclesLayerMask);
+			RaycastHit[] hits = Physics.CapsuleCastAll(point1, point2, radius, direction, maxDistance, InteractionMask);
 			_pushing = (hits.Length > 0);
 			if (_pushing)
 			{
