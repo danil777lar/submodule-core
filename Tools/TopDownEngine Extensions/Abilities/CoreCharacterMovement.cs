@@ -1,5 +1,8 @@
 #if MOREMOUNTAINS_TOPDOWNENGINE
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using MoreMountains.Tools;
 using MoreMountains.TopDownEngine;
 using UnityEngine;
@@ -15,6 +18,7 @@ namespace Larje.Core.Tools.TopDownEngine
         private float _limitRange;
         private Vector3 _limitDirection;
         private Vector3 _lastPosition;
+        private List<Func<float>> _speedMultipliers = new List<Func<float>>();
 
         protected const string _blendAnimationParameterName = "MoveBlend";
         protected const string _actualSpeedAnimationParameterName = "ActualSpeed";
@@ -27,6 +31,7 @@ namespace Larje.Core.Tools.TopDownEngine
 
         public float ActualSpeed { get; private set; }
         public float ActualSpeedPercent { get; private set; }
+        public override float ContextSpeedMultiplier => GetFullMultiplier();
         public Vector3 ActualDirection { get; private set; }
         public Vector3 RawDirection { get; private set; }
         public Vector3 ModelRelativeDirection { get; private set; }
@@ -59,6 +64,22 @@ namespace Larje.Core.Tools.TopDownEngine
         public void RemoveLimit()
         {
             _useLimit = false;
+        }
+
+        public void TryAddSpeedMultiplier(Func<float> multiplier)
+        {
+            if (!_speedMultipliers.Contains(multiplier))
+            {
+                _speedMultipliers.Add(multiplier);
+            }
+        }
+        
+        public void TryRemoveSpeedMultiplier(Func<float> multiplier)
+        {
+            if (_speedMultipliers.Contains(multiplier))
+            {
+                _speedMultipliers.Remove(multiplier);
+            }
         }
 
         protected void UpdateMovement(float deltaTime)
@@ -148,6 +169,17 @@ namespace Larje.Core.Tools.TopDownEngine
         private Vector3 RotateVector(Vector3 vector, float angle)
         {
             return (Quaternion.Euler(0, angle, 0) * vector);
+        }
+
+        private float GetFullMultiplier()
+        {
+            float fullMultiplier = 1f;
+            foreach (Func<float> multiplier in _speedMultipliers)
+            {
+                fullMultiplier *= multiplier.Invoke();
+            }
+
+            return fullMultiplier;
         }
     }
 }
