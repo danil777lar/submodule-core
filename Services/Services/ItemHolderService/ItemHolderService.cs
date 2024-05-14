@@ -6,9 +6,10 @@ using UnityEngine;
 
 namespace Larje.Core.Services
 {
-    [BindService(typeof(IItemHolderService))]
+    [BindService(typeof(IItemHolderService), typeof(ItemHolderService))]
     public class ItemHolderService : Service, IItemHolderService
     {
+        [SerializeField] private bool setFirstItemAsDefault;
         [SerializeField] private List<ItemsHolderConfig> configs;
 
         [InjectService] private DataService _dataService;
@@ -67,7 +68,7 @@ namespace Larje.Core.Services
 
             if (data == null)
             {
-                string defaultSkin = GetConfigByType(itemType).Items[0].Name;
+                string defaultSkin = setFirstItemAsDefault ? GetConfigByType(itemType).Items[0].Name : " ";
 
                 data = new ItemsData();
                 data.ItemType = itemType;

@@ -14,6 +14,11 @@ namespace Larje.Core.Services
 
         public Item GetItem(string itemName)
         {
+            if (string.IsNullOrEmpty(itemName) || string.IsNullOrWhiteSpace(itemName))
+            {
+                return null;
+            }
+
             return Items.ToList().Find(x => x.Name == itemName);
         }
     }
