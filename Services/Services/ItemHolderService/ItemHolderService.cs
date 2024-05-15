@@ -30,10 +30,14 @@ namespace Larje.Core.Services
 
         public void SetCurrentItem(ItemType itemType, string itemName)
         {
-            if (IsItemUnlocked(itemType, itemName) && (!TryGetCurrentItem(out Item currentItem, itemType) || currentItem.Name != itemName))
+            bool canSet = string.IsNullOrEmpty(itemName) || string.IsNullOrWhiteSpace(itemName);
+            canSet |= IsItemUnlocked(itemType, itemName) &&
+                      (!TryGetCurrentItem(out Item currentItem, itemType) || currentItem.Name != itemName);  
+            
+            if (canSet)
             {
                 GetSkinsData(itemType).CurrentItem = itemName;
-                EventCurrentItemChanged?.Invoke();
+                EventCurrentItemChanged?.Invoke();    
             }
         }
 
