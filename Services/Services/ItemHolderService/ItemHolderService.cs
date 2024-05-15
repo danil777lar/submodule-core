@@ -30,7 +30,7 @@ namespace Larje.Core.Services
 
         public void SetCurrentItem(ItemType itemType, string itemName)
         {
-            if (IsItemUnlocked(itemType, itemName) && GetCurrentItem(itemType).Name != itemName)
+            if (IsItemUnlocked(itemType, itemName) && (!TryGetCurrentItem(out Item currentItem, itemType) || currentItem.Name != itemName))
             {
                 GetSkinsData(itemType).CurrentItem = itemName;
                 EventCurrentItemChanged?.Invoke();
@@ -42,9 +42,10 @@ namespace Larje.Core.Services
             return GetSkinsData(itemType).UnlockedItems.Contains(itemName);
         }
 
-        public Item GetCurrentItem(ItemType itemType)
+        public bool TryGetCurrentItem(out Item currentItem, ItemType itemType)
         {
-            return GetConfigByType(itemType).GetItem(GetSkinsData(itemType).CurrentItem);
+            currentItem = GetConfigByType(itemType).GetItem(GetSkinsData(itemType).CurrentItem);
+            return currentItem != null;
         }
 
         public List<Item> GetAllItems(ItemType itemType)

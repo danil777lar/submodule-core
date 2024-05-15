@@ -15,7 +15,7 @@ namespace Larje.Core.Services
 
         public bool IsItemUnlocked(ItemType itemType, string itemName);
 
-        public Item GetCurrentItem(ItemType itemType);
+        public bool TryGetCurrentItem(out Item currentItem, ItemType itemType);
 
         public List<Item> GetAllItems(ItemType itemType);
     }
