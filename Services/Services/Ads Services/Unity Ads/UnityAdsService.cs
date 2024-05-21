@@ -27,6 +27,8 @@ namespace Larje.Core.Services
         private UnityAdsBanner _banner;
 
         public bool Initialized { get; private set; }
+        public bool InterstitialAdAvailable => Initialized && _interstitial.Loaded;
+        public bool RewardedAdAvailable => Initialized && _rewarded.Loaded;
 
         public override void Init()
         {

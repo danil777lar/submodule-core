@@ -16,6 +16,8 @@ namespace Larje.Core.Services
         private Action _onAdShowComplete;
         private Action _onAdShowFailed;
 
+        public bool Loaded { get; private set; }
+
         public UnityAdsUniversal(string id, bool logEnabled)
         {
             _logEnabled = logEnabled;
@@ -49,6 +51,7 @@ namespace Larje.Core.Services
         {
             TryLog("Showing Ad: " + _id);
 
+            Loaded = false;
             Advertisement.Show(_id, this);
             Advertisement.Load(_id, this);
         }
@@ -56,6 +59,8 @@ namespace Larje.Core.Services
         public void OnUnityAdsAdLoaded(string id)
         {
             if (id != _id) return;
+
+            Loaded = true;
         }
 
         public void OnUnityAdsShowStart(string id)

@@ -5,6 +5,8 @@ namespace Larje.Core.Services
     public interface IAdsService
     {
         public bool Initialized { get; }
+        public bool InterstitialAdAvailable { get; }
+        public bool RewardedAdAvailable { get; }
 
         public void ShowInterstitial();
         
