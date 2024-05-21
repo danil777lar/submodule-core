@@ -50,6 +50,7 @@ namespace Larje.Core.Services
             TryLog("Showing Ad: " + _id);
 
             Advertisement.Show(_id, this);
+            Advertisement.Load(_id, this);
         }
 
         public void OnUnityAdsAdLoaded(string id)

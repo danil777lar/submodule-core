@@ -10,11 +10,14 @@ namespace Larje.Core.Services
     [BindService(typeof(IAdsService))]
     public class UnityAdsService : Service, IAdsService, IUnityAdsInitializationListener
     {
-        [Header("System")] [SerializeField] private bool testMode = true;
+        [Header("System")] 
+        [SerializeField] private bool testMode = true;
         [SerializeField] private bool logsEnabled = true;
-        [Header("Keys")] [SerializeField] private Keys androidKeys;
+        [Header("Keys")] 
+        [SerializeField] private Keys androidKeys;
         [SerializeField] private Keys iosKeys;
-        [Header("Banner")] [SerializeField] private bool useBanner;
+        [Header("Banner")] 
+        [SerializeField] private bool useBanner;
         [SerializeField] private BannerPosition bannerPosition = BannerPosition.BOTTOM_CENTER;
 
         private Keys _keys;
