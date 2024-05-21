@@ -53,7 +53,6 @@ namespace Larje.Core.Services
 
             Loaded = false;
             Advertisement.Show(_id, this);
-            Advertisement.Load(_id, this);
         }
 
         public void OnUnityAdsAdLoaded(string id)
@@ -82,6 +81,7 @@ namespace Larje.Core.Services
             if (id != _id) return;
 
             _onAdShowComplete?.Invoke();
+            LoadAd();
         }
 
         public void OnUnityAdsShowFailure(string id, UnityAdsShowError error, string message)
@@ -90,6 +90,7 @@ namespace Larje.Core.Services
             TryLog($"Error showing Ad Unit {id}: {error.ToString()} - {message}");
 
             _onAdShowFailed?.Invoke();
+            LoadAd();
         }
 
         private void TryLog(string text)

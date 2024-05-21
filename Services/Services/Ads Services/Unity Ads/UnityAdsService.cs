@@ -44,7 +44,7 @@ namespace Larje.Core.Services
             {
                 _interstitial = new UnityAdsUniversal(_keys.InterstitialId, logsEnabled);
                 _rewarded = new UnityAdsUniversal(_keys.RewardedId, logsEnabled);
-                _banner = new UnityAdsBanner(_keys.RewardedId, bannerPosition, logsEnabled);
+                _banner = new UnityAdsBanner(_keys.BannerId, bannerPosition, logsEnabled);
 
                 Advertisement.Initialize(_keys.GameId, testMode, this);
             }
