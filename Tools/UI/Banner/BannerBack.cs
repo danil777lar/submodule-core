@@ -9,7 +9,7 @@ public class BannerBack : MonoBehaviour
     
     private RectTransform _rect;
     
-    private void Start()
+    private void Awake()
     {
         ServiceLocator.Instance.InjectServicesInComponent(this);
 

@@ -11,7 +11,7 @@ public class BannerOffset : MonoBehaviour
     private float _defaultOffset;
     private RectTransform _rect;
     
-    private void Start()
+    private void Awake()
     {
         ServiceLocator.Instance.InjectServicesInComponent(this);
 
