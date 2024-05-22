@@ -54,7 +54,7 @@ namespace Larje.Core.Services.UI
         {
             for (int i = _openedScreens.Count - 1; i >= 0; i--)
             {
-                bool result = _openedScreens[i].Back();
+                bool result = _openedScreens[i].Back(i == 0);
                 if (result)
                 {
                     if (i > 0)

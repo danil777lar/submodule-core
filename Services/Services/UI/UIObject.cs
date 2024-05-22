@@ -157,11 +157,11 @@ namespace Larje.Core.Services.UI
             }
         }
         
-        public bool Back()
+        public bool Back(bool onlyOverride = false)
         {
             if (useDeviceBackButton)
             {
-                return OnBack() && blockNextDeviceBackButtonInvokes;
+                return OnBack(onlyOverride) && blockNextDeviceBackButtonInvokes;
             }
             return false;
         }
@@ -190,9 +190,9 @@ namespace Larje.Core.Services.UI
         
         protected virtual void OnAfterUnfocus() {}
 
-        protected virtual bool OnBack()
+        protected virtual bool OnBack(bool onlyOverride)
         {
-            if (_opened && !_closed)
+            if (_opened && !_closed && !onlyOverride)
             {
                 Close();
                 return true;
