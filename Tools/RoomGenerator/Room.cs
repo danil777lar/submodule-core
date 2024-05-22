@@ -21,7 +21,6 @@ namespace Larje.Core.Tools.RoomGenerator
         [SerializeField] private Vector2 scale = new Vector2(1f, 1f);
         [SerializeField, Min(3)] private int wallsCount = 3;
         [SerializeField] private bool rebuildOnStart = false;
-        [SerializeField] private Material floorMaterial;
         [Header("Walls")]
         [SerializeField] private float bottomWallHeight;
         [SerializeField] private SplineWall mainWall;
@@ -104,10 +103,7 @@ namespace Larje.Core.Tools.RoomGenerator
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();
             mesh.RecalculateBounds();
-
-            MeshRenderer rend = GetComponent<MeshRenderer>();
-            rend.sharedMaterials = new Material[] { floorMaterial };
-
+            
             MeshCollider collider = GetComponent<MeshCollider>();
             collider.sharedMesh = mesh;
         }
