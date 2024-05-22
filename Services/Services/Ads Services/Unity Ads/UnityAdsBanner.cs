@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,11 @@ namespace Larje.Core.Services
         private bool _logEnabled;
         private string _id;
         private readonly BannerPosition _bannerPosition;
+        
+        public bool Showing { get; private set; }
+        
+        public event Action EventShown;
+        public event Action EventHidden;
 
         public UnityAdsBanner(string id, BannerPosition bannerPosition, bool logEnabled)
         {
@@ -65,10 +71,14 @@ namespace Larje.Core.Services
 
         private void OnBannerShown()
         {
+            Showing = true;
+            EventShown?.Invoke();
         }
 
         private void OnBannerHidden()
         {
+            Showing = false;
+            EventHidden?.Invoke();
         }
 
         private void TryLog(string text)

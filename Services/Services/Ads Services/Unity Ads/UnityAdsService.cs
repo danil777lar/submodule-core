@@ -13,6 +13,7 @@ namespace Larje.Core.Services
         [Header("System")] 
         [SerializeField] private bool testMode = true;
         [SerializeField] private bool logsEnabled = true;
+        [SerializeField] private bool enableAds = true;
         [Header("Keys")] 
         [SerializeField] private Keys androidKeys;
         [SerializeField] private Keys iosKeys;
@@ -29,6 +30,11 @@ namespace Larje.Core.Services
         public bool Initialized { get; private set; }
         public bool InterstitialAdAvailable => Initialized && _interstitial.Loaded;
         public bool RewardedAdAvailable => Initialized && _rewarded.Loaded;
+        public bool BannerShowing => _banner.Showing;
+        public float BannerHeight => Screen.dpi / 160f * 50f;
+        
+        public event Action EventBannerShown;
+        public event Action EventBannerHidden;
 
         public override void Init()
         {
@@ -54,9 +60,12 @@ namespace Larje.Core.Services
         {
             Initialized = true;
 
-            _interstitial.LoadAd();
-            _rewarded.LoadAd();
-            _banner.LoadBanner();
+            if (enableAds)
+            {
+                _interstitial.LoadAd();
+                _rewarded.LoadAd();
+                _banner.LoadBanner();
+            }
 
             Debug.Log("Unity Ads initialization complete.");
         }

@@ -7,7 +7,12 @@ namespace Larje.Core.Services
         public bool Initialized { get; }
         public bool InterstitialAdAvailable { get; }
         public bool RewardedAdAvailable { get; }
+        public bool BannerShowing { get; }
+        public float BannerHeight { get; }
 
+        public event Action EventBannerShown;
+        public event Action EventBannerHidden;
+        
         public void ShowInterstitial();
         
         public void ShowRewarded(Action onAdShowStart, Action onAdShowClick, Action onAdShowComplete, Action onAdShowFailed);
