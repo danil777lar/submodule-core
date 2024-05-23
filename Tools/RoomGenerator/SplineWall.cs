@@ -5,6 +5,7 @@ using System.Linq;
 using Dreamteck.Splines;
 using JetBrains.Annotations;
 using Larje.Core.Services;
+using MoreMountains.Tools;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -63,6 +64,21 @@ namespace Larje.Core.Tools.RoomGenerator
             {
                 Rebuild();
             }
+            
+            Gizmos.color = Color.red;
+            List<double> percents = GetPointPercents(); 
+            for (int i = 0; i < percents.Count; i++)
+            {
+                Gizmos.DrawSphere(SplineInstance.EvaluatePosition(percents[i]), 0.1f);
+                if (i < percents.Count - 1)
+                {
+                    Vector3 a = SplineInstance.EvaluatePosition(percents[i]);
+                    Vector3 b = SplineInstance.EvaluatePosition(percents[i + 1]);
+                    Vector3 center = (a + (b - a) * 0.5f) + Vector3.up;
+                    Gizmos.DrawLine(a,  center);
+                    Gizmos.DrawLine(center,  b);
+                }
+            }
         }
 
         private void OnValidate()
@@ -80,8 +96,13 @@ namespace Larje.Core.Tools.RoomGenerator
                 }
             }
         }
-
+        
         private void Rebuild()
+        {
+            
+        }
+
+        /*private void Rebuild()
         {
             Mesh mesh = GetMesh();
 
@@ -90,23 +111,18 @@ namespace Larje.Core.Tools.RoomGenerator
                 return;
             }
 
-            List<SplineWallHole.Data> holes = new List<SplineWallHole.Data>();
-            GetComponentsInChildren<SplineWallHole>().ToList().ForEach(x => holes.Add(x.GetData()));
-
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
             List<Color> vertexColors = new List<Color>();
-            
             List<Vector3> points = GetPoints(out List<int> hiddenSegments);
-            
             List<SubMeshDescriptor> submeshes = new List<SubMeshDescriptor>();
             List<Material> materials = new List<Material>();
-
-            float weightsSum = config.GetWeightsSum();
+            List<SplineWallHole.Data> holes = GetHoles();
+            
             float lastHeights = 0f;
             foreach (SplineWallConfig.WallPart wallPart in config.WallParts)
             {
-                float partHeightPercent = wallPart.Weight / weightsSum;
+                float partHeightPercent = wallPart.Weight / config.GetWeightsSum();
                 float partOffset = lastHeights;
                 float partHeight = config.Height * partHeightPercent;
                 float partWidthTop = config.Width * wallPart.TopWidthMultiplier;
@@ -156,11 +172,42 @@ namespace Larje.Core.Tools.RoomGenerator
                 MeshCollider collider = GetComponent<MeshCollider>();
                 collider.sharedMesh = mesh;
             }
+        }*/
+
+        private List<WallSegment> GetSegments()
+        {
+            List<WallSegment> segments = new List<WallSegment>();
+            return segments;
         }
 
-        private List<Vector3> GetPoints(out List<int> hiddenSegments)
+        private List<double> GetPointPercents()
         {
-            hiddenSegments = new List<int>();
+            List<double> percents = new List<double>();
+            GetPoints().ForEach(x => percents.Add(SplineInstance.Project(x).percent));
+            
+            foreach (SplineWallHole hole in GetComponentsInChildren<SplineWallHole>())
+            {
+                SplineWallHole.Data holeData = hole.GetData();
+                percents.Add(holeData.XFrom);
+                percents.Add(holeData.XTo);
+            }
+            
+            for (int i = 0; i < percents.Count; i++)
+            {
+                percents[i] %= 1.0;
+                if (percents[i] < 0.0)
+                {
+                    percents[i] += 1.0;
+                }
+            }
+            percents = percents.OrderBy(x => x).ToList();
+            percents.Add(percents.First());
+            
+            return percents;
+        }
+        
+        private List<Vector3> GetPoints()
+        {
             List<Vector3> points = new List<Vector3>();
             List<SplinePoint> splinePoints = SplineInstance.GetPoints().ToList();
 
@@ -171,37 +218,21 @@ namespace Larje.Core.Tools.RoomGenerator
             
             for (int i = 0; i < splinePoints.Count - 1; i++)
             {
-                points.Add(transform.InverseTransformPoint(splinePoints[i].position));
-
-                if (!hideWallParts[i])
+                points.Add(splinePoints[i].position);
+                float lengthToNext = SplineInstance.CalculateLength(SplineInstance.GetPointPercent(i),
+                    SplineInstance.GetPointPercent(i + 1));
+                int pointsCount = Mathf.RoundToInt(lengthToNext * segmentsPerUnit);
+                for (int j = 1; j < pointsCount; j++)
                 {
-                    float lengthToNext = SplineInstance.CalculateLength(SplineInstance.GetPointPercent(i),
-                        SplineInstance.GetPointPercent(i + 1));
-                    int pointsCount = Mathf.RoundToInt(lengthToNext * segmentsPerUnit);
-                    for (int j = 1; j < pointsCount; j++)
-                    {
-                        float percent = Mathf.Lerp(
-                            (float)SplineInstance.GetPointPercent(i),
-                            (float)SplineInstance.GetPointPercent(i + 1),
-                            (float)j / (float)pointsCount);
+                    float percent = Mathf.Lerp(
+                        (float)SplineInstance.GetPointPercent(i),
+                        (float)SplineInstance.GetPointPercent(i + 1),
+                        (float)j / (float)pointsCount);
 
-                        points.Add(transform.InverseTransformPoint(SplineInstance.EvaluatePosition(percent)));
-                    }
-                }
-                else
-                {
-                    hiddenSegments.Add(points.Count - 1);
+                    points.Add(SplineInstance.EvaluatePosition(percent));
                 }
             }
-            points.Add(transform.InverseTransformPoint(splinePoints.Last().position));
-
-            for (int i = 0; i < points.Count; i++)
-            {
-                Vector3 fixedPoint = points[i];
-                fixedPoint.y = 0f;
-                points[i] = fixedPoint;
-            }
-
+            
             return points;
         }
 
@@ -210,7 +241,7 @@ namespace Larje.Core.Tools.RoomGenerator
             Color topColor, Color bottomColor,
             List<SplineWallHole.Data> holes, List<int> hiddenSegments)
         {
-            for (int i = 0; i < points.Count - 1; i++)
+            /*for (int i = 0; i < points.Count - 1; i++)
             {
                 if (hiddenSegments.Contains(i)) continue;
                 
@@ -262,7 +293,14 @@ namespace Larje.Core.Tools.RoomGenerator
                 data.useNext = (i < points.Count - 2 || SplineInstance.isClosed) && !hiddenSegments.Contains(nextIndex - 1);
 
                 MeshBuildUtilities.BuildWall(data);
-            }
+            }*/
+        }
+
+        private List<SplineWallHole.Data> GetHoles()
+        {
+            List<SplineWallHole.Data> holes = new List<SplineWallHole.Data>();
+            GetComponentsInChildren<SplineWallHole>().ToList().ForEach(x => holes.Add(x.GetData()));
+            return holes;
         }
 
         private Mesh GetMesh()
@@ -277,6 +315,15 @@ namespace Larje.Core.Tools.RoomGenerator
             }
 
             return mesh;
+        }
+
+        public class WallSegment
+        {
+            public Vector3 min; 
+            public Vector3 max;
+
+            public bool hasPrevious;
+            public bool hasNext;
         }
     }
 }

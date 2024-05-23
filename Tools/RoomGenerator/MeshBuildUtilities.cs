@@ -242,7 +242,7 @@ namespace Larje.Core.Tools.RoomGenerator
             min = Vector2.zero;
             max = Vector2.zero;
 
-            float length = data.toDistance - data.fromDistance;
+            /*float length = data.toDistance - data.fromDistance;
             
             min.x = ((hole.distance - hole.size.x / 2f) - data.fromDistance) / length;
             max.x = ((hole.distance + hole.size.x / 2f) - data.fromDistance) / length;
@@ -251,7 +251,7 @@ namespace Larje.Core.Tools.RoomGenerator
             float ySizePercent = hole.size.y / data.height;
             
             min.y = yPosPercent;
-            max.y = yPosPercent + ySizePercent;
+            max.y = yPosPercent + ySizePercent;*/
         }
 
         public struct WallBuildData

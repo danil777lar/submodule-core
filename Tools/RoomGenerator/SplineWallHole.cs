@@ -28,6 +28,20 @@ namespace Larje.Core.Tools.RoomGenerator
                 return _projector;
             }
         }
+        
+        public Data GetData()
+        {
+            double percent = Projector.spline.Project(transform.position).percent;
+            double halfLengthPercent = Projector.spline.Travel(0f, size.x * 0.5f);
+
+            double xFrom = percent - halfLengthPercent;
+            double xTo = percent + halfLengthPercent;
+            double yFrom = yPos;
+            double yTo = yPos + size.y;
+            Data data = new Data(xFrom, xTo, yFrom, yTo);
+            
+            return data;
+        }
 
         private void OnValidate()
         {
@@ -41,26 +55,26 @@ namespace Larje.Core.Tools.RoomGenerator
             }            
         }
 
-        public Data GetData()
+        private void OnDrawGizmos()
         {
-            Data data = new Data()
-            {
-                yPos = yPos,
-                distance = Projector.CalculateLength(0f, Projector.GetPercent()),
-                size = size,
-                position = transform.position
-            };
             
-            return data;
         }
 
         [Serializable]
         public struct Data
         {
-            public float yPos;
-            public float distance;
-            public Vector2 size;
-            public Vector3 position;
+            public readonly double XFrom;
+            public readonly double XTo;
+            public readonly double YFrom;
+            public readonly double YTo;
+            
+            public Data(double xFrom, double xTo, double yFrom, double yTo)
+            {
+                XFrom = xFrom;
+                XTo = xTo;
+                YFrom = yFrom;
+                YTo = yTo;
+            }
         }
     }
 }
