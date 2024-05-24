@@ -68,11 +68,7 @@ namespace Larje.Core.Tools.RoomGenerator
             
             foreach (WallSegment segment in GetSegments())
             {
-                Gizmos.color = Color.red;
-                
-                Gizmos.DrawSphere(Vector3.Lerp(segment.Min, segment.Max, 0.5f), 0.1f);
-                
-                Gizmos.color = segment.Hidden ? Color.blue.SetAlpha(1f) : Color.red.SetAlpha(0.5f);
+                Gizmos.color = segment.Hidden ? Color.white.SetAlpha(0.1f) : Color.white.SetAlpha(1f);
                 
                 //diagonal lines
                 Gizmos.DrawLine(segment.Min,  segment.Max);
@@ -181,7 +177,7 @@ namespace Larje.Core.Tools.RoomGenerator
             }
         }*/
 
-        private List<WallSegment> GetSegments()
+        public List<WallSegment> GetSegments()
         {
             List<WallSegment> segments = new List<WallSegment>();
             List<double> heights = GetHeightPoints();
@@ -201,6 +197,7 @@ namespace Larje.Core.Tools.RoomGenerator
             }
 
             MarkHiddenSegments(segments);
+            FillSegmentNeighbours(segments);
             
             return segments;
         }
@@ -215,6 +212,19 @@ namespace Larje.Core.Tools.RoomGenerator
                     double centerHeight = (segment.Min.y + segment.Max.y) * 0.5f;
                     segment.Hidden |= interval.Contains(centerPercent, centerHeight);
                 }
+            }
+        }
+        
+        private void FillSegmentNeighbours(List<WallSegment> segments)
+        {
+            foreach (WallSegment segment in segments)
+            {
+                var segment1 = segment;
+                segment.Next = segments.Find(x => x.Min == segment1.Max.MMSetY(segment1.Min.y));
+                segment.Prev = segments.Find(x => x.Max == segment.Min.MMSetY(segment.Max.y));
+                
+                segment.Upper = segments.Find(x => x.Min == segment.Min.MMSetY(segment.Max.y));
+                segment.Lower = segments.Find(x => x.Max == segment.Max.MMSetY(segment.Min.y));
             }
         }
         
