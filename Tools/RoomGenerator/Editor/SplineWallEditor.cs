@@ -24,7 +24,7 @@ public class SplineWallEditor : Editor
             lookDirection = new Vector3(lookDirection.z, lookDirection.y, -lookDirection.x);
             Quaternion segmentRotation = Quaternion.LookRotation(lookDirection);
             
-            Handles.color = Color.red;
+            Handles.color = Color.white.SetAlpha(0.1f);
             if (Handles.Button(segmentPosition, segmentRotation, 0.2f, 0.4f, Handles.RectangleHandleCap))
             {
                 _selectedSegment = segment;
