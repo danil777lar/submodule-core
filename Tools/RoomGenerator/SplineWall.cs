@@ -1,5 +1,6 @@
 #if DREAMTECK_SPLINES
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dreamteck.Splines;
@@ -65,19 +66,16 @@ namespace Larje.Core.Tools.RoomGenerator
                 Rebuild();
             }
             
-            Gizmos.color = Color.red;
-            List<double> percents = GetPointPercents(); 
-            for (int i = 0; i < percents.Count; i++)
+            foreach (WallSegment segment in GetSegments())
             {
-                Gizmos.DrawSphere(SplineInstance.EvaluatePosition(percents[i]), 0.1f);
-                if (i < percents.Count - 1)
-                {
-                    Vector3 a = SplineInstance.EvaluatePosition(percents[i]);
-                    Vector3 b = SplineInstance.EvaluatePosition(percents[i + 1]);
-                    Vector3 center = (a + (b - a) * 0.5f) + Vector3.up;
-                    Gizmos.DrawLine(a,  center);
-                    Gizmos.DrawLine(center,  b);
-                }
+                Gizmos.color = Color.red;
+                
+                Gizmos.DrawSphere(segment.Min, 0.1f);
+                Vector3 center = (segment.Min + (segment.Max - segment.Min) * 0.5f) + Vector3.up;
+                
+                Gizmos.color = segment.Hidden ? Color.blue.SetAlpha(1f) : Color.red.SetAlpha(0.5f);
+                Gizmos.DrawLine(segment.Min,  center);
+                Gizmos.DrawLine(center,  segment.Max);
             }
         }
 
@@ -177,7 +175,40 @@ namespace Larje.Core.Tools.RoomGenerator
         private List<WallSegment> GetSegments()
         {
             List<WallSegment> segments = new List<WallSegment>();
+            List<double> percents = GetPointPercents();
+            for (int i = 0; i < percents.Count - 1; i++)
+            {
+                Vector3 min = SplineInstance.EvaluatePosition(percents[i]);
+                Vector3 max = SplineInstance.EvaluatePosition(percents[i + 1]);
+                
+                WallSegment segment = new WallSegment(min, max);
+                
+                segments.Add(segment);
+            }
+            
+            MarkHiddenSegments(segments);
+            
             return segments;
+        }
+        
+        private void MarkHiddenSegments(IReadOnlyCollection<WallSegment> segments)
+        {
+            foreach (PercentInterval interval in GetHiddenIntervals())
+            {
+                foreach (WallSegment segment in segments)
+                {
+                    segment.Hidden |= interval.Contains(GetSegmentCenterPercent(segment));
+                }
+            }
+        }
+
+        private List<PercentInterval> GetHiddenIntervals()
+        {
+            List<PercentInterval> intervals = new List<PercentInterval>();
+            GetComponentsInChildren<SplineWallHole>().ToList().ForEach(x => 
+                intervals.Add(new PercentInterval(x.GetData().XFrom, x.GetData().XTo)));
+
+            return intervals;
         }
 
         private List<double> GetPointPercents()
@@ -191,17 +222,10 @@ namespace Larje.Core.Tools.RoomGenerator
                 percents.Add(holeData.XFrom);
                 percents.Add(holeData.XTo);
             }
-            
-            for (int i = 0; i < percents.Count; i++)
-            {
-                percents[i] %= 1.0;
-                if (percents[i] < 0.0)
-                {
-                    percents[i] += 1.0;
-                }
-            }
+
             percents = percents.OrderBy(x => x).ToList();
-            percents.Add(percents.First());
+            
+            percents.Add(1);
             
             return percents;
         }
@@ -234,6 +258,13 @@ namespace Larje.Core.Tools.RoomGenerator
             }
             
             return points;
+        }
+
+        private double GetSegmentCenterPercent(WallSegment segment)
+        {
+            float distance = Vector3.Distance(segment.Min.XZ(), segment.Max.XZ());
+            double fromPercent = SplineInstance.Project(segment.Min).percent;
+            return SplineInstance.Travel(fromPercent, distance * 0.5f);
         }
 
         private void BuildWall(List<Vector3> points, List<Vector3> vertices, List<int> triangles, List<Color> vertexColors, 
@@ -319,11 +350,45 @@ namespace Larje.Core.Tools.RoomGenerator
 
         public class WallSegment
         {
-            public Vector3 min; 
-            public Vector3 max;
+            public readonly Vector3 Min;
+            public readonly Vector3 Max;
 
-            public bool hasPrevious;
-            public bool hasNext;
+            public bool Hidden;
+
+            public WallSegment Next;
+            public WallSegment Prev;
+            public WallSegment Upper;
+            public WallSegment Lower;
+
+            public WallSegment(Vector3 min, Vector3 max)
+            {
+                Min = min;
+                Max = max;
+            }
+        }
+
+        public class PercentInterval
+        {
+            public readonly double From;
+            public readonly double To;
+            
+            public PercentInterval(double from, double to)
+            {
+                From = from;
+                To = to;
+            }
+
+            public bool Contains(double percent)
+            {
+                if (From <= To)
+                {
+                    return percent > From && percent < To;
+                }
+                else
+                {
+                    return percent > From || percent < To;
+                }
+            }
         }
     }
 }

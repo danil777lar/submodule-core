@@ -34,8 +34,8 @@ namespace Larje.Core.Tools.RoomGenerator
             double percent = Projector.spline.Project(transform.position).percent;
             double halfLengthPercent = Projector.spline.Travel(0f, size.x * 0.5f);
 
-            double xFrom = percent - halfLengthPercent;
-            double xTo = percent + halfLengthPercent;
+            double xFrom = PrettyPercent(percent - halfLengthPercent);
+            double xTo = PrettyPercent(percent + halfLengthPercent);
             double yFrom = yPos;
             double yTo = yPos + size.y;
             Data data = new Data(xFrom, xTo, yFrom, yTo);
@@ -55,9 +55,22 @@ namespace Larje.Core.Tools.RoomGenerator
             }            
         }
 
-        private void OnDrawGizmos()
+        private double PrettyPercent(double percent)
         {
-            
+            if (Projector.spline.isClosed)
+            {
+                percent %= 1.0;
+                if (percent < 0.0)
+                {
+                    percent += 1.0;
+                }
+            }
+            else
+            {
+                percent = Math.Clamp(0f, 1f, percent);
+            }
+
+            return percent;
         }
 
         [Serializable]
