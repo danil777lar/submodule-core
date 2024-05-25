@@ -1,15 +1,10 @@
 #if DREAMTECK_SPLINES
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dreamteck.Splines;
-using JetBrains.Annotations;
-using Larje.Core.Services;
 using MoreMountains.Tools;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace Larje.Core.Tools.RoomGenerator
 {
@@ -20,12 +15,16 @@ namespace Larje.Core.Tools.RoomGenerator
     public class SplineWall : MonoBehaviour
     {
         [SerializeField] private SplineWallConfig config;
+        [Space]
         [SerializeField, Min(0f)] private float segmentsPerUnit = 0f;
         [SerializeField] private bool rebuildOnStart = false;
+        [Space]
         [SerializeField] private List<bool> hideWallParts = new List<bool>();
 
         private SplineComputer _spline;
 
+        public float SegmentsPerUnit => segmentsPerUnit;
+        public SplineWallConfig Config => config;
         public SplineComputer SplineInstance
         {
             get
@@ -38,6 +37,7 @@ namespace Larje.Core.Tools.RoomGenerator
                 return _spline;
             }
         }
+        public IReadOnlyCollection<bool> HideWallParts => hideWallParts;
 
         public void Initialize()
         {
@@ -66,7 +66,7 @@ namespace Larje.Core.Tools.RoomGenerator
                 Rebuild();
             }
             
-            foreach (WallSegment segment in GetSegments())
+            foreach (WallSegment segment in WallSegmentUtilities.GetSegments(this))
             {
                 Gizmos.color = segment.Hidden ? Color.white.SetAlpha(0.1f) : Color.white.SetAlpha(1f);
                 
@@ -177,171 +177,6 @@ namespace Larje.Core.Tools.RoomGenerator
             }
         }*/
 
-        public List<WallSegment> GetSegments()
-        {
-            List<WallSegment> segments = new List<WallSegment>();
-            List<double> heights = GetHeightPoints();
-            List<double> percents = GetPercentPoint();
-
-            for (int h = 0; h < heights.Count - 1; h++)
-            {
-                for (int p = 0; p < percents.Count - 1; p++)
-                {
-                    Vector3 min = SplineInstance.EvaluatePosition(percents[p]) + Vector3.up * (float)heights[h];
-                    Vector3 max = SplineInstance.EvaluatePosition(percents[p + 1]) + Vector3.up * (float)heights[h + 1];
-
-                    WallSegment segment = new WallSegment(min, max);
-
-                    segments.Add(segment);
-                }
-            }
-
-            MarkHiddenSegments(segments);
-            FillSegmentNeighbours(segments);
-            
-            return segments;
-        }
-        
-        private void MarkHiddenSegments(IReadOnlyCollection<WallSegment> segments)
-        {
-            foreach (Interval interval in GetHideIntervals())
-            {
-                foreach (WallSegment segment in segments)
-                {
-                    double centerPercent = GetSegmentCenterPercent(segment);
-                    double centerHeight = (segment.Min.y + segment.Max.y) * 0.5f;
-                    segment.Hidden |= interval.Contains(centerPercent, centerHeight);
-                }
-            }
-        }
-        
-        private void FillSegmentNeighbours(List<WallSegment> segments)
-        {
-            foreach (WallSegment segment in segments)
-            {
-                var segment1 = segment;
-                segment.Next = segments.Find(x => x.Min == segment1.Max.MMSetY(segment1.Min.y));
-                segment.Prev = segments.Find(x => x.Max == segment.Min.MMSetY(segment.Max.y));
-                
-                segment.Upper = segments.Find(x => x.Min == segment.Min.MMSetY(segment.Max.y));
-                segment.Lower = segments.Find(x => x.Max == segment.Max.MMSetY(segment.Min.y));
-            }
-        }
-        
-        private List<Interval> GetHideIntervals()
-        {
-            List<Interval> intervals = new List<Interval>();
-
-            GetComponentsInChildren<SplineWallHole>().ToList().ForEach(x =>
-            {
-                SplineWallHole.Data data = x.GetData();
-                intervals.Add(new Interval(data.XFrom, data.XTo, data.YFrom, data.YTo));
-            });
-            
-            for (int i = 0; i < hideWallParts.Count; i++)
-            {
-                if (hideWallParts[i])
-                {
-                    double from = SplineInstance.GetPointPercent(i);
-                    double to = i < hideWallParts.Count - 1 ? SplineInstance.GetPointPercent(i + 1) : 1;
-                    intervals.Add(new Interval(from, to, 0f, config.Height));
-                }
-            }
-
-            return intervals;
-        } 
-
-        private List<double> GetHeightPoints()
-        {
-            List<double> heights = new List<double>();
-            heights.Add(0);
-            
-            float lastHeights = 0f;
-            
-            foreach (SplineWallConfig.WallPart wallPart in config.WallParts)
-            {
-                float partHeightPercent = wallPart.Weight / config.GetWeightsSum();
-                float partHeight = config.Height * partHeightPercent;
-                lastHeights += partHeight;
-                heights.Add(lastHeights);
-            }
-            
-            foreach (SplineWallHole hole in GetComponentsInChildren<SplineWallHole>())
-            {
-                SplineWallHole.Data holeData = hole.GetData();
-
-                if (holeData.YFrom < config.Height && holeData.YFrom > 0)
-                {
-                    heights.Add(holeData.YFrom);
-                }
-
-                if (holeData.YTo < config.Height && holeData.YTo > 0)
-                {
-                    heights.Add(holeData.YTo);
-                }
-            }
-            
-            heights = heights.OrderBy(x => x).ToList();
-
-            return heights;            
-        }
-
-        private List<double> GetPercentPoint()
-        {
-            List<double> percents = new List<double>();
-            GetPoints().ForEach(x => percents.Add(SplineInstance.Project(x).percent));
-            
-            foreach (SplineWallHole hole in GetComponentsInChildren<SplineWallHole>())
-            {
-                SplineWallHole.Data holeData = hole.GetData();
-                percents.Add(holeData.XFrom);
-                percents.Add(holeData.XTo);
-            }
-
-            percents = percents.OrderBy(x => x).ToList();
-            
-            percents.Add(1);
-            
-            return percents;
-        }
-        
-        private List<Vector3> GetPoints()
-        {
-            List<Vector3> points = new List<Vector3>();
-            List<SplinePoint> splinePoints = SplineInstance.GetPoints().ToList();
-
-            if (SplineInstance.isClosed)
-            {
-                splinePoints.Add(splinePoints[0]);
-            }
-            
-            for (int i = 0; i < splinePoints.Count - 1; i++)
-            {
-                points.Add(splinePoints[i].position);
-                float lengthToNext = SplineInstance.CalculateLength(SplineInstance.GetPointPercent(i),
-                    SplineInstance.GetPointPercent(i + 1));
-                int pointsCount = Mathf.RoundToInt(lengthToNext * segmentsPerUnit);
-                for (int j = 1; j < pointsCount; j++)
-                {
-                    float percent = Mathf.Lerp(
-                        (float)SplineInstance.GetPointPercent(i),
-                        (float)SplineInstance.GetPointPercent(i + 1),
-                        (float)j / (float)pointsCount);
-
-                    points.Add(SplineInstance.EvaluatePosition(percent));
-                }
-            }
-            
-            return points;
-        }
-
-        private double GetSegmentCenterPercent(WallSegment segment)
-        {
-            float distance = Vector3.Distance(segment.Min.XZ(), segment.Max.XZ());
-            double fromPercent = SplineInstance.Project(segment.Min).percent;
-            return SplineInstance.Travel(fromPercent, distance * 0.5f);
-        }
-
         private void BuildWall(List<Vector3> points, List<Vector3> vertices, List<int> triangles, List<Color> vertexColors, 
             float offset, float height, float widthTop, float widthBottom, bool buildTop, bool buildBottom, 
             Color topColor, Color bottomColor,
@@ -421,70 +256,6 @@ namespace Larje.Core.Tools.RoomGenerator
             }
 
             return mesh;
-        }
-
-        public class WallSegment
-        {
-            public readonly Vector3 Min;
-            public readonly Vector3 Max;
-
-            public bool Hidden;
-
-            public WallSegment Next;
-            public WallSegment Prev;
-            public WallSegment Upper;
-            public WallSegment Lower;
-
-            public WallSegment(Vector3 min, Vector3 max)
-            {
-                Min = min;
-                Max = max;
-            }
-        }
-
-        public class Interval
-        {
-            public readonly double FromPercent;
-            public readonly double ToPercent;
-            public readonly double FromHeight;
-            public readonly double ToHeight;
-            
-            public Interval(double fromPercent, double toPercent, double fromHeight, double toHeight)
-            {
-                FromPercent = fromPercent;
-                ToPercent = toPercent;
-                FromHeight = fromHeight;
-                ToHeight = toHeight;
-            }
-
-            public bool Contains(double percent, double height)
-            {
-                return ContainsPercent(percent) && ContainsHeight(height);
-            }
-
-            private bool ContainsPercent(double percent)
-            {
-                if (FromPercent <= ToPercent)
-                {
-                    return percent > FromPercent && percent < ToPercent;
-                }
-                else
-                {
-                    return percent > FromPercent || percent < ToPercent;
-                }
-            }
-            
-            private bool ContainsHeight(double percent)
-            {
-                if (FromHeight <= ToHeight)
-                {
-                    return percent > FromHeight && percent < ToHeight;
-                }
-                else
-                {
-                    return percent > FromHeight || percent < ToHeight;
-                }
-            }
         }
     }
 }

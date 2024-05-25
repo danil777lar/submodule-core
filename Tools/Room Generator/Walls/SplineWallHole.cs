@@ -67,7 +67,7 @@ namespace Larje.Core.Tools.RoomGenerator
             }
             else
             {
-                percent = Math.Clamp(0f, 1f, percent);
+                percent = Math.Clamp(percent, 0f, 1f);
             }
 
             return percent;

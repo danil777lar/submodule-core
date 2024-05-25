@@ -10,14 +10,13 @@ using UnityEngine;
 [CustomEditor(typeof(SplineWall))]
 public class SplineWallEditor : Editor
 {
-    private SplineWall.WallSegment _selectedSegment;
+    private WallSegment _selectedSegment;
     
     private void OnSceneGUI()
     {
         SplineWall wall = (SplineWall) target;
-        SplineComputer spline = wall.SplineInstance;
         
-        foreach (SplineWall.WallSegment segment in wall.GetSegments())
+        foreach (WallSegment segment in WallSegmentUtilities.GetSegments(wall))
         {
             Vector3 segmentPosition = Vector3.Lerp(segment.Min, segment.Max, 0.5f);
             Vector3 lookDirection = segment.Max.MMSetY(segment.Min.y) - segment.Min;
@@ -41,7 +40,7 @@ public class SplineWallEditor : Editor
         }
     }
 
-    private void DrawFilledSegment(SplineWall.WallSegment segment, Color color)
+    private void DrawFilledSegment(WallSegment segment, Color color)
     {
         Handles.color = color;
         int linesCount = 100;
