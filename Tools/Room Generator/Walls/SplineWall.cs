@@ -79,19 +79,22 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             foreach (WallSegment segment in WallSegmentUtilities.GetSegments(this))
             {
+                Vector3 min = transform.TransformPoint(segment.Min);
+                Vector3 max = transform.TransformPoint(segment.Max);
+                
                 Gizmos.color = segment.Hidden ? Color.white.SetAlpha(0.1f) : Color.white.SetAlpha(1f);
                 
                 //diagonal lines
-                Gizmos.DrawLine(segment.Min,  segment.Max);
-                Gizmos.DrawLine(segment.Min.MMSetY(segment.Max.y),  segment.Max.MMSetY(segment.Min.y));
+                Gizmos.DrawLine(min,  max);
+                Gizmos.DrawLine(min.MMSetY(max.y),  max.MMSetY(min.y));
                 
                 //horizontal lines
-                Gizmos.DrawLine(segment.Min, segment.Max.MMSetY(segment.Min.y));
-                Gizmos.DrawLine(segment.Max, segment.Min.MMSetY(segment.Max.y));
+                Gizmos.DrawLine(min, max.MMSetY(min.y));
+                Gizmos.DrawLine(max, min.MMSetY(max.y));
                 
                 //vertical lines
-                Gizmos.DrawLine(segment.Min,  segment.Min.MMSetY(segment.Max.y));
-                Gizmos.DrawLine(segment.Max,  segment.Max.MMSetY(segment.Min.y));
+                Gizmos.DrawLine(min,  min.MMSetY(max.y));
+                Gizmos.DrawLine(max,  max.MMSetY(min.y));
             }
         }
 
@@ -115,7 +118,7 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             if (CanRebuild())
             {
-                WallSegmentBuildUtilities.BuildWallSegmentsMesh(GetMesh());
+                WallMeshUtilities.BuildMesh(this, GetMesh());
                 ApplyMaterials(config.WallParts.Select(x => x.Material).ToArray());   
                 ApplyCollider();
             }

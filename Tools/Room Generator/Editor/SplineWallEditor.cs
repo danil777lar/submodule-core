@@ -18,8 +18,11 @@ public class SplineWallEditor : Editor
         
         foreach (WallSegment segment in WallSegmentUtilities.GetSegments(wall))
         {
-            Vector3 segmentPosition = Vector3.Lerp(segment.Min, segment.Max, 0.5f);
-            Vector3 lookDirection = segment.Max.MMSetY(segment.Min.y) - segment.Min;
+            Vector3 min = wall.transform.TransformPoint(segment.Min);
+            Vector3 max = wall.transform.TransformPoint(segment.Max);
+            
+            Vector3 segmentPosition = Vector3.Lerp(min, max, 0.5f);
+            Vector3 lookDirection = max.MMSetY(min.y) - min;
             lookDirection = new Vector3(lookDirection.z, lookDirection.y, -lookDirection.x);
             Quaternion segmentRotation = Quaternion.LookRotation(lookDirection);
             

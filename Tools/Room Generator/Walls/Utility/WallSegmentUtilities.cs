@@ -30,6 +30,8 @@ public static class WallSegmentUtilities
             {
                 Vector3 min = wall.SplineInstance.EvaluatePosition(percents[p]) + Vector3.up * (float)heights[h];
                 Vector3 max = wall.SplineInstance.EvaluatePosition(percents[p + 1]) + Vector3.up * (float)heights[h + 1];
+                min = wall.transform.InverseTransformPoint(min);
+                max = wall.transform.InverseTransformPoint(max);
                 segments.Add(new WallSegment(min, max));
             }
         }
