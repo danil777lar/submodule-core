@@ -8,4 +8,10 @@ public static class ColorExtensions
     {
         return new Color(color.r, color.g, color.b, alpha);
     }
+    
+    public static Color SetSaturation(this Color color, float saturationValue) 
+    {
+        float grayValue = (color.a + color.g + color.b) / 3f;
+        return Color.LerpUnclamped(Color.white * grayValue, color, saturationValue);
+    }
 }
