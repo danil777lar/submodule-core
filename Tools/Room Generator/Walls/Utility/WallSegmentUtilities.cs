@@ -14,6 +14,8 @@ public static class WallSegmentUtilities
         
         MarkHiddenSegments(wall, segments);
         FillSegmentNeighbours(segments);
+        FillOffsets(wall, segments);
+        //FitNeighboursOffsets(segments);
 
         return segments;
     }
@@ -28,8 +30,11 @@ public static class WallSegmentUtilities
         {
             for (int p = 0; p < percents.Count - 1; p++)
             {
-                Vector3 min = wall.SplineInstance.EvaluatePosition(percents[p]).MMSetY(wall.transform.position.y); 
-                Vector3 max = wall.SplineInstance.EvaluatePosition(percents[p + 1]).MMSetY(wall.transform.position.y);
+                double from = percents[p];
+                double to = percents[p + 1];
+                
+                Vector3 min = wall.SplineInstance.EvaluatePosition(from).MMSetY(wall.transform.position.y); 
+                Vector3 max = wall.SplineInstance.EvaluatePosition(to).MMSetY(wall.transform.position.y);
                 
                 min += Vector3.up * (float)heights[h];
                 max += Vector3.up * (float)heights[h + 1];
@@ -37,7 +42,13 @@ public static class WallSegmentUtilities
                 min = wall.transform.InverseTransformPoint(min);
                 max = wall.transform.InverseTransformPoint(max);
                 
-                segments.Add(new WallSegment(min, max));
+                WallSegment segment = new WallSegment(min, max)
+                {
+                    PercentFrom = from,
+                    PercentTo = to
+                };
+                
+                segments.Add(segment);
             }
         }
 
@@ -98,5 +109,57 @@ public static class WallSegmentUtilities
         }
 
         return intervals;
-    } 
+    }
+
+    private static void FillOffsets(SplineWall wall, IReadOnlyCollection<WallSegment> segments)
+    {
+        foreach (WallSegment segment in segments)
+        {
+            Vector3 dirDefault = wall.transform.TransformPoint(segment.Corners[3]) - wall.transform.TransformPoint(segment.Corners[0]);
+            dirDefault = new Vector3(dirDefault.z, dirDefault.y, -dirDefault.x).normalized;
+            dirDefault *= wall.Config.Width * 0.5f;
+            
+            Plane plane = new Plane(
+                wall.transform.TransformPoint(segment.Corners[0]) + dirDefault, 
+                wall.transform.TransformPoint(segment.Corners[1]) + dirDefault, 
+                wall.transform.TransformPoint(segment.Corners[2]) + dirDefault);
+            
+            Vector3 directionFrom = WallPointUtilities.GetDirectionByPercent(wall, segment.PercentFrom);
+            Vector3 directionTo = WallPointUtilities.GetDirectionByPercent(wall, segment.PercentTo);
+            
+            Ray rayFrom = new Ray(wall.transform.TransformPoint(segment.Corners[0]), directionFrom);
+            Ray rayTo = new Ray(wall.transform.TransformPoint(segment.Corners[3]), directionTo);
+
+            if (plane.Raycast(rayFrom, out float fromDistance))
+            {
+                segment.OffsetFrom = rayFrom.GetPoint(fromDistance) - wall.transform.TransformPoint(segment.Corners[0]);
+            }
+            
+            if (plane.Raycast(rayTo, out float toDistance))
+            {
+                segment.OffsetTo = rayTo.GetPoint(toDistance) - wall.transform.TransformPoint(segment.Corners[3]);
+            }
+        }
+    }
+    
+    private static void FitNeighboursOffsets(IReadOnlyCollection<WallSegment> segments)
+    {
+        foreach (WallSegment segment in segments)
+        {
+            if (segment.Next != null)
+            {
+                Vector3 offset = Vector3.Lerp(segment.Next.OffsetFrom, segment.OffsetTo, 0.5f);
+                segment.OffsetFrom = offset;
+                segment.Next.OffsetFrom = offset;
+            }
+            
+            if (segment.Prev != null)
+            {
+                Vector3 offset = Vector3.Lerp(segment.Prev.OffsetTo, segment.OffsetFrom, 0.5f);
+                segment.OffsetFrom = offset;
+                segment.Prev.OffsetTo = offset;
+            }
+        }
+    }
+
 }

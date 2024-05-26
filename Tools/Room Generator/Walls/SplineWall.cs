@@ -15,6 +15,7 @@ namespace Larje.Core.Tools.RoomGenerator
     [RequireComponent(typeof(MeshCollider))]
     public class SplineWall : MonoBehaviour
     {
+        [SerializeField] private bool enableDebugMode;
         [SerializeField] private SplineWallConfig config;
         [Space]
         [SerializeField, Min(0f)] private float segmentsPerUnit = 0f;
@@ -23,7 +24,8 @@ namespace Larje.Core.Tools.RoomGenerator
         [SerializeField] private List<bool> hideWallParts = new List<bool>();
 
         private SplineComputer _spline;
-
+        
+        public bool EnableDebugMode => enableDebugMode;
         public float SegmentsPerUnit => segmentsPerUnit;
         public SplineWallConfig Config => config;
         public SplineComputer SplineInstance
@@ -95,6 +97,10 @@ namespace Larje.Core.Tools.RoomGenerator
                 //vertical lines
                 Gizmos.DrawLine(min,  min.MMSetY(max.y));
                 Gizmos.DrawLine(max,  max.MMSetY(min.y));
+                
+                //offsets
+                Gizmos.DrawLine(min - segment.OffsetFrom,  min + segment.OffsetFrom);
+                Gizmos.DrawLine(max.MMSetY(min.y) - segment.OffsetTo,  max.MMSetY(min.y) + segment.OffsetTo);
             }
         }
 

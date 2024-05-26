@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,24 +29,6 @@ public static class WallPointUtilities
         return heights;
     }
 
-    private static void AddHoleHeights(SplineWall wall, List<double> heights)
-    {
-        foreach (SplineWallHole hole in wall.GetComponentsInChildren<SplineWallHole>())
-        {
-            SplineWallHole.Data holeData = hole.GetData();
-
-            if (holeData.YFrom < wall.Config.Height && holeData.YFrom > 0)
-            {
-                heights.Add(holeData.YFrom);
-            }
-
-            if (holeData.YTo < wall.Config.Height && holeData.YTo > 0)
-            {
-                heights.Add(holeData.YTo);
-            }
-        }
-    }
-
     public static List<double> GetPercentPoint(SplineWall wall)
     {
         List<double> percents = new List<double>();
@@ -62,6 +45,64 @@ public static class WallPointUtilities
         percents.Add(1);
 
         return percents;
+    }
+
+    public static Vector3 GetDirectionByPercent(SplineWall wall, double percent)
+    {
+        Dictionary<double, Vector3> directions = GetPointsDirections(wall);
+
+        if (directions.ContainsKey(percent))
+        {
+            return directions[percent];    
+        }
+
+        double percentPrev = directions.Keys.ToList().FindAll(key => key <= percent).Max();
+        double percentNext = directions.Keys.ToList().FindAll(key => key >= percent).Min();
+        double lerpValue = (percent - percentPrev) / (percentNext - percentPrev);
+        
+        return Vector3.Lerp(directions[percentPrev], directions[percentNext], (float)lerpValue).normalized;
+    } 
+    
+    private static Dictionary<double, Vector3> GetPointsDirections(SplineWall wall)
+    {
+        Dictionary<double, Vector3> directions = new Dictionary<double, Vector3>();
+        int lastIndex = wall.SplineInstance.pointCount - 1;
+        for (int i = 0; i < wall.SplineInstance.pointCount; i++)
+        {
+            double percent = wall.SplineInstance.GetPointPercent(i);
+            
+            int prevPoint = wall.SplineInstance.isClosed && i == 0 ? lastIndex : Mathf.Max(i - 1, 0);
+            int nextPoint = wall.SplineInstance.isClosed && i == lastIndex ? 0 : Mathf.Min(i + 1, lastIndex);
+            
+            Vector3 direction = wall.SplineInstance.GetPointPosition(nextPoint) - wall.SplineInstance.GetPointPosition(prevPoint);
+            direction = new Vector3(direction.z, direction.y, -direction.x).normalized; 
+            directions.Add(percent, direction);
+        }
+
+        if (wall.SplineInstance.isClosed)
+        {
+            directions.Add(1, directions[0]);
+        }
+
+        return directions;
+    }
+
+    private static void AddHoleHeights(SplineWall wall, List<double> heights)
+    {
+        foreach (SplineWallHole hole in wall.GetComponentsInChildren<SplineWallHole>())
+        {
+            SplineWallHole.Data holeData = hole.GetData();
+
+            if (holeData.YFrom < wall.Config.Height && holeData.YFrom > 0)
+            {
+                heights.Add(holeData.YFrom);
+            }
+
+            if (holeData.YTo < wall.Config.Height && holeData.YTo > 0)
+            {
+                heights.Add(holeData.YTo);
+            }
+        }
     }
 
     private static void AddHolePercents(SplineWall wall, List<double> percents)

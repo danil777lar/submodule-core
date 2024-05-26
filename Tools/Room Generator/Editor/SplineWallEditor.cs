@@ -15,7 +15,12 @@ public class SplineWallEditor : Editor
     private void OnSceneGUI()
     {
         SplineWall wall = (SplineWall) target;
-        
+
+        if (!wall.EnableDebugMode)
+        {
+            return;
+        }
+
         foreach (WallSegment segment in WallSegmentUtilities.GetSegments(wall))
         {
             Vector3 min = wall.transform.TransformPoint(segment.Min);
