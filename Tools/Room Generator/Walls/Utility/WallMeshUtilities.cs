@@ -34,8 +34,32 @@ namespace Larje.Core.Tools.RoomGenerator
 
         private static void BuildRightLeftPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)
         {
-            Vector3 offsetFrom = GetOffsetFrom(wall, segment);
-            Vector3 offsetTo = GetOffsetTo(wall, segment);
+            Vector3 offsetFrom = GetOffset(wall, segment, true);
+            Vector3 offsetTo = GetOffset(wall, segment, false);
+
+            List<Vector3> topPoints = new List<Vector3>()
+            {
+                segment.Corners[0] + offsetFrom,
+                segment.Corners[1] + offsetFrom,
+                segment.Corners[2] + offsetTo,
+                segment.Corners[3] + offsetTo
+            };
+            BuildPlane(topPoints.ToArray(), properties, true);
+
+            List<Vector3> bottomPoints = new List<Vector3>()
+            {
+                segment.Corners[0] - offsetFrom,
+                segment.Corners[1] - offsetFrom,
+                segment.Corners[2] - offsetTo,
+                segment.Corners[3] - offsetTo
+            };
+            BuildPlane(bottomPoints.ToArray(), properties, false);
+        }
+        
+        private static void BuildTopBottomPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)
+        {
+            Vector3 offsetFrom = GetOffset(wall, segment, true);
+            Vector3 offsetTo = GetOffset(wall, segment, false);
 
             List<Vector3> topPoints = new List<Vector3>()
             {
@@ -45,7 +69,7 @@ namespace Larje.Core.Tools.RoomGenerator
                 segment.Corners[2] + offsetTo
             };
             BuildPlane(topPoints.ToArray(), properties, true);
-
+            
             List<Vector3> bottomPoints = new List<Vector3>()
             {
                 segment.Corners[0] + offsetFrom,
@@ -56,50 +80,28 @@ namespace Larje.Core.Tools.RoomGenerator
             BuildPlane(bottomPoints.ToArray(), properties, false);
         }
         
-        private static void BuildTopBottomPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)
-        {
-            /*Vector3 offset = segment.Right * wall.Config.Width * 0.5f;
-
-            List<Vector3> topPoints = new List<Vector3>()
-            {
-                segment.Corners[1] + offset,
-                segment.Corners[1] - offset,
-                segment.Corners[2] - offset,
-                segment.Corners[2] + offset
-            };
-            BuildPlane(topPoints.ToArray(), properties, true);
-            
-            List<Vector3> bottomPoints = new List<Vector3>()
-            {
-                segment.Corners[0] + offset,
-                segment.Corners[0] - offset,
-                segment.Corners[3] - offset,
-                segment.Corners[3] + offset
-            };
-            BuildPlane(bottomPoints.ToArray(), properties, false);*/
-        }
-        
         private static void BuildForwardBackPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)
         {
-            /*Vector3 offset = segment.Right * wall.Config.Width * 0.5f;
+            Vector3 offsetFrom = GetOffset(wall, segment, true);
+            Vector3 offsetTo = GetOffset(wall, segment, false);
 
             List<Vector3> topPoints = new List<Vector3>()
             {
-                segment.Corners[0] + offset,
-                segment.Corners[0] - offset,
-                segment.Corners[1] - offset,
-                segment.Corners[1] + offset
+                segment.Corners[0] + offsetFrom,
+                segment.Corners[0] - offsetFrom,
+                segment.Corners[1] - offsetFrom,
+                segment.Corners[1] + offsetFrom
             };
             BuildPlane(topPoints.ToArray(), properties, true);
             
             List<Vector3> bottomPoints = new List<Vector3>()
             {
-                segment.Corners[3] + offset,
-                segment.Corners[3] - offset,
-                segment.Corners[2] - offset,
-                segment.Corners[2] + offset
+                segment.Corners[3] + offsetTo,
+                segment.Corners[3] - offsetTo,
+                segment.Corners[2] - offsetTo,
+                segment.Corners[2] + offsetTo
             };
-            BuildPlane(bottomPoints.ToArray(), properties, false);*/
+            BuildPlane(bottomPoints.ToArray(), properties, false);
         }
 
         private static void BuildPlane(Vector3[] points, MeshProperties properties, bool normalsOutside = true)
@@ -112,37 +114,22 @@ namespace Larje.Core.Tools.RoomGenerator
             properties.Triangles.AddRange(triangles.Select(i => i + vertexIndex));
         }
 
-        private static Vector3 GetOffsetFrom(SplineWall wall, WallSegment segment)
+        private static Vector3 GetOffset(SplineWall wall, WallSegment segment, bool from)
         {
             float width = wall.Config.Width * 0.5f;
-            if (segment.Prev is { Hidden: false })
-            {
-                Vector3 thisCenter = Vector3.Lerp(segment.Corners[0], segment.Corners[3], 0.5f) + segment.Right * width;
-                Vector3 prevCenter = Vector3.Lerp(segment.Prev.Corners[0], segment.Prev.Corners[3], 0.5f) + segment.Prev.Right * width;
-                thisCenter.MMSetY(0);
-                prevCenter.MMSetY(0);
-                
-                if (GetIntersection(out Vector3 inter, thisCenter, -segment.Forward, prevCenter, segment.Prev.Forward))
-                {
-                    return inter - segment.Corners[0];
-                }
-            }
+            WallSegment otherSegment = from ? segment.Prev : segment.Next;
             
-            return segment.Right * width;
-        }
-        
-        private static Vector3 GetOffsetTo(SplineWall wall, WallSegment segment)
-        {
-            float width = wall.Config.Width * 0.5f;
-            if (segment.Next is { Hidden: false })
+            if (otherSegment is { Hidden: false })
             {
-                Vector3 thisCenter = Vector3.Lerp(segment.Corners[0], segment.Corners[3], 0.5f) + segment.Right * width;
-                Vector3 nextCenter = Vector3.Lerp(segment.Next.Corners[0], segment.Next.Corners[3], 0.5f) + segment.Next.Right * width;
-                thisCenter.MMSetY(0);
-                nextCenter.MMSetY(0);
-                if (GetIntersection(out Vector3 inter, thisCenter, segment.Forward, nextCenter, -segment.Next.Forward))
+                Vector3 thisPoint = Vector3.Lerp(segment.Corners[0], segment.Corners[3], 0.5f) + segment.Right * width;
+                Vector3 otherPoint = Vector3.Lerp(otherSegment.Corners[0], otherSegment.Corners[3], 0.5f) + otherSegment.Right * width;
+
+                Vector3 thisDir = segment.Forward * (from ? -1 : 1); 
+                Vector3 otherDir = otherSegment.Forward * (from ? 1 : -1);
+                
+                if (GetIntersection(out Vector3 inter, thisPoint, thisDir, otherPoint, otherDir))
                 {
-                    return inter - segment.Corners[3];
+                    return inter - segment.Corners[from ? 0 : 3];
                 }
             }
             
