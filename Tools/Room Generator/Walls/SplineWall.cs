@@ -83,6 +83,8 @@ namespace Larje.Core.Tools.RoomGenerator
             {
                 Vector3 min = transform.TransformPoint(segment.Min);
                 Vector3 max = transform.TransformPoint(segment.Max);
+                Vector3 offsetMin = transform.TransformVector(segment.OffsetFrom);
+                Vector3 offsetMax = transform.TransformVector(segment.OffsetTo);
                 
                 Gizmos.color = segment.Hidden ? Color.white.SetAlpha(0.1f) : Color.white.SetAlpha(1f);
                 
@@ -99,8 +101,8 @@ namespace Larje.Core.Tools.RoomGenerator
                 Gizmos.DrawLine(max,  max.MMSetY(min.y));
                 
                 //offsets
-                Gizmos.DrawLine(min - segment.OffsetFrom,  min + segment.OffsetFrom);
-                Gizmos.DrawLine(max.MMSetY(min.y) - segment.OffsetTo,  max.MMSetY(min.y) + segment.OffsetTo);
+                Gizmos.DrawLine(min - offsetMin,  min + offsetMin);
+                Gizmos.DrawLine(max.MMSetY(min.y) - offsetMax,  max.MMSetY(min.y) + offsetMax);
             }
         }
 

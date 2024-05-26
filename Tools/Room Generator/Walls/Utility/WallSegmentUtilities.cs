@@ -15,7 +15,6 @@ public static class WallSegmentUtilities
         MarkHiddenSegments(wall, segments);
         FillSegmentNeighbours(segments);
         FillOffsets(wall, segments);
-        //FitNeighboursOffsets(segments);
 
         return segments;
     }
@@ -122,7 +121,7 @@ public static class WallSegmentUtilities
             Plane plane = new Plane(
                 wall.transform.TransformPoint(segment.Corners[0]) + dirDefault, 
                 wall.transform.TransformPoint(segment.Corners[1]) + dirDefault, 
-                wall.transform.TransformPoint(segment.Corners[2]) + dirDefault);
+                wall.transform.TransformPoint(segment.Corners[3]) + dirDefault);
             
             Vector3 directionFrom = WallPointUtilities.GetDirectionByPercent(wall, segment.PercentFrom);
             Vector3 directionTo = WallPointUtilities.GetDirectionByPercent(wall, segment.PercentTo);
@@ -132,34 +131,19 @@ public static class WallSegmentUtilities
 
             if (plane.Raycast(rayFrom, out float fromDistance))
             {
-                segment.OffsetFrom = rayFrom.GetPoint(fromDistance) - wall.transform.TransformPoint(segment.Corners[0]);
+                Debug.DrawRay(wall.transform.InverseTransformPoint(rayFrom.origin + rayFrom.GetPoint(fromDistance)), Vector3.up, Color.red);
+                
+                segment.OffsetFrom = rayFrom.GetPoint(fromDistance) - rayFrom.origin;
+                segment.OffsetFrom = wall.transform.InverseTransformVector(segment.OffsetFrom);
             }
             
             if (plane.Raycast(rayTo, out float toDistance))
             {
-                segment.OffsetTo = rayTo.GetPoint(toDistance) - wall.transform.TransformPoint(segment.Corners[3]);
+                Debug.DrawRay(wall.transform.InverseTransformPoint(rayTo.origin + rayTo.GetPoint(toDistance)), Vector3.down, Color.green);
+                
+                segment.OffsetTo = rayTo.GetPoint(toDistance) - rayTo.origin;
+                segment.OffsetTo = wall.transform.InverseTransformVector(segment.OffsetTo);
             }
         }
     }
-    
-    private static void FitNeighboursOffsets(IReadOnlyCollection<WallSegment> segments)
-    {
-        foreach (WallSegment segment in segments)
-        {
-            if (segment.Next != null)
-            {
-                Vector3 offset = Vector3.Lerp(segment.Next.OffsetFrom, segment.OffsetTo, 0.5f);
-                segment.OffsetFrom = offset;
-                segment.Next.OffsetFrom = offset;
-            }
-            
-            if (segment.Prev != null)
-            {
-                Vector3 offset = Vector3.Lerp(segment.Prev.OffsetTo, segment.OffsetFrom, 0.5f);
-                segment.OffsetFrom = offset;
-                segment.Prev.OffsetTo = offset;
-            }
-        }
-    }
-
 }
