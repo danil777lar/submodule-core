@@ -18,6 +18,7 @@ public static class WallSegmentUtilities
         FillRowIndex(wall, segments);
         FillWidthMultipliers(wall, segments);
         FillVertexColors(wall, segments);
+        FillUpperLowerInRow(segments);
 
         return segments;
     }
@@ -196,6 +197,15 @@ public static class WallSegmentUtilities
                 segment.VertexColorTop = Color.Lerp(row.VertexColorBottom, row.VertexColorTop, 
                     (float)GetPercentBetween(segment.Max.y, (float)min, (float)max));
             }
+        }
+    }
+    
+    private static void FillUpperLowerInRow(IReadOnlyCollection<WallSegment> segments)
+    {
+        foreach (WallSegment segment in segments)
+        {
+            segment.IsUpperInRow = segment.Upper == null || segment.Upper.RowIndex != segment.RowIndex;
+            segment.IsLowerInRow = segment.Lower == null || segment.Lower.RowIndex != segment.RowIndex;
         }
     }
 

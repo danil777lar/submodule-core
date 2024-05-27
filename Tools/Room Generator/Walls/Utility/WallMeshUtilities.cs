@@ -76,15 +76,33 @@ namespace Larje.Core.Tools.RoomGenerator
         
         private static void BuildTopBottomPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)
         {
-            List<IndexDirection> top = new() { 
-                new IndexDirection(1, true), new IndexDirection(1, false), 
-                new IndexDirection(2, false), new IndexDirection(2, true)};
-            BuildPlane(segment, top, properties, true);
+            bool drawTop = segment.IsUpperInRow ? 
+                wall.Config.WallParts[segment.RowIndex].DrawTop : 
+                segment.Upper == null || segment.Upper.Hidden;
             
-            List<IndexDirection> bottom = new() { 
-                new IndexDirection(0, true), new IndexDirection(0, false), 
-                new IndexDirection(3, false), new IndexDirection(3, true)};
-            BuildPlane(segment, bottom, properties, false);
+            if (drawTop)
+            {
+                List<IndexDirection> top = new()
+                {
+                    new IndexDirection(1, true), new IndexDirection(1, false),
+                    new IndexDirection(2, false), new IndexDirection(2, true)
+                };
+                BuildPlane(segment, top, properties, true);
+            }
+            
+            bool drawBottom = segment.IsLowerInRow ? 
+                wall.Config.WallParts[segment.RowIndex].DrawBottom : 
+                segment.Lower == null || segment.Lower.Hidden;
+            
+            if (drawBottom)
+            {
+                List<IndexDirection> bottom = new()
+                {
+                    new IndexDirection(0, true), new IndexDirection(0, false),
+                    new IndexDirection(3, false), new IndexDirection(3, true)
+                };
+                BuildPlane(segment, bottom, properties, false);
+            }
         }
         
         private static void BuildForwardBackPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)

@@ -10,6 +10,9 @@ public class WallSegment
 
     public bool Hidden;
 
+    public bool IsUpperInRow;
+    public bool IsLowerInRow;
+
     public int RowIndex;
     
     public double PercentFrom;
