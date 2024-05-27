@@ -40,7 +40,7 @@ public static class WallPointUtilities
         
         return percents;
     }
-
+    
     public static Vector3 GetDirectionByPercent(SplineWall wall, double percent)
     {
         Dictionary<double, Vector3> directions = GetPointsDirections(wall);
@@ -67,9 +67,15 @@ public static class WallPointUtilities
             
             int prevPoint = wall.SplineInstance.isClosed && i == 0 ? lastIndex : Mathf.Max(i - 1, 0);
             int nextPoint = wall.SplineInstance.isClosed && i == lastIndex ? 0 : Mathf.Min(i + 1, lastIndex);
+
+            Vector3 currentPosition = wall.SplineInstance.EvaluatePosition(wall.SplineInstance.GetPointPercent(i));
+            Vector3 prevPosition = wall.SplineInstance.EvaluatePosition(wall.SplineInstance.GetPointPercent(prevPoint));
+            Vector3 nextPosition = wall.SplineInstance.EvaluatePosition(wall.SplineInstance.GetPointPercent(nextPoint));
             
-            Vector3 prevPointDirection = wall.SplineInstance.GetPointPosition(prevPoint) - wall.SplineInstance.GetPointPosition(i);
-            Vector3 nextPointDirection = wall.SplineInstance.GetPointPosition(nextPoint) - wall.SplineInstance.GetPointPosition(i);
+            Debug.DrawRay(currentPosition, Vector3.up * 10, Color.red);
+            
+            Vector3 prevPointDirection = prevPosition - currentPosition;
+            Vector3 nextPointDirection = nextPosition - currentPosition;
             
             Vector3 direction = nextPointDirection.normalized - prevPointDirection.normalized;
             direction = new Vector3(direction.z, direction.y, -direction.x).normalized; 
