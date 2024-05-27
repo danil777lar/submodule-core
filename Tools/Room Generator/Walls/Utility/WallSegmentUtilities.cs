@@ -16,6 +16,7 @@ public static class WallSegmentUtilities
         FillSegmentNeighbours(segments);
         FillOffsets(wall, segments);
         FillWidthMultipliers(wall, segments);
+        FillVertexColors(wall, segments);
 
         return segments;
     }
@@ -154,6 +155,21 @@ public static class WallSegmentUtilities
                     (float)GetPercentBetween(segment.Min.y, (float)min, (float)max));
                 
                 segment.WidthMultiplierTop = Mathf.Lerp(row.BottomWidthMultiplier, row.TopWidthMultiplier, 
+                    (float)GetPercentBetween(segment.Max.y, (float)min, (float)max));
+            }
+        }
+    }
+    
+    private static void FillVertexColors(SplineWall wall, IReadOnlyCollection<WallSegment> segments)
+    {
+        foreach (WallSegment segment in segments)
+        {
+            if (TryGetSegmentRow(wall, segment, out SplineWallRow row, out double min, out double max))
+            {
+                segment.VertexColorBottom = Color.Lerp(row.VertexColorBottom, row.VertexColorTop, 
+                    (float)GetPercentBetween(segment.Min.y, (float)min, (float)max));
+                
+                segment.VertexColorTop = Color.Lerp(row.VertexColorBottom, row.VertexColorTop, 
                     (float)GetPercentBetween(segment.Max.y, (float)min, (float)max));
             }
         }

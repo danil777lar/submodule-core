@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Larje.Core.Tools.RoomGenerator
@@ -14,6 +15,7 @@ namespace Larje.Core.Tools.RoomGenerator
 
         public float Height => height;
         public float Width => width;
+
         public SplineWallRow[] WallParts => wallParts.ToArray();
 
         public float GetWeightsSum()

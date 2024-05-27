@@ -34,75 +34,62 @@ namespace Larje.Core.Tools.RoomGenerator
 
         private static void BuildRightLeftPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)
         {
-            List<Vector3> topPoints = new List<Vector3>()
+            List<IndexDirection> right = new() { 
+                new IndexDirection(0, true), new IndexDirection(1, true), 
+                new IndexDirection(2, true), new IndexDirection(3, true)};
+            BuildPlane(segment, right, properties, true);
+            
+            List<IndexDirection> left = new()
             {
-                segment.Corners[0] + segment.OffsetFrom * segment.WidthMultiplierBottom,
-                segment.Corners[1] + segment.OffsetFrom * segment.WidthMultiplierTop,
-                segment.Corners[2] + segment.OffsetTo * segment.WidthMultiplierTop,
-                segment.Corners[3] + segment.OffsetTo * segment.WidthMultiplierBottom
+                new IndexDirection(0, false), new IndexDirection(1, false), 
+                new IndexDirection(2, false), new IndexDirection(3, false)
             };
-            BuildPlane(topPoints.ToArray(), properties, true);
-
-            List<Vector3> bottomPoints = new List<Vector3>()
-            {
-                segment.Corners[0] - segment.OffsetFrom * segment.WidthMultiplierBottom,
-                segment.Corners[1] - segment.OffsetFrom * segment.WidthMultiplierTop,
-                segment.Corners[2] - segment.OffsetTo * segment.WidthMultiplierTop,
-                segment.Corners[3] - segment.OffsetTo * segment.WidthMultiplierBottom
-            };
-            BuildPlane(bottomPoints.ToArray(), properties, false);
+            BuildPlane(segment, left, properties, false);
         }
         
         private static void BuildTopBottomPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)
         {
-            List<Vector3> topPoints = new List<Vector3>()
-            {
-                segment.Corners[1] + segment.OffsetFrom * segment.WidthMultiplierTop,
-                segment.Corners[1] - segment.OffsetFrom * segment.WidthMultiplierTop,
-                segment.Corners[2] - segment.OffsetTo * segment.WidthMultiplierTop,
-                segment.Corners[2] + segment.OffsetTo * segment.WidthMultiplierTop
-            };
-            BuildPlane(topPoints.ToArray(), properties, true);
+            List<IndexDirection> top = new() { 
+                new IndexDirection(1, true), new IndexDirection(1, false), 
+                new IndexDirection(2, false), new IndexDirection(2, true)};
+            BuildPlane(segment, top, properties, true);
             
-            List<Vector3> bottomPoints = new List<Vector3>()
-            {
-                segment.Corners[0] + segment.OffsetFrom * segment.WidthMultiplierBottom,
-                segment.Corners[0] - segment.OffsetFrom * segment.WidthMultiplierBottom,
-                segment.Corners[3] - segment.OffsetTo * segment.WidthMultiplierBottom,
-                segment.Corners[3] + segment.OffsetTo * segment.WidthMultiplierBottom
-            };
-            BuildPlane(bottomPoints.ToArray(), properties, false);
+            List<IndexDirection> bottom = new() { 
+                new IndexDirection(0, true), new IndexDirection(0, false), 
+                new IndexDirection(3, false), new IndexDirection(3, true)};
+            BuildPlane(segment, bottom, properties, false);
         }
         
         private static void BuildForwardBackPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)
         {
-            List<Vector3> topPoints = new List<Vector3>()
+            List<IndexDirection> forward = new()
             {
-                segment.Corners[0] + segment.OffsetFrom * segment.WidthMultiplierBottom,
-                segment.Corners[0] - segment.OffsetFrom * segment.WidthMultiplierBottom,
-                segment.Corners[1] - segment.OffsetFrom * segment.WidthMultiplierTop,
-                segment.Corners[1] + segment.OffsetFrom * segment.WidthMultiplierTop
+                new IndexDirection(3, true), new IndexDirection(3, false), 
+                new IndexDirection(2, false), new IndexDirection(2, true)
             };
-            BuildPlane(topPoints.ToArray(), properties, true);
+            BuildPlane(segment, forward, properties, false);
             
-            List<Vector3> bottomPoints = new List<Vector3>()
-            {
-                segment.Corners[3] + segment.OffsetTo * segment.WidthMultiplierBottom,
-                segment.Corners[3] - segment.OffsetTo * segment.WidthMultiplierBottom,
-                segment.Corners[2] - segment.OffsetTo * segment.WidthMultiplierTop,
-                segment.Corners[2] + segment.OffsetTo * segment.WidthMultiplierTop
-            };
-            BuildPlane(bottomPoints.ToArray(), properties, false);
+            List<IndexDirection> back = new() { 
+                new IndexDirection(0, true), new IndexDirection(0, false), 
+                new IndexDirection(1, false), new IndexDirection(1, true) };
+            BuildPlane(segment, back, properties, true);
         }
 
-        private static void BuildPlane(Vector3[] points, MeshProperties properties, bool normalsOutside = true)
+        private static void BuildPlane(WallSegment segment, List<IndexDirection> indexes, MeshProperties properties, bool normalsOutside = true)
         {
-            Vector3[] vertices = points;
+            Vector3[] vertices = indexes.Select(i => CornerToPoint(segment, i.index, i.right)).ToArray();
             int[] triangles = normalsOutside ? TrianglesOutside : TrianglesInside;
+            List<Color> colors = indexes.Select(i => IndexToColor(segment, i.index)).ToList();
             
             int vertexIndex = properties.Vertices.Count;
             properties.Vertices.AddRange(vertices);
             properties.Triangles.AddRange(triangles.Select(i => i + vertexIndex));
+            properties.Colors.AddRange(colors);
+        }
+
+        private static Color IndexToColor(WallSegment segment, int index)
+        {
+            return index == 0 || index == 3 ? segment.VertexColorBottom : segment.VertexColorTop;
         }
         
         private static void ApplyMesh(Mesh mesh, MeshProperties properties)
@@ -120,12 +107,33 @@ namespace Larje.Core.Tools.RoomGenerator
             mesh.RecalculateBounds();
         }
 
+        private static Vector3 CornerToPoint(WallSegment segment, int corner, bool right)
+        {
+            Vector3 offset = (corner == 0 || corner == 1) ? segment.OffsetFrom : segment.OffsetTo;
+            float multiplier =  (corner == 0 || corner == 3) ? segment.WidthMultiplierBottom : segment.WidthMultiplierTop;
+            float direction = right ? 1 : -1;
+
+            return segment.Corners[corner] + offset * multiplier * direction;
+        }
+
         private class MeshProperties
         {
             public List<Vector3> Vertices = new List<Vector3>(); 
             public List<int> Triangles = new List<int>();
             public List<Color> Colors = new List<Color>();
             public List<SubMeshDescriptor> Submeshes = new List<SubMeshDescriptor>();
+        }
+
+        private struct IndexDirection
+        {
+            public int index;
+            public bool right;
+            
+            public IndexDirection(int index, bool right)
+            {
+                this.index = index;
+                this.right = right;
+            }
         }
     }
 }

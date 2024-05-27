@@ -15,6 +15,9 @@ public class WallSegment
     
     public float WidthMultiplierTop;
     public float WidthMultiplierBottom;
+    
+    public Color VertexColorTop;
+    public Color VertexColorBottom;
 
     public WallSegment Next;
     public WallSegment Prev;
