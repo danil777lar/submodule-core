@@ -17,8 +17,33 @@ namespace Larje.Core.Tools.RoomGenerator
         public static void BuildMesh(SplineWall wall, Mesh mesh)
         {
             MeshProperties properties = new MeshProperties();
-            WallSegmentUtilities.GetSegments(wall)
-                .ForEach(segment => BuildSegmentMesh(wall, segment, properties));   
+
+            int wallRow = -1;
+            SubMeshDescriptor submesh = new SubMeshDescriptor();
+                
+            foreach (WallSegment segment in WallSegmentUtilities.GetSegments(wall).OrderBy(x => x.RowIndex))
+            {
+                if (wallRow != segment.RowIndex)
+                {
+                    if (wallRow != -1)
+                    {
+                        submesh.indexCount = properties.Triangles.Count - submesh.indexStart;
+                        properties.Submeshes.Add(submesh);
+                    }
+                    
+                    wallRow = segment.RowIndex;
+                    
+                    submesh = new SubMeshDescriptor();
+                    submesh.topology = MeshTopology.Triangles;
+                    submesh.indexStart = properties.Triangles.Count;
+                }
+                
+                BuildSegmentMesh(wall, segment, properties);
+            }
+            
+            submesh.indexCount = properties.Triangles.Count - submesh.indexStart;
+            properties.Submeshes.Add(submesh);
+            
             ApplyMesh(mesh, properties);
         }
 
@@ -109,8 +134,8 @@ namespace Larje.Core.Tools.RoomGenerator
             mesh.triangles = properties.Triangles.ToArray();
             mesh.colors = properties.Colors.ToArray();
 
-            //mesh.subMeshCount = properties.Submeshes.Count;
-            //mesh.SetSubMeshes(properties.Submeshes.ToArray());
+            mesh.subMeshCount = properties.Submeshes.Count;
+            mesh.SetSubMeshes(properties.Submeshes.ToArray());
 
             mesh.RecalculateNormals();
             mesh.RecalculateTangents();

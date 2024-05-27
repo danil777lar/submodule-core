@@ -9,6 +9,8 @@ public class WallSegment
     public readonly Vector3 Max;
 
     public bool Hidden;
+
+    public int RowIndex;
     
     public double PercentFrom;
     public double PercentTo;
