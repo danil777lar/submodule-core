@@ -131,16 +131,12 @@ public static class WallSegmentUtilities
 
             if (plane.Raycast(rayFrom, out float fromDistance))
             {
-                Debug.DrawRay(wall.transform.InverseTransformPoint(rayFrom.origin + rayFrom.GetPoint(fromDistance)), Vector3.up, Color.red);
-                
                 segment.OffsetFrom = rayFrom.GetPoint(fromDistance) - rayFrom.origin;
                 segment.OffsetFrom = wall.transform.InverseTransformVector(segment.OffsetFrom);
             }
             
             if (plane.Raycast(rayTo, out float toDistance))
             {
-                Debug.DrawRay(wall.transform.InverseTransformPoint(rayTo.origin + rayTo.GetPoint(toDistance)), Vector3.down, Color.green);
-                
                 segment.OffsetTo = rayTo.GetPoint(toDistance) - rayTo.origin;
                 segment.OffsetTo = wall.transform.InverseTransformVector(segment.OffsetTo);
             }
