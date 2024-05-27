@@ -34,11 +34,13 @@ namespace Larje.Core.Tools.RoomGenerator
 
         private static void BuildRightLeftPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)
         {
-            List<IndexDirection> right = new() { 
-                new IndexDirection(0, true), new IndexDirection(1, true), 
-                new IndexDirection(2, true), new IndexDirection(3, true)};
+            List<IndexDirection> right = new()
+            {
+                new IndexDirection(0, true), new IndexDirection(1, true),
+                new IndexDirection(2, true), new IndexDirection(3, true)
+            };
             BuildPlane(segment, right, properties, true);
-            
+
             List<IndexDirection> left = new()
             {
                 new IndexDirection(0, false), new IndexDirection(1, false), 
@@ -62,17 +64,25 @@ namespace Larje.Core.Tools.RoomGenerator
         
         private static void BuildForwardBackPlanes(SplineWall wall, WallSegment segment, MeshProperties properties)
         {
-            List<IndexDirection> forward = new()
+            if (segment.Next == null || segment.Next.Hidden)
             {
-                new IndexDirection(3, true), new IndexDirection(3, false), 
-                new IndexDirection(2, false), new IndexDirection(2, true)
-            };
-            BuildPlane(segment, forward, properties, false);
-            
-            List<IndexDirection> back = new() { 
-                new IndexDirection(0, true), new IndexDirection(0, false), 
-                new IndexDirection(1, false), new IndexDirection(1, true) };
-            BuildPlane(segment, back, properties, true);
+                List<IndexDirection> forward = new()
+                {
+                    new IndexDirection(3, true), new IndexDirection(3, false),
+                    new IndexDirection(2, false), new IndexDirection(2, true)
+                };
+                BuildPlane(segment, forward, properties, false);
+            }
+
+            if (segment.Prev == null || segment.Prev.Hidden)
+            {
+                List<IndexDirection> back = new()
+                {
+                    new IndexDirection(0, true), new IndexDirection(0, false),
+                    new IndexDirection(1, false), new IndexDirection(1, true)
+                };
+                BuildPlane(segment, back, properties, true);
+            }
         }
 
         private static void BuildPlane(WallSegment segment, List<IndexDirection> indexes, MeshProperties properties, bool normalsOutside = true)
