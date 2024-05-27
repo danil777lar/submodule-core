@@ -67,6 +67,7 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             if (drawGizmos)
             {
+                DrawWallPointsGizmo();
                 DrawWallSegmentsGizmo();
             }
 
@@ -79,6 +80,15 @@ namespace Larje.Core.Tools.RoomGenerator
         private void OnValidate()
         {
             ValidateHideWallParts();
+        }
+        
+        private void DrawWallPointsGizmo()
+        {
+            foreach (double point in WallPointUtilities.GetPercentPoint(this))
+            {
+                Gizmos.color = Color.white;
+                Gizmos.DrawSphere(SplineInstance.EvaluatePosition(point), 0.1f);
+            }
         }
 
         private void DrawWallSegmentsGizmo()

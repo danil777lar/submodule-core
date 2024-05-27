@@ -40,23 +40,26 @@ public class SplineWallEditor : Editor
 
         if (_selectedSegment != null)
         {
-            DrawFilledSegment(_selectedSegment, Color.red);
-            if (_selectedSegment.Prev != null) DrawFilledSegment(_selectedSegment.Prev, Color.blue);
-            if (_selectedSegment.Next != null) DrawFilledSegment(_selectedSegment.Next, Color.blue);
-            if (_selectedSegment.Upper != null) DrawFilledSegment(_selectedSegment.Upper, Color.blue);
-            if (_selectedSegment.Lower != null) DrawFilledSegment(_selectedSegment.Lower, Color.blue);
+            DrawFilledSegment(wall, _selectedSegment, Color.red);
+            if (_selectedSegment.Prev != null) DrawFilledSegment(wall, _selectedSegment.Prev, Color.blue);
+            if (_selectedSegment.Next != null) DrawFilledSegment(wall, _selectedSegment.Next, Color.blue);
+            if (_selectedSegment.Upper != null) DrawFilledSegment(wall, _selectedSegment.Upper, Color.blue);
+            if (_selectedSegment.Lower != null) DrawFilledSegment(wall, _selectedSegment.Lower, Color.blue);
         }
     }
 
-    private void DrawFilledSegment(WallSegment segment, Color color)
+    private void DrawFilledSegment(SplineWall wall, WallSegment segment, Color color)
     {
         Handles.color = color;
         int linesCount = 100;
         for (int i = 0; i < linesCount; i++)
         {
+            Vector3 min = wall.transform.TransformPoint(segment.Min);
+            Vector3 max = wall.transform.TransformPoint(segment.Max);
+            
             float t = (float)i / (float)linesCount;
-            Vector3 a = Vector3.Lerp(segment.Min, segment.Max.MMSetY(segment.Min.y), t);
-            Vector3 b = Vector3.Lerp(segment.Min.MMSetY(segment.Max.y), segment.Max, t);
+            Vector3 a = Vector3.Lerp(min, max.MMSetY(min.y), t);
+            Vector3 b = Vector3.Lerp(min.MMSetY(max.y), max, t);
             Handles.DrawLine(a, b);
         }
     }

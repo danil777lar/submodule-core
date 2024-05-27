@@ -32,18 +32,12 @@ public static class WallPointUtilities
     public static List<double> GetPercentPoint(SplineWall wall)
     {
         List<double> percents = new List<double>();
-        List<Vector3> points = GetPoints(wall);
-        foreach (Vector3 point in points)
-        {
-            percents.Add(wall.SplineInstance.Project(point).percent);
-        }
-
+        
+        AddBasePercents(wall, percents);
         AddHolePercents(wall, percents);
 
         percents.Sort();
-
-        percents.Add(1);
-
+        
         return percents;
     }
 
@@ -118,26 +112,12 @@ public static class WallPointUtilities
         }
     }
 
-    private static List<Vector3> GetPoints(SplineWall wall)
+    private static void AddBasePercents(SplineWall wall, List<double> percents)
     {
-        List<Vector3> points = new List<Vector3>();
-        List<SplinePoint> splinePoints = wall.SplineInstance.GetPoints().ToList();
-
-        if (wall.SplineInstance.isClosed)
+        for (int i = 0; i < wall.SplineInstance.pointCount; i++)
         {
-            splinePoints.Add(splinePoints[0]);
-        }
-
-        AddSplinePoints(wall, points, splinePoints);
-
-        return points;
-    }
-
-    private static void AddSplinePoints(SplineWall wall, List<Vector3> points, List<SplinePoint> splinePoints)
-    {
-        for (int i = 0; i < splinePoints.Count - 1; i++)
-        {
-            points.Add(splinePoints[i].position);
+            percents.Add(wall.SplineInstance.GetPointPercent(i));
+            
             float lengthToNext = wall.SplineInstance.CalculateLength(wall.SplineInstance.GetPointPercent(i),
                 wall.SplineInstance.GetPointPercent(i + 1));
             int pointsCount = Mathf.RoundToInt(lengthToNext * wall.SegmentsPerUnit);
@@ -148,8 +128,13 @@ public static class WallPointUtilities
                     (float)wall.SplineInstance.GetPointPercent(i + 1),
                     (float)j / (float)pointsCount);
 
-                points.Add(wall.SplineInstance.EvaluatePosition(percent));
+                percents.Add(percent);
             }
+        }
+
+        if (wall.SplineInstance.isClosed)
+        {
+            percents.Add(1);
         }
     }
 }

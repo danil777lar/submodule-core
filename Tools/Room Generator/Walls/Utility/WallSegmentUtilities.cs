@@ -39,16 +39,15 @@ public static class WallSegmentUtilities
                 Vector3 min = wall.SplineInstance.EvaluatePosition(from).MMSetY(wall.transform.position.y);
                 Vector3 max = wall.SplineInstance.EvaluatePosition(to).MMSetY(wall.transform.position.y);
 
-
                 min += Vector3.up * (float)heights[h];
                 max += Vector3.up * (float)heights[h + 1];
 
                 min = wall.transform.InverseTransformPoint(min);
                 max = wall.transform.InverseTransformPoint(max);
 
-                bool lengthValid = (max.MMSetY(min.y) - min).magnitude > 0f; 
-                bool heightValid = (min.MMSetY(max.y) - min).magnitude > 0f; 
-                
+                bool lengthValid = (max.MMSetY(min.y) - min).magnitude > 0f;
+                bool heightValid = (min.MMSetY(max.y) - min).magnitude > 0f;
+
                 if (lengthValid && heightValid)
                 {
                     WallSegment segment = new WallSegment(min, max)
@@ -61,7 +60,6 @@ public static class WallSegmentUtilities
                 }
             }
         }
-
         return segments;
     }
 
