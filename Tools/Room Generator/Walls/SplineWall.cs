@@ -15,13 +15,14 @@ namespace Larje.Core.Tools.RoomGenerator
     [RequireComponent(typeof(MeshCollider))]
     public class SplineWall : MonoBehaviour
     {
-        [SerializeField] private bool enableDebugMode;
         [SerializeField] private SplineWallConfig config;
-        [Space]
         [SerializeField, Min(0f)] private float segmentsPerUnit = 0f;
         [SerializeField] private bool rebuildOnStart = false;
         [Space]
         [SerializeField] private List<bool> hideWallParts = new List<bool>();
+        [Header("Debug")]
+        [SerializeField] private bool enableDebugMode;
+        [SerializeField] private bool drawGizmos;
 
         private SplineComputer _spline;
         
@@ -64,8 +65,11 @@ namespace Larje.Core.Tools.RoomGenerator
 
         private void OnDrawGizmos()
         {
-            DrawWallSegmentsGizmo();
-            
+            if (drawGizmos)
+            {
+                DrawWallSegmentsGizmo();
+            }
+
             if (!Application.isPlaying)
             {
                 Rebuild();

@@ -14,7 +14,7 @@ public static class WallPointUtilities
 
         float lastHeights = 0f;
 
-        foreach (SplineWallConfig.WallPart wallPart in wall.Config.WallParts)
+        foreach (SplineWallRow wallPart in wall.Config.WallParts)
         {
             float partHeightPercent = wallPart.Weight / wall.Config.GetWeightsSum();
             float partHeight = wall.Config.Height * partHeightPercent;
@@ -61,7 +61,7 @@ public static class WallPointUtilities
         double lerpValue = (percent - percentPrev) / (percentNext - percentPrev);
         
         return Vector3.Lerp(directions[percentPrev], directions[percentNext], (float)lerpValue).normalized;
-    } 
+    }
     
     private static Dictionary<double, Vector3> GetPointsDirections(SplineWall wall)
     {

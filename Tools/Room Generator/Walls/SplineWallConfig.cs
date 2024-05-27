@@ -10,11 +10,11 @@ namespace Larje.Core.Tools.RoomGenerator
     {
         [SerializeField, Min(0f)] private float height;
         [SerializeField, Min(0f)] private float width;
-        [SerializeField] private List<WallPart> wallParts = new List<WallPart>();
+        [SerializeField] private List<SplineWallRow> wallParts = new List<SplineWallRow>();
 
         public float Height => height;
         public float Width => width;
-        public WallPart[] WallParts => wallParts.ToArray();
+        public SplineWallRow[] WallParts => wallParts.ToArray();
 
         public float GetWeightsSum()
         {
@@ -23,30 +23,21 @@ namespace Larje.Core.Tools.RoomGenerator
             return sum;
         }
         
-        [Serializable]
-        public class WallPart
+        public void GetRowHeightBounds(SplineWallRow row, out double min, out double max)
         {
-            [Header("Width")]
-            [SerializeField, Min(0f)] private float topWidthMultiplier = 1;
-            [SerializeField, Min(0f)] private float bottomWidthMultiplier = 1;
-            [Header("Sides")] 
-            [SerializeField] private bool drawTop = true;
-            [SerializeField] private bool drawBottom = true;
-            [Header("Other")]
-            [SerializeField, Min(0)] private float weight = 1;
-            [SerializeField] private Material material;
-            [Header("Vertex Colors")] 
-            [SerializeField] private Color vertexColorTop;
-            [SerializeField] private Color vertexColorBottom;
-
-            public float TopWidthMultiplier => topWidthMultiplier;
-            public float BottomWidthMultiplier => bottomWidthMultiplier;
-            public bool DrawTop => drawTop;
-            public  bool DrawBottom => drawBottom;
-            public float Weight => weight;
-            public Material Material => material;
-            public Color VertexColorTop => vertexColorTop;
-            public Color VertexColorBottom => vertexColorBottom;
+            min = 0;
+            max = 0;
+            foreach (SplineWallRow wallPart in wallParts)
+            {
+                double previousHeights = (wallPart.Weight / GetWeightsSum()) * height;
+                
+                if (wallPart == row)
+                {
+                    max = min + previousHeights;
+                    return;
+                }
+                min += previousHeights;
+            }
         }
     }
 }

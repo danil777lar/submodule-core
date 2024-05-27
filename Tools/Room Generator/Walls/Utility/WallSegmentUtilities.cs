@@ -15,6 +15,7 @@ public static class WallSegmentUtilities
         MarkHiddenSegments(wall, segments);
         FillSegmentNeighbours(segments);
         FillOffsets(wall, segments);
+        FillWidthMultipliers(wall, segments);
 
         return segments;
     }
@@ -141,5 +142,44 @@ public static class WallSegmentUtilities
                 segment.OffsetTo = wall.transform.InverseTransformVector(segment.OffsetTo);
             }
         }
+    }
+    
+    private static void FillWidthMultipliers(SplineWall wall, IReadOnlyCollection<WallSegment> segments)
+    {
+        foreach (WallSegment segment in segments)
+        {
+            if (TryGetSegmentRow(wall, segment, out SplineWallRow row, out double min, out double max))
+            {
+                segment.WidthMultiplierBottom = Mathf.Lerp(row.BottomWidthMultiplier, row.TopWidthMultiplier, 
+                    (float)GetPercentBetween(segment.Min.y, (float)min, (float)max));
+                
+                segment.WidthMultiplierTop = Mathf.Lerp(row.BottomWidthMultiplier, row.TopWidthMultiplier, 
+                    (float)GetPercentBetween(segment.Max.y, (float)min, (float)max));
+            }
+        }
+    }
+
+    private static bool TryGetSegmentRow(SplineWall wall, WallSegment segment, out SplineWallRow row, out double min, out double max)
+    {
+        double segmentCenterHeight = (segment.Min.y + segment.Max.y) * 0.5f;
+        
+        double rowMin = 0f;
+        double rowMax = 0f;
+        
+        row = wall.Config.WallParts.ToList().Find(x =>
+        {
+            wall.Config.GetRowHeightBounds(x, out rowMin, out rowMax);
+            return segmentCenterHeight >= rowMin && segmentCenterHeight <= rowMax;
+        });
+
+        min = rowMin;
+        max = rowMax;
+        
+        return row != null;
+    }
+
+    private static float GetPercentBetween(float value, float min, float max)
+    {
+        return (value - min) / (max - min); 
     }
 }

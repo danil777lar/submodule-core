@@ -12,6 +12,9 @@ public class WallSegment
     
     public double PercentFrom;
     public double PercentTo;
+    
+    public float WidthMultiplierTop;
+    public float WidthMultiplierBottom;
 
     public WallSegment Next;
     public WallSegment Prev;

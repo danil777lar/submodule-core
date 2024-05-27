@@ -36,19 +36,19 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             List<Vector3> topPoints = new List<Vector3>()
             {
-                segment.Corners[0] + segment.OffsetFrom,
-                segment.Corners[1] + segment.OffsetFrom,
-                segment.Corners[2] + segment.OffsetTo,
-                segment.Corners[3] + segment.OffsetTo
+                segment.Corners[0] + segment.OffsetFrom * segment.WidthMultiplierBottom,
+                segment.Corners[1] + segment.OffsetFrom * segment.WidthMultiplierTop,
+                segment.Corners[2] + segment.OffsetTo * segment.WidthMultiplierTop,
+                segment.Corners[3] + segment.OffsetTo * segment.WidthMultiplierBottom
             };
             BuildPlane(topPoints.ToArray(), properties, true);
 
             List<Vector3> bottomPoints = new List<Vector3>()
             {
-                segment.Corners[0] - segment.OffsetFrom,
-                segment.Corners[1] - segment.OffsetFrom,
-                segment.Corners[2] - segment.OffsetTo,
-                segment.Corners[3] - segment.OffsetTo
+                segment.Corners[0] - segment.OffsetFrom * segment.WidthMultiplierBottom,
+                segment.Corners[1] - segment.OffsetFrom * segment.WidthMultiplierTop,
+                segment.Corners[2] - segment.OffsetTo * segment.WidthMultiplierTop,
+                segment.Corners[3] - segment.OffsetTo * segment.WidthMultiplierBottom
             };
             BuildPlane(bottomPoints.ToArray(), properties, false);
         }
@@ -57,19 +57,19 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             List<Vector3> topPoints = new List<Vector3>()
             {
-                segment.Corners[1] + segment.OffsetFrom,
-                segment.Corners[1] - segment.OffsetFrom,
-                segment.Corners[2] - segment.OffsetTo,
-                segment.Corners[2] + segment.OffsetTo
+                segment.Corners[1] + segment.OffsetFrom * segment.WidthMultiplierTop,
+                segment.Corners[1] - segment.OffsetFrom * segment.WidthMultiplierTop,
+                segment.Corners[2] - segment.OffsetTo * segment.WidthMultiplierTop,
+                segment.Corners[2] + segment.OffsetTo * segment.WidthMultiplierTop
             };
             BuildPlane(topPoints.ToArray(), properties, true);
             
             List<Vector3> bottomPoints = new List<Vector3>()
             {
-                segment.Corners[0] + segment.OffsetFrom,
-                segment.Corners[0] - segment.OffsetFrom,
-                segment.Corners[3] - segment.OffsetTo,
-                segment.Corners[3] + segment.OffsetTo
+                segment.Corners[0] + segment.OffsetFrom * segment.WidthMultiplierBottom,
+                segment.Corners[0] - segment.OffsetFrom * segment.WidthMultiplierBottom,
+                segment.Corners[3] - segment.OffsetTo * segment.WidthMultiplierBottom,
+                segment.Corners[3] + segment.OffsetTo * segment.WidthMultiplierBottom
             };
             BuildPlane(bottomPoints.ToArray(), properties, false);
         }
@@ -78,19 +78,19 @@ namespace Larje.Core.Tools.RoomGenerator
         {
             List<Vector3> topPoints = new List<Vector3>()
             {
-                segment.Corners[0] + segment.OffsetFrom,
-                segment.Corners[0] - segment.OffsetFrom,
-                segment.Corners[1] - segment.OffsetFrom,
-                segment.Corners[1] + segment.OffsetFrom
+                segment.Corners[0] + segment.OffsetFrom * segment.WidthMultiplierBottom,
+                segment.Corners[0] - segment.OffsetFrom * segment.WidthMultiplierBottom,
+                segment.Corners[1] - segment.OffsetFrom * segment.WidthMultiplierTop,
+                segment.Corners[1] + segment.OffsetFrom * segment.WidthMultiplierTop
             };
             BuildPlane(topPoints.ToArray(), properties, true);
             
             List<Vector3> bottomPoints = new List<Vector3>()
             {
-                segment.Corners[3] + segment.OffsetTo,
-                segment.Corners[3] - segment.OffsetTo,
-                segment.Corners[2] - segment.OffsetTo,
-                segment.Corners[2] + segment.OffsetTo
+                segment.Corners[3] + segment.OffsetTo * segment.WidthMultiplierBottom,
+                segment.Corners[3] - segment.OffsetTo * segment.WidthMultiplierBottom,
+                segment.Corners[2] - segment.OffsetTo * segment.WidthMultiplierTop,
+                segment.Corners[2] + segment.OffsetTo * segment.WidthMultiplierTop
             };
             BuildPlane(bottomPoints.ToArray(), properties, false);
         }
