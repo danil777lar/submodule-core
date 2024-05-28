@@ -72,7 +72,7 @@ public static class WallPointUtilities
             Vector3 prevPosition = wall.SplineInstance.EvaluatePosition(wall.SplineInstance.GetPointPercent(prevPoint));
             Vector3 nextPosition = wall.SplineInstance.EvaluatePosition(wall.SplineInstance.GetPointPercent(nextPoint));
             
-            Debug.DrawRay(currentPosition, Vector3.up * 10, Color.red);
+            //Debug.DrawRay(currentPosition, Vector3.up * 10, Color.red);
             
             Vector3 prevPointDirection = prevPosition - currentPosition;
             Vector3 nextPointDirection = nextPosition - currentPosition;
