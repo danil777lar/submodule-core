@@ -49,8 +49,12 @@ namespace Larje.Core.Services
             if (!Advertisement.isInitialized && Advertisement.isSupported)
             {
                 _interstitial = new UnityAdsUniversal(_keys.InterstitialId, logsEnabled);
+                
                 _rewarded = new UnityAdsUniversal(_keys.RewardedId, logsEnabled);
+                
                 _banner = new UnityAdsBanner(_keys.BannerId, bannerPosition, logsEnabled);
+                _banner.EventShown += () => EventBannerShown?.Invoke();
+                _banner.EventHidden += () => EventBannerHidden?.Invoke();
 
                 Advertisement.Initialize(_keys.GameId, testMode, this);
             }
