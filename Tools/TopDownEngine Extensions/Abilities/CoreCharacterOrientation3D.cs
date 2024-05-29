@@ -22,16 +22,13 @@ namespace Larje.Core.Tools.TopDownEngine
         [SerializeField] private Transform modelLook;
 
         private Vector3 _lastPosition;
-        
         private Vector3 _targetDirection;
-        private Vector3 _currentDirection;
-        
         private Vector3 _currentLookDirection;
         
         private CoreCharacterMovement _coreMovement;
 
         public Vector3 TargetDirection => _targetDirection;
-        public Vector3 CurrentDirection => _currentDirection;
+        public Vector3 CurrentDirection => _character.CharacterModel.transform.forward;
         public Vector3 LookDirection => modelLook.forward;
         public bool PermitLook { get; private set; }
 
@@ -47,12 +44,13 @@ namespace Larje.Core.Tools.TopDownEngine
             }
 
             PermitLook = true;
-
-            CatchDirection();
+            
             CatchLookDirection();
-
-            ApplyLimit();
             RotateLook();
+            
+            ApplyLimit();
+            
+            CatchDirection();
             Rotate();
         }
 
@@ -93,18 +91,21 @@ namespace Larje.Core.Tools.TopDownEngine
             Vector3 limitDirection = -LookDirection;
 
             float limit = 360f - lookAngle; 
-            float angle = Vector3.Angle(limitDirection, _targetDirection);
-            float signedAngle = Vector3.SignedAngle(limitDirection, _targetDirection, Vector3.up);
+            float angle = Vector3.Angle(limitDirection, CurrentDirection);
+            float signedAngle = Vector3.SignedAngle(limitDirection, CurrentDirection, Vector3.up);
 
             if (angle < limit * 0.5f)
             {
                 float rotateAngle = limit * 0.5f - angle;
                 rotateAngle *= signedAngle < 0f ? -1 : 1f;
-                _targetDirection = Quaternion.Euler(0, rotateAngle, 0) * _targetDirection;
+                
+                _targetDirection = Quaternion.Euler(0, rotateAngle, 0) * CurrentDirection;
+                
+                Rotate(true);
             }
         }
         
-        private void Rotate()
+        private void Rotate(bool force = false)
         {
             if (_targetDirection != Vector3.zero)
             {
@@ -114,9 +115,13 @@ namespace Larje.Core.Tools.TopDownEngine
                 Quaternion targetRotation = Quaternion.LookRotation(_targetDirection);
                 Quaternion currentRotation = Quaternion.RotateTowards(_character.CharacterModel.transform.rotation,
                     targetRotation, rotationSpeed);
+
+                if (force)
+                {
+                    currentRotation = targetRotation;
+                }
                 
                 _character.CharacterModel.transform.rotation = currentRotation;
-                _currentDirection = _character.CharacterModel.transform.forward;
             }
         }
 
