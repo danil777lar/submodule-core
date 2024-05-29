@@ -13,7 +13,8 @@ namespace Larje.Core.Tools.TopDownEngine
         
         [Space(40f)]
         [SerializeField] private Vector3 directionMultiplier = Vector3.one;
-        [Header("Main")] [SerializeField] private float minRotationSpeed;
+        [Header("Main")] 
+        [SerializeField] private float minRotationSpeed;
         [SerializeField] private float maxRotationSpeed;
         [Header("Look")] 
         [SerializeField, Range(0f, 360f)] private float lookAngle;
@@ -21,11 +22,16 @@ namespace Larje.Core.Tools.TopDownEngine
         [SerializeField] private Transform modelLook;
 
         private Vector3 _lastPosition;
+        
+        private Vector3 _targetDirection;
         private Vector3 _currentDirection;
+        
         private Vector3 _currentLookDirection;
+        
         private CoreCharacterMovement _coreMovement;
 
-        public Vector3 Direction => _currentDirection;
+        public Vector3 TargetDirection => _targetDirection;
+        public Vector3 CurrentDirection => _currentDirection;
         public Vector3 LookDirection => modelLook.forward;
         public bool PermitLook { get; private set; }
 
@@ -56,8 +62,8 @@ namespace Larje.Core.Tools.TopDownEngine
             _coreMovement = _character.FindAbility<CoreCharacterMovement>();
 
             _lastPosition = transform.position;
-            _currentDirection = _character.CharacterModel.transform.forward;
-            _currentLookDirection = _currentDirection;
+            _targetDirection = _character.CharacterModel.transform.forward;
+            _currentLookDirection = _targetDirection;
         }
 
         private void CatchDirection()
@@ -67,7 +73,7 @@ namespace Larje.Core.Tools.TopDownEngine
                 (transform.position - _lastPosition).normalized;
 
             newDirection = Vector3.Scale(newDirection, directionMultiplier);
-            _currentDirection = newDirection != Vector3.zero ? newDirection : _currentDirection;
+            _targetDirection = newDirection != Vector3.zero ? newDirection : _targetDirection;
             
             _lastPosition = transform.position;
         }
@@ -76,7 +82,7 @@ namespace Larje.Core.Tools.TopDownEngine
         {
             Vector3 newDirection = forceLookTarget ? 
                 forceLookTarget.position - transform.position : 
-                _currentDirection;
+                _targetDirection;
             
             newDirection = Vector3.Scale(newDirection, directionMultiplier);
             _currentLookDirection = newDirection != Vector3.zero ? newDirection : _currentLookDirection;
@@ -87,27 +93,30 @@ namespace Larje.Core.Tools.TopDownEngine
             Vector3 limitDirection = -LookDirection;
 
             float limit = 360f - lookAngle; 
-            float angle = Vector3.Angle(limitDirection, _currentDirection);
-            float signedAngle = Vector3.SignedAngle(limitDirection, _currentDirection, Vector3.up);
+            float angle = Vector3.Angle(limitDirection, _targetDirection);
+            float signedAngle = Vector3.SignedAngle(limitDirection, _targetDirection, Vector3.up);
 
             if (angle < limit * 0.5f)
             {
                 float rotateAngle = limit * 0.5f - angle;
                 rotateAngle *= signedAngle < 0f ? -1 : 1f;
-                _currentDirection = Quaternion.Euler(0, rotateAngle, 0) * _currentDirection;
+                _targetDirection = Quaternion.Euler(0, rotateAngle, 0) * _targetDirection;
             }
         }
         
         private void Rotate()
         {
-            if (_currentDirection != Vector3.zero)
+            if (_targetDirection != Vector3.zero)
             {
                 float rotationSpeed = Mathf.Lerp(minRotationSpeed, maxRotationSpeed,
                     _coreMovement.ActualSpeedPercent) * Time.deltaTime;
                 
-                Quaternion rotation = Quaternion.LookRotation(_currentDirection);
-                _character.CharacterModel.transform.rotation = Quaternion.RotateTowards(
-                    _character.CharacterModel.transform.rotation, rotation, rotationSpeed);
+                Quaternion targetRotation = Quaternion.LookRotation(_targetDirection);
+                Quaternion currentRotation = Quaternion.RotateTowards(_character.CharacterModel.transform.rotation,
+                    targetRotation, rotationSpeed);
+                
+                _character.CharacterModel.transform.rotation = currentRotation;
+                _currentDirection = _character.CharacterModel.transform.forward;
             }
         }
 
