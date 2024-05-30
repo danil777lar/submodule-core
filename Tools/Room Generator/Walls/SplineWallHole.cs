@@ -1,11 +1,8 @@
 #if DREAMTECK_SPLINES
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Dreamteck.Splines;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Larje.Core.Tools.RoomGenerator
 {

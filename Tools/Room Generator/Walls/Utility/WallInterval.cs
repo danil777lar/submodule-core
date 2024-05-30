@@ -1,48 +1,51 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+#if DREAMTECK_SPLINES
 
-public class WallInterval
+namespace Larje.Core.Tools.RoomGenerator
 {
-    public readonly double FromPercent;
-    public readonly double ToPercent;
-    public readonly double FromHeight;
-    public readonly double ToHeight;
-            
-    public WallInterval(double fromPercent, double toPercent, double fromHeight, double toHeight)
+    public class WallInterval
     {
-        FromPercent = fromPercent;
-        ToPercent = toPercent;
-        FromHeight = fromHeight;
-        ToHeight = toHeight;
-    }
+        public readonly double FromPercent;
+        public readonly double ToPercent;
+        public readonly double FromHeight;
+        public readonly double ToHeight;
 
-    public bool Contains(double percent, double height)
-    {
-        return ContainsPercent(percent) && ContainsHeight(height);
-    }
+        public WallInterval(double fromPercent, double toPercent, double fromHeight, double toHeight)
+        {
+            FromPercent = fromPercent;
+            ToPercent = toPercent;
+            FromHeight = fromHeight;
+            ToHeight = toHeight;
+        }
 
-    private bool ContainsPercent(double percent)
-    {
-        if (FromPercent <= ToPercent)
+        public bool Contains(double percent, double height)
         {
-            return percent > FromPercent && percent < ToPercent;
+            return ContainsPercent(percent) && ContainsHeight(height);
         }
-        else
+
+        private bool ContainsPercent(double percent)
         {
-            return percent > FromPercent || percent < ToPercent;
+            if (FromPercent <= ToPercent)
+            {
+                return percent > FromPercent && percent < ToPercent;
+            }
+            else
+            {
+                return percent > FromPercent || percent < ToPercent;
+            }
         }
-    }
-            
-    private bool ContainsHeight(double percent)
-    {
-        if (FromHeight <= ToHeight)
+
+        private bool ContainsHeight(double percent)
         {
-            return percent > FromHeight && percent < ToHeight;
-        }
-        else
-        {
-            return percent > FromHeight || percent < ToHeight;
+            if (FromHeight <= ToHeight)
+            {
+                return percent > FromHeight && percent < ToHeight;
+            }
+            else
+            {
+                return percent > FromHeight || percent < ToHeight;
+            }
         }
     }
 }
+
+#endif

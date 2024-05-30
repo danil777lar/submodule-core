@@ -1,7 +1,6 @@
-using System;
-using System.Collections;
+#if DREAMTECK_SPLINES
+
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Larje.Core.Tools.RoomGenerator
@@ -43,3 +42,5 @@ namespace Larje.Core.Tools.RoomGenerator
         }
     }
 }
+
+#endif
