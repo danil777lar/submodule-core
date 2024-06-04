@@ -11,7 +11,12 @@ public static class FovMeshBuilder
         output.verts = new List<Vector3>();
         output.hits = new List<RaycastHit>();
 
-        int rayCount = Mathf.RoundToInt(input.angle * input.raysPerAngle);
+        if (input.raysPerDeg <= 0f)
+        {
+            return output;
+        }
+        
+        int rayCount = Mathf.RoundToInt(input.angle * input.raysPerDeg);
         float halfAngle = input.angle * 0.5f;
         
         float angleIncrease = input.angle / rayCount;
@@ -79,7 +84,7 @@ public static class FovMeshBuilder
     public struct Input
     {
         public float angle;
-        public float raysPerAngle;
+        public float raysPerDeg;
         public float distance;
         public float directionRotate;
         public Vector3 raycastOffset;
