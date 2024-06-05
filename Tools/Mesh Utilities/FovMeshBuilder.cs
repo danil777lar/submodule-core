@@ -8,14 +8,14 @@ public class FovMeshBuilder
     public readonly Options options;
     
     private float angleStep;
-    private List<RaycastHit> _hits;
-    private List<Vector3> _verts;
-    private Dictionary<Vector3, float> _vertAngles;
+    private List<RaycastHit> _hits = new List<RaycastHit>();
+    private List<Vector3> _verts = new List<Vector3>();
+    private List<float> _vertAngles = new List<float>();
     
     public float AngleStep => angleStep;
     public IReadOnlyCollection<RaycastHit> Hits => _hits;
     public IReadOnlyCollection<Vector3> Verts => _verts;
-    public IReadOnlyDictionary<Vector3, float> VertAngles => _vertAngles;
+    public IReadOnlyCollection<float> VertAngles => _vertAngles;
     
     public FovMeshBuilder(Options options)
     {
@@ -26,7 +26,7 @@ public class FovMeshBuilder
     {
         _hits = new List<RaycastHit>();
         _verts = new List<Vector3>();
-        _vertAngles = new Dictionary<Vector3, float>();
+        _vertAngles = new List<float>();
 
         if (options.raysPerDeg <= 0f)
         {
@@ -69,7 +69,7 @@ public class FovMeshBuilder
             }
             
             _verts.Add(vertex);
-            _vertAngles.Add(vertex, halfAngle);
+            _vertAngles.Add(halfAngle);
 
             verticles[vertexIndex] = vertex;
             if (i > 0)
@@ -99,11 +99,16 @@ public class FovMeshBuilder
     
     public bool InPositionInFov(Vector3 position)
     {
+        if (Verts == null || Verts.Count == 0)
+        {
+            return false;
+        }
+        
         Vector3 pointDirection = options.meshFilter.transform.InverseTransformPoint(position);
         float angle = Vector3.SignedAngle(Vector3.forward, pointDirection, Vector3.up);
         
         Vector3 nearestVert = FindNearestVert(angle, Verts.ToList());
-        bool isAngleOk = Mathf.Abs(VertAngles[nearestVert] - angle) <= AngleStep;
+        bool isAngleOk = Mathf.Abs(GetAngle(nearestVert) - angle) <= AngleStep;
         bool isDistanceOk = pointDirection.magnitude < nearestVert.magnitude;
 
         return isAngleOk && isDistanceOk; 
@@ -118,12 +123,17 @@ public class FovMeshBuilder
             return verts[0];
         }
         
-        if (VertAngles[verts[half]] < angle)
+        if (GetAngle(verts[half]) < angle)
         {
             return FindNearestVert(angle, verts.GetRange(0, half));
         }
         
         return FindNearestVert(angle, verts.GetRange(half, verts.Count - half));
+    }
+    
+    private float GetAngle(Vector3 direction)
+    {
+        return _vertAngles[_verts.IndexOf(direction)];
     }
 
     public class Options
