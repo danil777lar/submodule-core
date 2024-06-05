@@ -96,6 +96,35 @@ public class FovMeshBuilder
         options.meshFilter.mesh.uv = uv;
         options.meshFilter.mesh.triangles = triangles;
     }
+    
+    public bool InPositionInFov(Vector3 position)
+    {
+        Vector3 pointDirection = options.meshFilter.transform.InverseTransformPoint(position);
+        float angle = Vector3.SignedAngle(Vector3.forward, pointDirection, Vector3.up);
+        
+        Vector3 nearestVert = FindNearestVert(angle, Verts.ToList());
+        bool isAngleOk = Mathf.Abs(VertAngles[nearestVert] - angle) <= AngleStep;
+        bool isDistanceOk = pointDirection.magnitude < nearestVert.magnitude;
+
+        return isAngleOk && isDistanceOk; 
+    }
+    
+    private Vector3 FindNearestVert(float angle, List<Vector3> verts)
+    {
+        int half = verts.Count / 2;
+        
+        if (verts.Count == 1)
+        {
+            return verts[0];
+        }
+        
+        if (VertAngles[verts[half]] < angle)
+        {
+            return FindNearestVert(angle, verts.GetRange(0, half));
+        }
+        
+        return FindNearestVert(angle, verts.GetRange(half, verts.Count - half));
+    }
 
     public class Options
     {
