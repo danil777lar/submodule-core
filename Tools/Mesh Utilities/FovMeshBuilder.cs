@@ -3,24 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public static class FovMeshBuilder
+public class FovMeshBuilder
 {
-    public static Output BuildMesh(Input input)
+    public readonly Options options;
+    
+    private float angleStep;
+    private List<RaycastHit> _hits;
+    private List<Vector3> _verts;
+    private Dictionary<Vector3, float> _vertAngles;
+    
+    public float AngleStep => angleStep;
+    public IReadOnlyCollection<RaycastHit> Hits => _hits;
+    public IReadOnlyCollection<Vector3> Verts => _verts;
+    public IReadOnlyDictionary<Vector3, float> VertAngles => _vertAngles;
+    
+    public FovMeshBuilder(Options options)
     {
-        Output output = new Output();
-        output.verts = new List<Vector3>();
-        output.hits = new List<RaycastHit>();
+        this.options = options;
+    }
+    
+    public void BuildMesh()
+    {
+        _hits = new List<RaycastHit>();
+        _verts = new List<Vector3>();
+        _vertAngles = new Dictionary<Vector3, float>();
 
-        if (input.raysPerDeg <= 0f)
+        if (options.raysPerDeg <= 0f)
         {
-            return output;
+            return;
         }
         
-        int rayCount = Mathf.RoundToInt(input.angle * input.raysPerDeg);
-        float halfAngle = input.angle * 0.5f;
+        int rayCount = Mathf.RoundToInt(options.angle * options.raysPerDeg);
+        float halfAngle = options.angle * 0.5f;
         
-        float angleIncrease = input.angle / rayCount;
-        output.angleIncrease = angleIncrease;
+        angleStep = options.angle / rayCount;
         
         Vector3[] verticles = new Vector3[rayCount + 2];
         Vector2[] uv = new Vector2[verticles.Length];
@@ -35,23 +51,25 @@ public static class FovMeshBuilder
             Vector3 direction = Vector3.zero;
             direction.x = Mathf.Sin(Mathf.Deg2Rad * halfAngle);
             direction.z = Mathf.Cos(Mathf.Deg2Rad * halfAngle);
-            direction = Quaternion.Euler(0, input.directionRotate, 0) * direction;
+            direction = Quaternion.Euler(0, options.directionRotate, 0) * direction;
             direction.Normalize();
 
-            Vector3 raycastOrigin = input.meshFilter.transform.position + input.raycastOffset;
-            Vector3 localDirection = input.meshFilter.transform.TransformDirection(direction);
+            Vector3 raycastOrigin = options.meshFilter.transform.position + options.raycastOffset;
+            Vector3 localDirection = options.meshFilter.transform.TransformDirection(direction);
             Vector3 vertex = Vector3.zero;
 
-            if (Physics.Raycast(raycastOrigin, localDirection, out RaycastHit hit, input.distance, input.raycastMask))
+            if (Physics.Raycast(raycastOrigin, localDirection, out RaycastHit hit, options.distance, options.raycastMask))
             {
-                vertex = input.meshFilter.transform.InverseTransformPoint(hit.point - input.raycastOffset);
-                output.hits.Add(hit);
+                vertex = options.meshFilter.transform.InverseTransformPoint(hit.point - options.raycastOffset);
+                _hits.Add(hit);
             }
             else
             {
-                vertex = direction * input.distance;
+                vertex = direction * options.distance;
             }
-            output.verts.Add(vertex);
+            
+            _verts.Add(vertex);
+            _vertAngles.Add(vertex, halfAngle);
 
             verticles[vertexIndex] = vertex;
             if (i > 0)
@@ -63,25 +81,23 @@ public static class FovMeshBuilder
             }
 
             vertexIndex++;
-            halfAngle -= angleIncrease;
+            halfAngle -= angleStep;
         }
 
-        if (input.meshFilter.mesh == null)
+        if (options.meshFilter.mesh == null)
         {
-            input.meshFilter.mesh = new Mesh
+            options.meshFilter.mesh = new Mesh
             {
                 name = "FOV"
             };
         }
 
-        input.meshFilter.mesh.vertices = verticles;
-        input.meshFilter.mesh.uv = uv;
-        input.meshFilter.mesh.triangles = triangles;
-        
-        return output;
+        options.meshFilter.mesh.vertices = verticles;
+        options.meshFilter.mesh.uv = uv;
+        options.meshFilter.mesh.triangles = triangles;
     }
 
-    public struct Input
+    public class Options
     {
         public float angle;
         public float raysPerDeg;
@@ -90,12 +106,5 @@ public static class FovMeshBuilder
         public Vector3 raycastOffset;
         public LayerMask raycastMask;
         public MeshFilter meshFilter;
-    }
-    
-    public struct Output
-    {
-        public float angleIncrease;
-        public List<Vector3> verts;
-        public List<RaycastHit> hits;
     }
 }
