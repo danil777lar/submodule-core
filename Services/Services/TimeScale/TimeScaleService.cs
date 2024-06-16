@@ -43,24 +43,34 @@ namespace Larje.Core.Services
 
         public void PlayTimeScaleAnim(TimeScaleAnimationType type)
         {
-            TimeScaleAnimation animation = TimeScaleServiceConfig.Instance.TimeScaleAnimations.ToList()
+            TimeScaleAnimation anim = TimeScaleServiceConfig.Instance.TimeScaleAnimations.ToList()
                 .Find(x => x.Type == type);
 
-            if (animation != null)
+            if (anim != null)
             {
-                _timeScaleLayerTween[animation.Layer]?.Kill();
-                _timeScaleLayerTween[animation.Layer] = DOTween.To(
-                        () => 0f,
-                        (x) =>
-                        {
-                            float value = Mathf.Lerp(animation.RemapValues.x, animation.RemapValues.y, 
-                                animation.Curve.Evaluate(x));
-                            SetTimeScale(animation.Layer, value);
-                        },
-                        1f, animation.Duration)
-                    .SetEase(Ease.Linear)
-                    .SetUpdate(UpdateType.Normal, true);
+                _timeScaleLayerTween[anim.Layer]?.Kill();
+                if (anim.Duration > 0f)
+                {
+                    _timeScaleLayerTween[anim.Layer] = DOTween.To(
+                            () => 0f,
+                            (x) =>
+                            {
+                                SetTimeScale(anim.Layer, EvaluateAnim(anim, x));
+                            },
+                            1f, anim.Duration)
+                        .SetEase(Ease.Linear)
+                        .SetUpdate(UpdateType.Normal, true);
+                }
+                else
+                {
+                    SetTimeScale(anim.Layer, EvaluateAnim(anim, 1f));
+                }
             }
+        }
+
+        private float EvaluateAnim(TimeScaleAnimation anim, float percent)
+        {
+            return Mathf.Lerp(anim.RemapValues.x, anim.RemapValues.y, anim.Curve.Evaluate(percent));
         }
 
         private void InitTimeScaleLayers()
