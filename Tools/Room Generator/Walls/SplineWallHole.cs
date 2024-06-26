@@ -29,10 +29,13 @@ namespace Larje.Core.Tools.RoomGenerator
         public Data GetData()
         {
             double percent = Projector.spline.Project(transform.position).percent;
-            double halfLengthPercent = Projector.spline.Travel(0f, size.x * 0.5f);
 
-            double xFrom = PrettyPercent(percent - halfLengthPercent);
-            double xTo = PrettyPercent(percent + halfLengthPercent);
+            double xFrom = PrettyPercent(Projector.spline.Travel(percent, size.x * 0.5f, Spline.Direction.Backward));
+            double xTo = PrettyPercent(Projector.spline.Travel(percent, size.x * 0.5f, Spline.Direction.Forward));
+            
+            Debug.DrawRay(Projector.spline.EvaluatePosition(xFrom), Vector3.up * 5f, Color.red);
+            Debug.DrawRay(Projector.spline.EvaluatePosition(xTo), Vector3.up * 5f, Color.red);
+            
             double yFrom = yPos;
             double yTo = yPos + size.y;
             Data data = new Data(xFrom, xTo, yFrom, yTo);

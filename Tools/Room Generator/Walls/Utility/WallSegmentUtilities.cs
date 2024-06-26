@@ -74,6 +74,11 @@ namespace Larje.Core.Tools.RoomGenerator
                     double centerPercent = GetSegmentCenterPercent(wall, segment);
                     double centerHeight = (segment.Min.y + segment.Max.y) * 0.5f;
                     segment.Hidden |= interval.Contains(centerPercent, centerHeight);
+
+                    if (interval.Contains(centerPercent, centerHeight))
+                    {
+                        Debug.Log($"Hide Segment", wall);
+                    }
                 }
             }
         }
