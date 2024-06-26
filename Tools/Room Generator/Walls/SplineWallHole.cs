@@ -33,9 +33,6 @@ namespace Larje.Core.Tools.RoomGenerator
             double xFrom = PrettyPercent(Projector.spline.Travel(percent, size.x * 0.5f, Spline.Direction.Backward));
             double xTo = PrettyPercent(Projector.spline.Travel(percent, size.x * 0.5f, Spline.Direction.Forward));
             
-            Debug.DrawRay(Projector.spline.EvaluatePosition(xFrom), Vector3.up * 5f, Color.red);
-            Debug.DrawRay(Projector.spline.EvaluatePosition(xTo), Vector3.up * 5f, Color.red);
-            
             double yFrom = yPos;
             double yTo = yPos + size.y;
             Data data = new Data(xFrom, xTo, yFrom, yTo);
