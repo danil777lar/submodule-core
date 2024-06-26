@@ -71,14 +71,9 @@ namespace Larje.Core.Tools.RoomGenerator
             {
                 foreach (WallSegment segment in segments)
                 {
-                    double centerPercent = GetSegmentCenterPercent(wall, segment);
+                    double centerPercent = segment.PercentFrom + (segment.PercentTo - segment.PercentFrom) * 0.5f;
                     double centerHeight = (segment.Min.y + segment.Max.y) * 0.5f;
                     segment.Hidden |= interval.Contains(centerPercent, centerHeight);
-
-                    if (interval.Contains(centerPercent, centerHeight))
-                    {
-                        Debug.Log($"Hide Segment", wall);
-                    }
                 }
             }
         }
@@ -94,13 +89,6 @@ namespace Larje.Core.Tools.RoomGenerator
                 segment.Upper = segments.Find(x => x.Min == segment.Min.MMSetY(segment.Max.y));
                 segment.Lower = segments.Find(x => x.Max == segment.Max.MMSetY(segment.Min.y));
             }
-        }
-
-        private static double GetSegmentCenterPercent(SplineWall wall, WallSegment segment)
-        {
-            float distance = Vector3.Distance(segment.Min.XZ(), segment.Max.XZ());
-            double fromPercent = wall.SplineInstance.Project(segment.Min).percent;
-            return wall.SplineInstance.Travel(fromPercent, distance * 0.5f);
         }
 
         private static List<WallInterval> GetHideIntervals(SplineWall wall)
