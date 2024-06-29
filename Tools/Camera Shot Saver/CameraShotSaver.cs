@@ -20,6 +20,7 @@ namespace Larje.Core.Tools.CameraShotSaver
         [ContextMenu("Shot")]
         private void Shot()
         {
+            #if UNITY_EDITOR
             Camera cam = Camera.main;
             Vector2Int size = new Vector2Int(Screen.width, Screen.height);
             
@@ -39,6 +40,7 @@ namespace Larje.Core.Tools.CameraShotSaver
 
             string path = EditorUtility.SaveFilePanel("save", "", "shot.png", "png");
             File.WriteAllBytes(path, bytes);
+            #endif
         }
     }
 }
