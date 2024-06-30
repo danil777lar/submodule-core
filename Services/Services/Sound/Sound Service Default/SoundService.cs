@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Larje.Core.Services
 {
-    [BindService(typeof(ISoundService))]
+    [BindService(typeof(ISoundService), typeof(SoundService))]
     public class SoundService : Service, ISoundService
     {
         [SerializeField] private SoundServiceConfig _config;
