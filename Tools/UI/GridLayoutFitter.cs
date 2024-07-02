@@ -44,15 +44,9 @@ public class GridLayoutFitter : MonoBehaviour
 
     private void Fit()
     {
-        Vector2 parentSize = new Vector2(_parentRect.rect.width, _parentRect.rect.height);
-        Vector2 currentSize = GetCurrentFullSize();
-
         TryFitPaddings();
         TryFitSpacings();
         TryFitSize();
-        
-        MMDebug.DebugOnScreen($"Parent Size: {parentSize}");
-        MMDebug.DebugOnScreen($"Full Size: {currentSize}");
     }
     
     private void TryFitPaddings()
