@@ -12,19 +12,23 @@ namespace Larje.Core.Tools.TopDownEngine
 {
 	public class CoreCharacterJump3D : CharacterAbility
 	{
-		[Header("Jump Settings")] public bool JumpProportionalToPress = true;
+		[Header("Jump Settings")] 
+		public bool JumpProportionalToPress = true;
 		public float MinimumPressTime = 0.4f;
 		public float JumpForce = 800f;
 		public float JumpHeight = 4f;
 		public AnimationCurve JumpForceCurve = AnimationCurve.Constant(0f, 1f, 1f);
 
-		[Header("Slopes")] public bool CanJumpOnTooSteepSlopes = true;
+		[Header("Slopes")] 
+		public bool CanJumpOnTooSteepSlopes = true;
 		public bool ResetJumpsOnTooSteepSlopes = false;
 
-		[Header("Number of Jumps")] public int NumberOfJumps = 1;
+		[Header("Number of Jumps")] 
+		public int NumberOfJumps = 1;
 		[MMReadOnly] public int NumberOfJumpsLeft = 0;
 
-		[Header("Feedbacks")] public MMFeedbacks JumpStartFeedback;
+		[Header("Feedbacks")] 
+		public MMFeedbacks JumpStartFeedback;
 		public MMFeedbacks JumpStopFeedback;
 
 		protected bool _doubleJumping;
