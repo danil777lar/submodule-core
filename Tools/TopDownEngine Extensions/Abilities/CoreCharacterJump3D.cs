@@ -16,6 +16,7 @@ namespace Larje.Core.Tools.TopDownEngine
 		public float MinimumPressTime = 0.4f;
 		public float JumpForce = 800f;
 		public float JumpHeight = 4f;
+		public AnimationCurve JumpForceCurve = AnimationCurve.Constant(0f, 1f, 1f);
 
 		[Header("Slopes")] public bool CanJumpOnTooSteepSlopes = true;
 		public bool ResetJumpsOnTooSteepSlopes = false;
@@ -133,7 +134,9 @@ namespace Larje.Core.Tools.TopDownEngine
 					}
 					else
 					{
-						_jumpForce = Vector3.up * JumpForce * Time.deltaTime;
+						float heightPercent = (transform.position.y - _jumpOrigin.y) / JumpHeight;
+						float force = JumpForceCurve.Evaluate(heightPercent) * JumpForce * Time.deltaTime;
+						_jumpForce = Vector3.up * force;
 						_controller.AddForce(_jumpForce);
 					}
 				}
