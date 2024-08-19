@@ -1,8 +1,6 @@
 #if MOREMOUNTAINS_TOPDOWNENGINE
 
-
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
 using MoreMountains.TopDownEngine;
@@ -47,6 +45,9 @@ namespace Larje.Core.Tools.TopDownEngine
 		protected int _jumpingAnimationParameter;
 		protected int _doubleJumpingAnimationParameter;
 		protected int _hitTheGroundAnimationParameter;
+		
+		public event Action EventJump;
+		public event Action EventLanding;
 
 		protected override void Initialization()
 		{
@@ -97,6 +98,11 @@ namespace Larje.Core.Tools.TopDownEngine
 			CheckMovementStates();
 			TryUpdateJump();
 			TryResetNumberOfJumps();
+
+			if (_controller.JustGotGrounded)
+			{
+				EventLanding?.Invoke();
+			}
 		}
 
 		protected virtual void CheckMovementStates()
@@ -167,7 +173,7 @@ namespace Larje.Core.Tools.TopDownEngine
 			{
 				return;
 			}
-
+			
 			if (NumberOfJumpsLeft != NumberOfJumps)
 			{
 				_doubleJumping = true;
@@ -188,6 +194,8 @@ namespace Larje.Core.Tools.TopDownEngine
 			PlayAbilityStartSfx();
 			PlayAbilityUsedSfx();
 			PlayAbilityStartFeedbacks();
+			
+			EventJump?.Invoke();
 		}
 		
 		public virtual void JumpStop()
