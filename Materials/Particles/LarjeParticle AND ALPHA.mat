@@ -116,7 +116,9 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Metallic: 0
-    - _NoiseFrequency: 1
+    - _NoiseFrequency: 0
+    - _NoiseScale: 0.5
+    - _Noise_Displacement_Value: 10
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0
