@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Larje_Particle_FD_ALPHA
-  m_Shader: {fileID: -6465566751694194690, guid: 95b6f52355e42ec4193c3314b476a4e6,
+  m_Name: Larje_Particle_SOFT_ALPHA
+  m_Shader: {fileID: -6465566751694194690, guid: 11ab5f3e7c4ca8441819e6fc3cbbbaec,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -18,7 +18,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: -1
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses:
@@ -101,11 +101,16 @@ Material:
     - _DstBlend: 10
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
+    - _Full_Outline_Width: 0.676
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _InnerAlphaValue: 0
+    - _Inner_Outline_Weight: 0.5
+    - _Inner_Outline_Width: 0.761
     - _Metallic: 0
     - _OcclusionStrength: 1
+    - _OuterAlphaValue: 1
     - _Parallax: 0.005
     - _Power: 1
     - _QueueControl: 0
@@ -116,7 +121,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 5
     - _SrcBlendAlpha: 1
-    - _Step: 0.57
+    - _Step: 0.32
     - _Surface: 1
     - _WorkflowMode: 1
     - _ZTest: 4
