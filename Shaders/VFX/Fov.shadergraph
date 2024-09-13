@@ -759,7 +759,7 @@
         },
         "preventRotation": false
     },
-    "m_Path": "SubmoduleCore/URP",
+    "m_Path": "SubmoduleCore/URP/VFX",
     "m_GraphPrecision": 1,
     "m_PreviewMode": 2,
     "m_OutputNode": {
