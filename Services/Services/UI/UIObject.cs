@@ -27,6 +27,8 @@ namespace Larje.Core.Services.UI
         public bool Hidden => _hidden;
         public bool Focused => _focused;
         public bool FocusTarget => focusTarget;
+
+        public Canvas Canvas => _canvas;
         
         public event Action EventOpen;
         public event Action EventClose;

@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Larje.Core.Services.UI
 {
@@ -13,6 +15,8 @@ namespace Larje.Core.Services.UI
         protected Transform holder;
         
         private int _maxSortingOrder;
+        private Camera _canvasCamera;
+        private Func<PointerEventData, VirtualScreen.VirtualScreenHit> _virtualScreenHitProcessor;
         private List<UIObject> _openedUIObjects = new List<UIObject>();
         
         public event Action EventOpenedObjectsChanged;
@@ -26,6 +30,18 @@ namespace Larje.Core.Services.UI
             holder.SetParent(transform);
             holder.localPosition = Vector3.zero;
             holder.localScale = Vector3.one;
+        }
+        
+        public void SetWorldCamera(Camera canvasCamera)
+        {
+            _canvasCamera = canvasCamera;
+            _openedUIObjects.ForEach(SetWorldCamera);
+        }
+
+        public void SetVirtualScreenHitProcessor(Func<PointerEventData, VirtualScreen.VirtualScreenHit> virtualScreenHitProcessor)
+        {
+            _virtualScreenHitProcessor = virtualScreenHitProcessor;
+            _openedUIObjects.ForEach(SetVirtualScreenHitProcessor);
         }
         
         public int SetSortingOrders(int processorOffset)
@@ -74,6 +90,9 @@ namespace Larje.Core.Services.UI
             {
                 _openedUIObjects.Add(uiObject);
                 
+                SetWorldCamera(uiObject);
+                SetVirtualScreenHitProcessor(uiObject);
+                
                 uiObject.EventShow += OnUiObjectShowHide;
                 uiObject.EventHide += OnUiObjectShowHide;
                 
@@ -95,6 +114,21 @@ namespace Larje.Core.Services.UI
         private void OnUiObjectShowHide()
         {
             EventShownObjectsChanged?.Invoke();
+        }
+
+        private void SetWorldCamera(UIObject uiObject)
+        {
+            uiObject.Canvas.renderMode = _canvasCamera != null ? 
+                RenderMode.ScreenSpaceCamera : RenderMode.ScreenSpaceOverlay;
+            uiObject.Canvas.worldCamera = _canvasCamera;
+        }
+
+        private void SetVirtualScreenHitProcessor(UIObject uiObject)
+        {
+            if (_virtualScreenHitProcessor != null)
+            {
+                uiObject.Canvas.GetOrAddComponent<VirtualScreen>().Initialize(_virtualScreenHitProcessor);
+            }
         }
     }
 }

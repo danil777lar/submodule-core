@@ -4,6 +4,7 @@ using System.Linq;
 using MoreMountains.Tools;
 using ProjectConstants;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Larje.Core.Services.UI
 {
@@ -26,6 +27,16 @@ namespace Larje.Core.Services.UI
                 x.EventOpenedObjectsChanged += OnProcessorOpenedObjectsChanged;
                 x.EventShownObjectsChanged += OnProcessorShownObjectsChanged;
             });
+        }
+
+        public void SetWorldCamera(Camera canvasCamera)
+        {
+            _processors.ForEach(x => x.SetWorldCamera(canvasCamera));
+        }
+
+        public void SetVirtualScreenHitProcessor(Func<PointerEventData, VirtualScreen.VirtualScreenHit> virtualScreenHitProcessor)
+        {
+            _processors.ForEach(x => x.SetVirtualScreenHitProcessor(virtualScreenHitProcessor));
         }
 
         public void Back()
