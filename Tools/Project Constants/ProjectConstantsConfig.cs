@@ -65,8 +65,8 @@ public class ProjectConstantsConfig : ScriptableObject
             string constantFlagsText = $"\t[Flags]\n\tpublic enum {constant.Name}s\n\t{{\n";
             foreach (string value in constant.Values)
             {
-                constantText += $"\t\t{value} = {Mathf.Pow(2, index)},\n";
-                constantFlagsText += $"\t\t{value} = {Mathf.Pow(2, index)},\n";
+                constantText += $"\t\t{value} = 1 << {index},\n";
+                constantFlagsText += $"\t\t{value} = 1 << {index},\n";
                 index++;
             }
 
