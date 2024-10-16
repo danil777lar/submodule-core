@@ -6,6 +6,11 @@ using UnityEngine;
 public class SoundPlayer : MonoBehaviour
 {
     [SerializeField] private SoundType soundType;
+    [Space] 
+    [SerializeField] private int loops = 1;
+    [SerializeField, Range(0f, 1f)] private float volume = 1f;
+    [SerializeField, Range(0f, 2f)] private float pitch = 1f;
+    [SerializeField, Range(0f, 1f)] private float spatialBlend = 0f;
     
     [InjectService] private SoundService _soundService;
     
@@ -18,7 +23,11 @@ public class SoundPlayer : MonoBehaviour
     public void PlaySound()
     {
         _soundService.Play(soundType)
-            .SetTarget(this);
+            .SetTarget(this)
+            .SetLoop(loops)
+            .SetVolume(t => volume)
+            .SetPitch(t => pitch)
+            .SetSpatialBlend(t => spatialBlend);
     }
 
     [ContextMenu("Stop Sound")]

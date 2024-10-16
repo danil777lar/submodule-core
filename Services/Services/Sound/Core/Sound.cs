@@ -10,10 +10,14 @@ using Object = UnityEngine.Object;
 public class Sound
 {
     private int _loops = 1;
-    private Func<float> _volume = () => 1f;
-    private Func<float> _pitch = () => 1f;
-    private Func<float> _spatialBlend = () => 0f;
-    private Func<Vector3> _position = () => Vector3.zero;
+    private float _loopLength = 0f;
+    private float _defaultVolume = 1f;
+    private float _defaultPitch = 1f;
+    
+    private Func<float, float> _volume = (t) => 1f;
+    private Func<float, float> _pitch = (t) => 1f;
+    private Func<float, float> _spatialBlend = (t) => 0f;
+    private Func<float, Vector3> _position = (t) => Vector3.zero;
     
     private List<Action> _onComplete = new List<Action>();
     private List<Action> _onDestroy = new List<Action>();
@@ -46,29 +50,29 @@ public class Sound
 
     public Sound SetLoop(bool loop)
     {
-        _loops = loop ? -1 : 0;
+        _loops = loop ? -1 : 1;
         return this;
     }
 
-    public Sound SetVolume(Func<float> volume)
+    public Sound SetVolume(Func<float, float> volume)
     {
         _volume = volume;
         return this;
     }
 
-    public Sound SetPitch(Func<float> pitch)
+    public Sound SetPitch(Func<float, float> pitch)
     {
         _pitch = pitch;
         return this;
     }
     
-    public Sound SetSpatialBlend(Func<float> spatialBlend)
+    public Sound SetSpatialBlend(Func<float, float> spatialBlend)
     {
         _spatialBlend = spatialBlend;
         return this;
     }
 
-    public Sound SetPosition(Func<Vector3> position)
+    public Sound SetPosition(Func<float, Vector3> position)
     {
         _position = position;
         return this;
@@ -96,6 +100,11 @@ public class Sound
     {
         _soundObject = operation.Result;
         _audioSource = _soundObject.GetComponent<AudioSource>();
+
+        _audioSource.loop = true;
+        
+        _defaultVolume = _audioSource.volume;
+        _defaultPitch = _audioSource.pitch;
     }
     
     private void Subscribe()
@@ -113,8 +122,32 @@ public class Sound
     private void Update(float deltaTime)
     {
         if (_soundObject == null || _audioSource == null) return;
+
+        float t = _loopLength / _audioSource.clip.length;
         
+        _audioSource.volume = _volume(t) * _defaultVolume;
+        _audioSource.pitch = _pitch(t) * _defaultPitch;
+        _audioSource.spatialBlend = _spatialBlend(t);
+        _audioSource.transform.position = _position(t);
         
+        _loopLength += deltaTime * _audioSource.pitch;
+        if (_loopLength >= _audioSource.clip.length)
+        {
+            LoopComplete();
+        }
+    }
+
+    private void LoopComplete()
+    {
+        _loopLength = 0f;
+        if (_loops < 0) return;
+        
+        _loops--;
+        if (_loops <= 0)
+        {
+            Complete();
+            Destroy();
+        }
     }
 
     private void Complete()
