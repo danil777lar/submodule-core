@@ -68,7 +68,7 @@ namespace Larje.Core.Tools
 
             if (options.UseSound && _dataService.Data.Settings.SoundGlobal)
             {
-                _soundService.PlayRandomFromSoundPack(options.SoundType, false);
+                //_soundService.PlayRandomFromSoundPack(options.SoundType, false);
             }
         }
 
