@@ -10,8 +10,10 @@ namespace Larje.Core.Services.UI
 {
     public class UIScreenProcessor : UIProcessor
     {
-        [Space]
+        [Space] 
+        [SerializeField] private bool spawnScreenOnStart;
         [SerializeField] private UIScreenType startScreen;
+        [Space]
         [SerializeField] private UIScreen[] screens;
 
         private List<UIScreen> _openedScreens = new List<UIScreen>();
@@ -22,8 +24,11 @@ namespace Larje.Core.Services.UI
         public override void Init(int maxSortingOrder)
         {
             base.Init(maxSortingOrder);
-            
-            OpenScreen(new UIScreen.Args(startScreen));
+
+            if (spawnScreenOnStart)
+            {
+                OpenScreen(new UIScreen.Args(startScreen));
+            }
         }
 
         public void OpenScreen(UIScreen.Args args)

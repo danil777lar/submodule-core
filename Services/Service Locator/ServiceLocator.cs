@@ -8,12 +8,7 @@ namespace Larje.Core.Services
 {
     public class ServiceLocator : MonoBehaviour
     {
-        #region Default
-
-        private static ServiceLocator _instance;
-        public static ServiceLocator Instance => _instance;
-
-        #endregion
+        public static ServiceLocator Instance { get; private set; }
 
         [SerializeField] private bool _dontDestroyOnLoad;
 
@@ -22,7 +17,17 @@ namespace Larje.Core.Services
 
         private void Awake()
         {
-            _instance = this;
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+
             _services = new Dictionary<Type, Service>();
 
             BindChildren();
