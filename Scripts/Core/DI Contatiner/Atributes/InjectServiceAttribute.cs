@@ -1,6 +1,6 @@
 using System;
 
-namespace Larje.Core.Services
+namespace Larje.Core
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class InjectServiceAttribute : Attribute

@@ -1,6 +1,6 @@
 using System;
 
-namespace Larje.Core.Services
+namespace Larje.Core
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class BindServiceAttribute : Attribute

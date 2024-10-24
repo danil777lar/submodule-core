@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
 using DG.Tweening;
+using Larje.Core;
 using Larje.Core.Services;
 using Larje.Core.Services.UI;
 using UnityEngine;

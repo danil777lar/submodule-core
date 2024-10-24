@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Larje.Core.Entities;
 using Larje.Core.Services;
 using UnityEngine;
@@ -20,6 +21,11 @@ namespace Larje.Core
         public static T GetService<T>()
         {
             return s_instance._services[typeof(T)].GetComponent<T>();
+        }
+        
+        public static T GetEntity<T>(EntityId id)
+        {
+            return s_instance._entities[id].FindComponent<T>();
         }
 
         public static void BindService<T>(Service service)
@@ -54,24 +60,55 @@ namespace Larje.Core
 
         public static void InjectTo(object target, Type type = null)
         {
-            List<FieldInfo> fields = new List<FieldInfo>();
-            fields.AddRange(type != null
-                ? type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-                : target.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
+            Type convertedType = type ?? target.GetType();
+            FieldInfo[] fields = convertedType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
             
             InjectServicesTo(target, fields);
+            InjectEntitiesTo(target, fields);
         }
 
-        private static void InjectServicesTo(object target, List<FieldInfo> fields)
+        private static void InjectServicesTo(object target, FieldInfo[] fields)
         {
-            fields = fields.FindAll((f) => Attribute.IsDefined(f, typeof(InjectServiceAttribute)));
-            foreach (FieldInfo field in fields)
+            FieldInfo[] targetFields = fields.ToList().FindAll((f) => 
+                Attribute.IsDefined(f, typeof(InjectServiceAttribute))).ToArray();
+           
+            foreach (FieldInfo field in targetFields)
             {
                 if (s_instance._services.ContainsKey(field.FieldType))
                 {
-                    MethodInfo getService = typeof(DIContainer).GetMethod("GetService")
-                        .MakeGenericMethod(field.FieldType);
-                    field.SetValue(target, getService.Invoke(s_instance, null));
+                    MethodInfo getService = typeof(DIContainer)
+                        .GetMethod("GetService")
+                        ?.MakeGenericMethod(field.FieldType);
+                    
+                    if (getService != null)
+                    {
+                        field.SetValue(target, getService.Invoke(s_instance, null));
+                    }
+                }
+            }
+        }
+
+        private static void InjectEntitiesTo(object target, FieldInfo[] fields)
+        {
+            FieldInfo[] targetFields = fields.ToList().FindAll((f) => 
+                Attribute.IsDefined(f, typeof(InjectEntityAttribute))).ToArray();
+           
+            foreach (FieldInfo field in targetFields)
+            {
+                if (Attribute.GetCustomAttribute(field, typeof(InjectEntityAttribute)) is InjectEntityAttribute attribute)
+                {
+                    if (attribute.Id != EntityId.None && s_instance._entities.ContainsKey(attribute.Id))
+                    {
+                        MethodInfo getEntity = typeof(DIContainer)
+                            .GetMethod("GetEntity")
+                            ?.MakeGenericMethod(field.FieldType);
+
+                        if (getEntity != null)
+                        {
+                            field.SetValue(target, getEntity.Invoke(s_instance, 
+                                new object[] { attribute.Id }));
+                        }
+                    }
                 }
             }
         }
