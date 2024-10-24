@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Larje.Core.Services
 {
-    [BindService(typeof(ICurrencyService))]
+    [BindService(typeof(ICurrencyService), typeof(CurrencyService))]
     public class CurrencyService : Service, ICurrencyService
     {
         [InjectService] private DataService _dataService;

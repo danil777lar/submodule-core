@@ -20,12 +20,33 @@ namespace Larje.Core
         
         public static T GetService<T>()
         {
-            return s_instance._services[typeof(T)].GetComponent<T>();
+            if (s_instance._services.TryGetValue(typeof(T), out Service service))
+            {
+                if (service is T typedService)
+                {
+                    return typedService;
+                }
+            } 
+            
+            Debug.LogError($"DIContainer: Can't find service of type {typeof(T).Name}");
+            return default;
         }
         
-        public static T GetEntity<T>(EntityId id)
+        public static T GetEntity<T>(EntityId id) where T : Component
         {
-            return s_instance._entities[id].FindComponent<T>();
+            if (s_instance._entities.TryGetValue(id, out Entity entity))
+            {
+                if (entity.TryFindComponent(out T component))
+                {
+                    return component;
+                }
+                
+                Debug.LogError($"DIContainer: Can't find component of type {typeof(T).Name} in entity {id} - {entity.name}", entity);
+                return default;
+            }
+
+            Debug.LogError($"DIContainer: Can't find entity with id {id}");
+            return default;
         }
 
         public static void BindService<T>(Service service)
@@ -45,6 +66,10 @@ namespace Larje.Core
             {
                 s_instance._entities.Add(entity.Id, entity);
             }
+            else if (s_instance._entities[entity.Id] != entity)
+            {
+                Debug.LogError($"DIContainer: Entity with id {entity.Id} already exists!", entity);
+            }
         }
         
         public static void UnbindEntity(Entity entity)
@@ -52,7 +77,7 @@ namespace Larje.Core
             if (entity.Id == EntityId.None)
                 return;
             
-            if (s_instance._entities.ContainsKey(entity.Id))
+            if (s_instance._entities.ContainsKey(entity.Id) && s_instance._entities[entity.Id] == entity)
             {
                 s_instance._entities.Remove(entity.Id);
             }
@@ -118,6 +143,9 @@ namespace Larje.Core
 
         private Dictionary<Type, Service> _services;
         private Dictionary<EntityId, Entity> _entities;
+        
+        public IReadOnlyDictionary<Type, Service> Services => _services;
+        public IReadOnlyDictionary<EntityId, Entity> Entities => _entities;
 
         private void Awake()
         {
