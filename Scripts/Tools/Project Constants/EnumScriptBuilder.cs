@@ -92,9 +92,11 @@ public class EnumScriptBuilder
         {
             List<string> allSymbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildGroup).Split(';').ToList();
             allSymbols = allSymbols.Where(x => !x.Contains(_symbolPrefix)).ToList();
-            foreach (string constant in _symbols)
+            foreach (string symbol in _symbols)
             {
-                allSymbols.Add($"{_symbolPrefix}_{constant.ToUpper().Replace(" ", "_")}");
+                string fullSymbol = $"{_symbolPrefix}";
+                fullSymbol += string.IsNullOrEmpty(symbol) ? "" : $"_{symbol.ToUpper().Replace(" ", "_")}";
+                allSymbols.Add(fullSymbol);
             }
 
             string symbolsLine = "";
