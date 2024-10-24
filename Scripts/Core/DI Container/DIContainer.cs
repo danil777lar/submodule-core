@@ -32,13 +32,30 @@ namespace Larje.Core
             return default;
         }
         
-        public static T GetEntity<T>(EntityId id) where T : Component
+        public static T GetEntityComponent<T>(EntityId id) where T : Component
         {
             if (s_instance._entities.TryGetValue(id, out Entity entity))
             {
                 if (entity.TryFindComponent(out T component))
                 {
                     return component;
+                }
+                
+                Debug.LogError($"DIContainer: Can't find component of type {typeof(T).Name} in entity {id} - {entity.name}", entity);
+                return default;
+            }
+
+            Debug.LogError($"DIContainer: Can't find entity with id {id}");
+            return default;
+        }
+        
+        public static T[] GetEntityComponents<T>(EntityId id) where T : Component
+        {
+            if (s_instance._entities.TryGetValue(id, out Entity entity))
+            {
+                if (entity.TryFindComponents(out IReadOnlyCollection<T> component))
+                {
+                    return component.ToArray();
                 }
                 
                 Debug.LogError($"DIContainer: Can't find component of type {typeof(T).Name} in entity {id} - {entity.name}", entity);
@@ -109,6 +126,10 @@ namespace Larje.Core
                     {
                         field.SetValue(target, getService.Invoke(s_instance, null));
                     }
+                    else
+                    {
+                        Debug.LogError("Method is null");
+                    }
                 }
             }
         }
@@ -124,14 +145,19 @@ namespace Larje.Core
                 {
                     if (attribute.Id != EntityId.None && s_instance._entities.ContainsKey(attribute.Id))
                     {
+                        Type fieldType = field.FieldType;
                         MethodInfo getEntity = typeof(DIContainer)
-                            .GetMethod("GetEntity")
-                            ?.MakeGenericMethod(field.FieldType);
-
+                            .GetMethod(fieldType.IsArray ? "GetEntityComponents" : "GetEntityComponent")
+                            ?.MakeGenericMethod(fieldType.IsArray ? fieldType.GetElementType() : fieldType);
+                        
                         if (getEntity != null)
                         {
                             field.SetValue(target, getEntity.Invoke(s_instance, 
                                 new object[] { attribute.Id }));
+                        }
+                        else
+                        {
+                            Debug.LogError("Method is null");
                         }
                     }
                 }

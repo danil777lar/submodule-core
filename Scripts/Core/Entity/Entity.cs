@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Larje.Core.Services;
 using Larje.Core.Services.UI;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Larje.Core.Entities
@@ -28,20 +29,22 @@ namespace Larje.Core.Entities
         {
             if (_components.TryGetValue(typeof(T), out List<Component> storedValue) && storedValue is { Count: > 0 })
             {
-                components = storedValue as List<T>;
-                return true;
-            }
-            
-            components = GetComponentsInChildren<T>(true).ToList();
-            if (_components.ContainsKey(typeof(T)))
-            {
-                _components[typeof(T)] = components.Cast<Component>().ToList();
+                components = storedValue.Cast<T>().ToList();
             }
             else
             {
-                _components.Add(typeof(T), components.Cast<Component>().ToList());
+                components = GetComponentsInChildren<T>(true).ToList();
+                
+                if (_components.ContainsKey(typeof(T)))
+                {
+                    _components[typeof(T)] = components.Cast<Component>().ToList();
+                }
+                else
+                {
+                    _components.Add(typeof(T), components.Cast<Component>().ToList());
+                }
             }
-            
+
             return components is { Count: > 0 };
         }
         
