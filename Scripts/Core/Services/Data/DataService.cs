@@ -40,13 +40,6 @@ namespace Larje.Core.Services
             Save();
         }
 
-        [ContextMenu("Save")]
-        public void Save()
-        {
-            byte[] jsonDataBytes = Encoding.UTF8.GetBytes(JsonUtility.ToJson(_data, false));
-            File.WriteAllText(FilePath, Convert.ToBase64String(jsonDataBytes));
-        }
-
         public void SetDefaultData()
         {
             if (_defaultProfile == null) 
@@ -60,7 +53,20 @@ namespace Larje.Core.Services
             Load();
         }
         
-        #region Debug
+        [ContextMenu("Save")]
+        public void Save()
+        {
+            byte[] jsonDataBytes = Encoding.UTF8.GetBytes(JsonUtility.ToJson(_data, false));
+            File.WriteAllText(FilePath, Convert.ToBase64String(jsonDataBytes));
+        }
+        
+        [ContextMenu("Open Data Path")]
+        public void OpenDataPath()
+        {
+            string path = Path.GetDirectoryName(FilePath);
+            System.Diagnostics.Process.Start("explorer.exe","/select,"+path);
+        }
+        
         [ContextMenu("Clear Progress")]
         public void DeleteSave()
         {
@@ -69,6 +75,5 @@ namespace Larje.Core.Services
                 File.Delete(FilePath);
             }
         }
-        #endregion
     }
 }
