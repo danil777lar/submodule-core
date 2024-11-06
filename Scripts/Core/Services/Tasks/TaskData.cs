@@ -1,9 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using ProjectConstants;
-using UnityEngine;
 
 namespace Larje.Core.Services
 {
@@ -45,6 +41,7 @@ public class TaskData
     public string TaskType;
 
     public bool Initialized;
+    public bool IsActive;
     public bool Complete;
     public bool RewardGiven;
     
