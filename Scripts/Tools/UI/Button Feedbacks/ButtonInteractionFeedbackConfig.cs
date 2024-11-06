@@ -9,7 +9,7 @@ using ProjectConstants;
 
 namespace Larje.Core.Tools
 {
-    [CreateAssetMenu(fileName = "Button Interaction Config", menuName = "Configs/Button Interaction Config")]
+    [CreateAssetMenu(fileName = "Button Interaction Config", menuName = "Larje/Core/Tools/Button Interaction Config")]
     public class ButtonInteractionFeedbackConfig : ScriptableObject
     {
         [SerializeField] private ButtonInteractionFeedbackOptions interactable;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Larje.Core.Tools.PrefabPacker
 {
-    [CreateAssetMenu(fileName = "Level Prefabs Config", menuName = "Configs/Level Prefabs Config")]
+    [CreateAssetMenu(fileName = "Level Prefabs Config", menuName = "Larje/Core/Tools/Level Prefabs Config")]
     public class PrefabPackerConfig : ScriptableObject
     {
         [SerializeField] private List<PackablePrefab> levelObjectPrefabs;

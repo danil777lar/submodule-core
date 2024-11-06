@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Larje.Core.Services
 {
-    [CreateAssetMenu(fileName = "DefaultProfile", menuName = "Scriptables/DefaultDataProfile")]
+    [CreateAssetMenu(fileName = "DefaultProfile", menuName = "Larje/Core/Services/Default Data Profile")]
     public class DefaultProfile : ScriptableObject
     {
         public GameData profileData;

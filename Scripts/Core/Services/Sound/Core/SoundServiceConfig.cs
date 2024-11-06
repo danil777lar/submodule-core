@@ -7,7 +7,7 @@ using UnityEngine.AddressableAssets;
 
 namespace Larje.Core.Services
 {
-    [CreateAssetMenu(fileName = "Sound Service Config", menuName = "Configs/Services/Sound Service Config")]
+    [CreateAssetMenu(fileName = "Sound Service Config", menuName = "Larje/Core/Services/Sound Service Config")]
     public class SoundServiceConfig : ScriptableObject
     {
         private const string NAMESPACE = "Larje.Core.Services";

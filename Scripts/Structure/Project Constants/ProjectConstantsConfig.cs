@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Project Constants", menuName = "Project Constants")]
+[CreateAssetMenu(fileName = "Project Constants", menuName = "Larje/Core/Tools/Project Constants")]
 public class ProjectConstantsConfig : ScriptableObject
 {
     private const string NAMESPACE = "ProjectConstants";

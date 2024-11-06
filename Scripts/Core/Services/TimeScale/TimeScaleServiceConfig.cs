@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Larje.Core.Services
 {
-    [CreateAssetMenu(menuName = "Configs/Time Scale Config", fileName = "Time Scale Config")]
+    [CreateAssetMenu(menuName = "Larje/Core/Services/Time Scale Config", fileName = "Time Scale Config")]
     public class TimeScaleServiceConfig : ScriptableObject
     {
         private static TimeScaleServiceConfig _instance;

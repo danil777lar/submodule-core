@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Larje.Core.Tools.SwipeProcessor
 {
-    [CreateAssetMenu(fileName = "Swipes Config", menuName = "Configs/Swipes Config")]
+    [CreateAssetMenu(fileName = "Swipes Config", menuName = "Larje/Core/Tools/Swipes Config")]
     public class SwipeProcessorConfig : ScriptableObject
     {
         [field: SerializeField] public bool Enabled = true;

@@ -6,7 +6,6 @@ using UnityEngine;
 namespace Larje.Core.Services
 {
     [Serializable]
-    [CreateAssetMenu(fileName = "SkinsHolderConfig", menuName = "Configs/SkinsHolderConfig")]
     public abstract class ItemsHolderConfig : ScriptableObject
     {
         [field: SerializeField] public ItemType ItemType { get; protected set; }
