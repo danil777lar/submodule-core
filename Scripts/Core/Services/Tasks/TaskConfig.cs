@@ -61,6 +61,8 @@ namespace Larje.Core.Services
 
         public abstract class Processor
         {
+            protected bool _destroyed;
+            
             private TaskConfig _config;
 
             protected TaskData Data => _config.GetData();
@@ -74,55 +76,86 @@ namespace Larje.Core.Services
                 _config = config;
             }
 
-            public virtual void Initialize()
+            public bool IsChildOf(TaskConfig config)
             {
+                return config == _config;
+            }
+
+            public void Initialize()
+            {
+                OnInitialize();
+                
                 if (!Data.Initialized)
                 {
                     InitializeData();
-                    if (_config.activateOnInitialize)
-                    {
-                        Activate();
-                    }
+                }
+                
+                if (_config.activateOnInitialize)
+                {
+                    Activate();
                 }
             }
-
-            public virtual void Destroy()
-            {
-
-            }
-
-            protected virtual void InitializeData()
+            
+            protected void InitializeData()
             {
                 Data.Initialized = true;
+                OnInitializeData();
             }
-
-            protected virtual void Activate()
+            
+            public void Activate()
             {
                 if (!Data.IsActive)
                 {
                     Data.IsActive = true;
                     EventActivated?.Invoke();
+                    
+                    OnActivate();
                 }
             }
 
-            protected virtual void Complete()
+            public void Complete()
             {
                 if (!Data.Complete)
                 {
                     Data.Complete = true;
                     EventCompleted?.Invoke();
+                    
+                    OnComplete();
                 }
             }
 
-            protected virtual void GiveReward(int multiplier = 1)
+            public void GiveReward(int multiplier = 1)
             {
                 if (!Data.Complete)
                 {
                     Data.Complete = true;
                     _config.rewards.ForEach(x => x.GiveReward(multiplier));
                     EventRewarded?.Invoke();
+                    
+                    OnGiveReward(multiplier);
                 }
             }
+
+            public void Destroy()
+            {
+                if (!_destroyed)
+                {
+                    _destroyed = true;
+                    OnDestroy();
+                }
+            }
+
+            protected virtual void OnInitialize() { }
+            
+            protected virtual void OnInitializeData() { }
+
+            protected virtual void OnActivate() { }
+
+            protected virtual void OnComplete() { }
+
+            protected virtual void OnGiveReward(int multiplier = 1) { }
+
+            protected virtual void OnDestroy() { }
         }
     }
 }
