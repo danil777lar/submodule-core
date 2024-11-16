@@ -68,6 +68,7 @@ namespace Larje.Core.Services
             protected TaskData Data => _config.GetData();
 
             public event Action EventActivated;
+            public event Action EventDeactivated;
             public event Action EventCompleted;
             public event Action EventRewarded;
 
@@ -112,6 +113,17 @@ namespace Larje.Core.Services
                     OnActivate();
                 }
             }
+            
+            public void Deactivate()
+            {
+                if (Data.IsActive)
+                {
+                    Data.IsActive = false;
+                    EventDeactivated?.Invoke();
+                    
+                    OnDeactivate();
+                }
+            }
 
             public void Complete()
             {
@@ -150,6 +162,7 @@ namespace Larje.Core.Services
             protected virtual void OnInitializeData() { }
 
             protected virtual void OnActivate() { }
+            protected virtual void OnDeactivate() { }
 
             protected virtual void OnComplete() { }
 
