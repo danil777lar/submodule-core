@@ -32,7 +32,7 @@ namespace Larje.Core
             return default;
         }
         
-        public static T GetEntityComponent<T>(EntityId id) where T : Component
+        public static T GetEntityComponent<T>(EntityId id)
         {
             if (s_instance._entities.TryGetValue(id, out Entity entity))
             {
@@ -49,7 +49,7 @@ namespace Larje.Core
             return default;
         }
         
-        public static T[] GetEntityComponents<T>(EntityId id) where T : Component
+        public static T[] GetEntityComponents<T>(EntityId id)
         {
             if (s_instance._entities.TryGetValue(id, out Entity entity))
             {

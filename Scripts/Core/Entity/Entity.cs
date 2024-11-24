@@ -25,7 +25,7 @@ namespace Larje.Core.Entities
             DIContainer.UnbindEntity(this);
         }
 
-        public bool TryFindComponents<T>(out IReadOnlyCollection<T> components) where T : Component
+        public bool TryFindComponents<T>(out IReadOnlyCollection<T> components)
         {
             if (_components.TryGetValue(typeof(T), out List<Component> storedValue) && storedValue is { Count: > 0 })
             {
@@ -48,10 +48,10 @@ namespace Larje.Core.Entities
             return components is { Count: > 0 };
         }
         
-        public bool TryFindComponent<T>(out T component) where T : Component
+        public bool TryFindComponent<T>(out T component)
         {
             bool result = TryFindComponents(out IReadOnlyCollection<T> components) && components.Count > 0;
-            component = result ? components.First() : null;
+            component = result ? components.First() : default;
             return result;
         }
     }
