@@ -23,7 +23,7 @@ namespace Larje.Core.Services
 
         public Sound Play(SoundType soundType)
         {
-            AssetReferenceGameObject soundReference = config.GetSound(soundType);
+            AssetReference soundReference = config.GetSound(soundType);
             if (soundReference == null)
             {
                 Debug.LogError($"Sound Service: Sound {soundType} not found");

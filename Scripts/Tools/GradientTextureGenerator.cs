@@ -1,5 +1,4 @@
 using System.IO;
-using UnityEditor;
 using UnityEngine;
 
 public class GradientTextureGenerator : MonoBehaviour
@@ -24,9 +23,11 @@ public class GradientTextureGenerator : MonoBehaviour
     
     private void SaveTexture(Texture2D texture)
     {
+#if UNITY_EDITOR
         byte[] bytes = texture.EncodeToPNG();
-        string path = EditorUtility.SaveFilePanel("save", "", "gradient.png", "png");
+        string path = UnityEditor.EditorUtility.SaveFilePanel("save", "", "gradient.png", "png");
         File.WriteAllBytes(path, bytes);
+#endif
     }
 
     [ContextMenu("Write Texture")]

@@ -10,6 +10,7 @@ namespace Larje.Core.Tools
     {
         public static async Task<bool> IsConnectionAvailable(float timeOutSize) 
         {
+#if !UNITY_WEBGL
             if (Application.internetReachability == NetworkReachability.NotReachable)
             {
                 return false;
@@ -27,6 +28,7 @@ namespace Larje.Core.Tools
                     return false;
                 }
             }
+#endif
             return true;
         }
     }

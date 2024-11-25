@@ -22,25 +22,8 @@ namespace Larje.Core.Services
             _data.IternalData.SessionNum++;
             Save();
         }
-
-        private void Load()
-        {
-            if (File.Exists(FilePath))
-            {
-                _data = JsonUtility.FromJson<GameData>(Encoding.UTF8.GetString(Convert.FromBase64String(File.ReadAllText(FilePath))));
-            }
-            else
-            {
-                SetDefaultData();
-            }
-        }
-
-        private void OnDestroy()
-        {
-            Save();
-        }
-
-        public void SetDefaultData()
+        
+        public virtual void SetDefaultData()
         {
             if (_defaultProfile == null) 
             {
@@ -54,26 +37,43 @@ namespace Larje.Core.Services
         }
         
         [ContextMenu("Save")]
-        public void Save()
+        public virtual void Save()
         {
             byte[] jsonDataBytes = Encoding.UTF8.GetBytes(JsonUtility.ToJson(_data, false));
             File.WriteAllText(FilePath, Convert.ToBase64String(jsonDataBytes));
         }
         
         [ContextMenu("Open Data Path")]
-        public void OpenDataPath()
+        public virtual void OpenDataPath()
         {
             string path = Path.GetDirectoryName(FilePath);
             System.Diagnostics.Process.Start("explorer.exe","/select,"+path);
         }
         
         [ContextMenu("Clear Progress")]
-        public void DeleteSave()
+        public virtual void DeleteSave()
         {
             if (File.Exists(FilePath))
             {
                 File.Delete(FilePath);
             }
+        }
+
+        protected virtual void Load()
+        {
+            if (File.Exists(FilePath))
+            {
+                _data = JsonUtility.FromJson<GameData>(Encoding.UTF8.GetString(Convert.FromBase64String(File.ReadAllText(FilePath))));
+            }
+            else
+            {
+                SetDefaultData();
+            }
+        }
+
+        protected virtual void OnDestroy()
+        {
+            Save();
         }
     }
 }

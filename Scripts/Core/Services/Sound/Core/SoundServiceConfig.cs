@@ -14,17 +14,17 @@ namespace Larje.Core.Services
         private const string FILE_NAME = "SoundType";
         private const string SYMBOL_PREFIX = "SOUND_SERVICE_INITIALIZED";
         
-        [SerializeField] public List<AssetReferenceGameObject> sounds;
+        [SerializeField] private List<AssetReference> sounds;
         
-        public AssetReferenceGameObject GetSound(SoundType soundType)
+        public AssetReference GetSound(SoundType soundType)
         {
-            return sounds.Find(x => FormatName(x.editorAsset.name) == soundType.ToString());
+            return sounds.Find(x => FormatName(x.Asset.name) == soundType.ToString());
         }
 
         [ContextMenu("Save")]
         private void Save()
         {
-            string[] soundTypes = sounds.Select(x => FormatName(x.editorAsset.name)).ToArray();  
+            string[] soundTypes = sounds.Select((x) => FormatName(x.Asset.name)).ToArray();  
             
             EnumScriptBuilder builder = new EnumScriptBuilder(NAMESPACE, FILE_NAME, SYMBOL_PREFIX);
             builder.AddConstant(FILE_NAME, true, soundTypes);

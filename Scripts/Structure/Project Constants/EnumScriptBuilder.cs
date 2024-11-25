@@ -87,7 +87,14 @@ public class EnumScriptBuilder
         #if UNITY_EDITOR
         
         BuildTargetGroup[] targetGroups = new[]
-            { BuildTargetGroup.Android, BuildTargetGroup.iOS, BuildTargetGroup.Standalone };
+        {
+            BuildTargetGroup.Android, 
+            BuildTargetGroup.iOS, 
+            BuildTargetGroup.Standalone,
+            BuildTargetGroup.WebGL
+        };
+        
+        
         foreach (BuildTargetGroup buildGroup in targetGroups)
         {
             List<string> allSymbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildGroup).Split(';').ToList();
