@@ -14,11 +14,22 @@ namespace Larje.Core.Services
         
         [InjectService] private DataService _dataService;
         
+        private bool _isLoaded;
         private List<SoundData> _sounds = new List<SoundData>();
+        private List<Action> _onLoaded = new List<Action>();
         private UnityEvent<float> OnUpdate = new UnityEvent<float>();
 
         public override void Init()
         {
+            config.LoadSounds(() =>
+            {
+                _isLoaded = true;
+                foreach (Action onLoaded in _onLoaded)
+                {
+                    onLoaded?.Invoke();
+                }
+                _onLoaded.Clear();
+            });
         }
 
         public Sound Play(SoundType soundType)
@@ -49,10 +60,22 @@ namespace Larje.Core.Services
             _sounds.FindAll(x => x.Sound.Target == target).ForEach(Stop);
         }
         
+        public void RunWhenSoundsLoaded(Action onLoaded)
+        {
+            if (_isLoaded)
+            {
+                onLoaded?.Invoke();
+            }
+            else
+            {
+                _onLoaded.Add(onLoaded);
+            }
+        }
+        
         private void Stop(SoundData data)
         {
             _sounds.Remove(data);
-            data.OnDestroy?.Invoke();
+            data?.OnDestroy?.Invoke();
         }
 
         private void Update()

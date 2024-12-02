@@ -18,17 +18,36 @@ namespace Larje.Core.Services
         
         public AssetReference GetSound(SoundType soundType)
         {
-            return sounds.Find(x => FormatName(x.Asset.name) == soundType.ToString());
+            return sounds.Find(x => x.Asset != null && 
+                                    FormatName(x.Asset.name) == soundType.ToString());
         }
 
+        public void LoadSounds(Action onLoaded)
+        {
+            int loaded = 0;
+            sounds.ForEach(x =>
+            {
+                x.LoadAssetAsync<GameObject>().Completed += (obj) =>
+                {
+                    loaded++;
+                    if (loaded == sounds.Count)
+                    {
+                        onLoaded?.Invoke();
+                    }
+                };
+            });
+        }
+        
         [ContextMenu("Save")]
         private void Save()
         {
-            string[] soundTypes = sounds.Select((x) => FormatName(x.Asset.name)).ToArray();  
+            #if UNITY_EDITOR
+            string[] soundTypes = sounds.Select((x) => FormatName(x.editorAsset.name)).ToArray();  
             
             EnumScriptBuilder builder = new EnumScriptBuilder(NAMESPACE, FILE_NAME, SYMBOL_PREFIX);
             builder.AddConstant(FILE_NAME, true, soundTypes);
             builder.Save();
+            #endif
         }
 
         private string FormatName(string name)

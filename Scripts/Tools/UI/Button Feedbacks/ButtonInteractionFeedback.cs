@@ -12,6 +12,7 @@ namespace Larje.Core.Tools
         [SerializeField] private ButtonInteractionFeedbackConfig config;
         [InjectService] private DataService _dataService;
         [InjectService] private SoundService _soundService;
+        
         private Selectable selectable;
         
         public void OnPointerDown(PointerEventData eventData)
@@ -68,7 +69,8 @@ namespace Larje.Core.Tools
 
             if (options.UseSound && _dataService.Data.Settings.SoundGlobal)
             {
-                //_soundService.PlayRandomFromSoundPack(options.SoundType, false);
+                _soundService.Play(options.SoundType)
+                    .SetSpatialBlend((t) => 0f);
             }
         }
 
