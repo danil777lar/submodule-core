@@ -9,9 +9,9 @@ namespace Larje.Core.Services
     [BindService(typeof(DataService))]
     public class DataService : Service
     {
-        [SerializeField] private string _profileName;
-        [SerializeField] private DefaultProfile _defaultProfile;
-        [SerializeField] private GameData _data;
+        [SerializeField] protected string _profileName;
+        [SerializeField] protected DefaultProfile _defaultProfile;
+        [SerializeField] protected GameData _data;
         private string FilePath => Path.Combine(Application.persistentDataPath, _profileName + ".json");
 
         public GameData Data => _data;
