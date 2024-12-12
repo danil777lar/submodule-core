@@ -1,3 +1,4 @@
+#if MOREMOUNTAINS_TOPDOWNENGINE
 using System.Collections;
 using System.Collections.Generic;
 using MoreMountains.Tools;
@@ -157,3 +158,4 @@ public class CoreCharacterRun : CharacterAbility
 			_character.RunAnimatorSanityChecks);
 	}
 }
+#endif

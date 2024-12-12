@@ -49,11 +49,9 @@ namespace Larje.Core.Services.UI
                 OnBeforeOpen(args);
                 EventOpen?.Invoke();
 
-                this.DOKill();
-                DOTween.Sequence()
-                    .SetTarget(this)
-                    .AppendInterval(_eventDelays.Max(x => x.OnOpen()))
-                    .AppendCallback(() => OnAfterOpen(args));
+                float delay = _eventDelays.Max(x => x.OnOpen());
+                DOVirtual.DelayedCall(delay, () => OnAfterOpen(args));
+                Debug.Log("Open Delay: " + delay);
             }
         }
         
@@ -65,16 +63,13 @@ namespace Larje.Core.Services.UI
                 
                 OnBeforeClose();
             
-                this.DOKill();
-                DOTween.Sequence()
-                    .SetTarget(this)
-                    .AppendInterval(_hidden ? 0f : _eventDelays.Max(x => x.OnClose()))
-                    .AppendCallback(() =>
-                    {
-                        OnAfterClose();
-                        DestroyImmediate(gameObject);
-                        EventClose?.Invoke();
-                    });   
+                float delay = _hidden ? 0f : _eventDelays.Max(x => x.OnClose());
+                DOVirtual.DelayedCall(delay, () =>
+                {
+                    OnAfterClose();
+                    DestroyImmediate(gameObject);
+                    EventClose?.Invoke();
+                });
             }
         }
         
@@ -88,11 +83,8 @@ namespace Larje.Core.Services.UI
                 OnBeforeShow();
                 EventShow?.Invoke();
 
-                this.DOKill();
-                DOTween.Sequence()
-                    .SetTarget(this)
-                    .AppendInterval(_eventDelays.Max(x => x.OnShow()))
-                    .AppendCallback(OnAfterShow);   
+                float delay = _eventDelays.Max(x => x.OnShow());
+                DOVirtual.DelayedCall(delay, OnAfterShow);
             }
         }
         
@@ -105,15 +97,12 @@ namespace Larje.Core.Services.UI
                 OnBeforeHide();
                 EventHide?.Invoke();
             
-                this.DOKill();
-                DOTween.Sequence()
-                    .SetTarget(this)
-                    .AppendInterval(_eventDelays.Max(x => x.OnHide()))
-                    .AppendCallback(() =>
-                    {
-                        OnAfterHide();
-                        gameObject.SetActive(false);
-                    });   
+                float delay = _eventDelays.Max(x => x.OnHide());
+                DOVirtual.DelayedCall(delay, () =>
+                {
+                    OnAfterHide();
+                    gameObject.SetActive(false);
+                });
             }
         }
         
@@ -126,11 +115,8 @@ namespace Larje.Core.Services.UI
                 OnBeforeFocus();
                 EventFocus?.Invoke();
 
-                this.DOKill();
-                DOTween.Sequence()
-                    .SetTarget(this)
-                    .AppendInterval(_eventDelays.Max(x => x.OnFocus()))
-                    .AppendCallback(OnAfterFocus);   
+                float delay = _eventDelays.Max(x => x.OnFocus());
+                DOVirtual.DelayedCall(delay, OnAfterFocus);
             }
         }
 
@@ -143,11 +129,8 @@ namespace Larje.Core.Services.UI
                 OnBeforeUnfocus();
                 EventUnfocus?.Invoke();
             
-                this.DOKill();
-                DOTween.Sequence()
-                    .SetTarget(this)
-                    .AppendInterval(_eventDelays.Max(x => x.OnUnfocus()))
-                    .AppendCallback(OnAfterUnfocus);   
+                float delay = _eventDelays.Max(x => x.OnUnfocus());
+                DOVirtual.DelayedCall(delay, OnAfterUnfocus);
             }
         }
 

@@ -17,7 +17,9 @@ namespace Larje.Core.Services.UI
         [SerializeField] private UIScreen[] screens;
 
         private List<UIScreen> _openedScreens = new List<UIScreen>();
-        
+
+        public UIScreenType LastOpenedScreen { get; private set; }
+
         public event Action<UIScreenType> EventScreenOpened;
         public event Action<UIScreenType> EventScreenClosed;
         
@@ -36,6 +38,8 @@ namespace Larje.Core.Services.UI
             UIScreen screenToOpen = screens.First((screen) => screen.ScreenType == args.screenType);
             if (screenToOpen != null)
             {
+                LastOpenedScreen = args.screenType;
+                
                 if (screenToOpen.ClearHistoryOnOpen)
                 {
                     _openedScreens.ForEach(x => x.Close());
