@@ -30,12 +30,18 @@ namespace Larje.Core.Services.UI
 
         public Canvas Canvas => _canvas;
         
-        public event Action EventOpen;
-        public event Action EventClose;
-        public event Action EventShow;
-        public event Action EventHide;
-        public event Action EventFocus;
-        public event Action EventUnfocus;
+        public event Action EventBeforeOpen;
+        public event Action EventAfterOpen;
+        public event Action EventBeforeClose;
+        public event Action EventAfterClose;
+        public event Action EventBeforeShow;
+        public event Action EventAfterShow;
+        public event Action EventBeforeHide;
+        public event Action EventAfterHide;
+        public event Action EventBeforeFocus;
+        public event Action EventAfterFocus;
+        public event Action EventBeforeUnfocus;
+        public event Action EventAfterUnfocus;
         
         public virtual void Open(Args args)
         {
@@ -47,10 +53,14 @@ namespace Larje.Core.Services.UI
                 _eventDelays = new List<IUIObjectEventDelay>(GetComponentsInChildren<IUIObjectEventDelay>());
 
                 OnBeforeOpen(args);
-                EventOpen?.Invoke();
+                EventBeforeOpen?.Invoke();
 
                 float delay = _eventDelays.Max(x => x.OnOpen());
-                DOVirtual.DelayedCall(delay, () => OnAfterOpen(args));
+                DOVirtual.DelayedCall(delay, () =>
+                {
+                    OnAfterOpen(args);
+                    EventAfterOpen?.Invoke();
+                });
                 Debug.Log("Open Delay: " + delay);
             }
         }
@@ -62,13 +72,15 @@ namespace Larje.Core.Services.UI
                 _closed = true;
                 
                 OnBeforeClose();
+                EventBeforeClose?.Invoke();
             
                 float delay = _hidden ? 0f : _eventDelays.Max(x => x.OnClose());
                 DOVirtual.DelayedCall(delay, () =>
                 {
                     OnAfterClose();
+                    EventAfterClose?.Invoke();
+                    
                     DestroyImmediate(gameObject);
-                    EventClose?.Invoke();
                 });
             }
         }
@@ -81,10 +93,14 @@ namespace Larje.Core.Services.UI
                 
                 gameObject.SetActive(true);
                 OnBeforeShow();
-                EventShow?.Invoke();
+                EventBeforeShow?.Invoke();
 
                 float delay = _eventDelays.Max(x => x.OnShow());
-                DOVirtual.DelayedCall(delay, OnAfterShow);
+                DOVirtual.DelayedCall(delay, () =>
+                {
+                    OnAfterShow();
+                    EventAfterShow?.Invoke();
+                });
             }
         }
         
@@ -95,12 +111,14 @@ namespace Larje.Core.Services.UI
                 _hidden = true;
                 
                 OnBeforeHide();
-                EventHide?.Invoke();
+                EventBeforeHide?.Invoke();
             
                 float delay = _eventDelays.Max(x => x.OnHide());
                 DOVirtual.DelayedCall(delay, () =>
                 {
                     OnAfterHide();
+                    EventAfterHide?.Invoke();
+                    
                     gameObject.SetActive(false);
                 });
             }
@@ -113,10 +131,14 @@ namespace Larje.Core.Services.UI
                 _focused = true;
                 
                 OnBeforeFocus();
-                EventFocus?.Invoke();
+                EventBeforeFocus?.Invoke();
 
                 float delay = _eventDelays.Max(x => x.OnFocus());
-                DOVirtual.DelayedCall(delay, OnAfterFocus);
+                DOVirtual.DelayedCall(delay, () =>
+                {
+                    OnAfterFocus();
+                    EventAfterFocus?.Invoke();
+                });
             }
         }
 
@@ -127,10 +149,14 @@ namespace Larje.Core.Services.UI
                 _focused = false;
                 
                 OnBeforeUnfocus();
-                EventUnfocus?.Invoke();
+                EventBeforeUnfocus?.Invoke();
             
                 float delay = _eventDelays.Max(x => x.OnUnfocus());
-                DOVirtual.DelayedCall(delay, OnAfterUnfocus);
+                DOVirtual.DelayedCall(delay, () =>
+                {
+                    OnAfterUnfocus();
+                    EventAfterUnfocus?.Invoke();
+                });
             }
         }
 

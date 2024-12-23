@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using DG.Tweening;
 using Larje.Core.Services;
@@ -10,6 +11,7 @@ namespace Larje.Core.Tools
     public class ButtonInteractionFeedback : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         [SerializeField] private ButtonInteractionFeedbackConfig config;
+        
         [InjectService] private DataService _dataService;
         [InjectService] private SoundService _soundService;
         
@@ -47,6 +49,12 @@ namespace Larje.Core.Tools
             {
                 Debug.LogError("Button Interaction Feedback: config is null", gameObject);
             }
+        }
+
+        private void OnDisable()
+        {
+            this.DOKill();
+            transform.localScale = Vector3.one;
         }
 
         private void OnDestroy()

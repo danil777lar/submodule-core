@@ -93,8 +93,8 @@ namespace Larje.Core.Services.UI
                 SetWorldCamera(uiObject);
                 SetVirtualScreenHitProcessor(uiObject);
                 
-                uiObject.EventShow += OnUiObjectShowHide;
-                uiObject.EventHide += OnUiObjectShowHide;
+                uiObject.EventBeforeShow += OnUiObjectShowHide;
+                uiObject.EventAfterHide += OnUiObjectShowHide;
                 
                 EventOpenedObjectsChanged?.Invoke();
                 EventShownObjectsChanged?.Invoke();

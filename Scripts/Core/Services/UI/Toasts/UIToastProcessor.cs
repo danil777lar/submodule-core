@@ -25,7 +25,7 @@ namespace Larje.Core.Services.UI
                 
                 UIToast toastInstance = GameObject.Instantiate(toast, holder);
                 toastInstance.Open(args);
-                toastInstance.EventClose += () => OnToastClosed(toastInstance);
+                toastInstance.EventAfterClose += () => OnToastClosed(toastInstance);
                 
                 _openedToast = toastInstance;
                 

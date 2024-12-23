@@ -26,7 +26,7 @@ namespace Larje.Core.Services.UI
 
                 UIPopup popupInstance = GameObject.Instantiate(popupPrefab, holder);
                 popupInstance.Open(args);
-                popupInstance.EventClose += () => OnPopupClosed(popupInstance);
+                popupInstance.EventAfterClose += () => OnPopupClosed(popupInstance);
                 _openedPopups.Add(popupInstance);
                 AddOpenedUIObject(popupInstance);
                 

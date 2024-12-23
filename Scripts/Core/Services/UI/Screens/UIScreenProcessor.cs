@@ -51,7 +51,7 @@ namespace Larje.Core.Services.UI
 
                 UIScreen screenInstance = Instantiate(screenToOpen, holder);
                 screenInstance.Open(args);
-                screenInstance.EventClose += () => OnScreenClosed(screenInstance);
+                screenInstance.EventAfterClose += () => OnScreenClosed(screenInstance);
                 _openedScreens.Add(screenInstance);
                 EventScreenOpened?.Invoke(screenInstance.ScreenType);
                 
