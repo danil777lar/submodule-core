@@ -1,6 +1,7 @@
 #if MOREMOUNTAINS_TOPDOWNENGINE
 using System.Collections;
 using System.Collections.Generic;
+using Larje.Core;
 using MoreMountains.Tools;
 using MoreMountains.TopDownEngine;
 using UnityEngine;
@@ -9,8 +10,9 @@ public class CoreCharacterRun : CharacterAbility
 {
 	[Header("Speed")]
 	[SerializeField] private float runSpeed = 16f;
+	
+	[InjectService] private PlayerInputService _inputService;
 
-	protected PlayerInputActions _inputActions;
 	protected const string _runningAnimationParameterName = "Running";
 	protected int _runningAnimationParameter;
 	protected bool _runningStarted = false;
@@ -18,7 +20,8 @@ public class CoreCharacterRun : CharacterAbility
 	protected override void Start()
 	{
 		base.Start();
-		_inputActions = new PlayerInputActions();
+		
+		DIContainer.InjectTo(this);
 	}
 	
 	public override void ProcessAbility()
@@ -30,15 +33,14 @@ public class CoreCharacterRun : CharacterAbility
 	
 	protected override void HandleInput()
 	{
-		_inputActions.Player.Run.Enable();
-		if (_inputActions.Player.Run.IsPressed())
+		if (_inputService.PlayerActions.Run.IsPressed())
 		{
 			RunStart();
 		}
 
 		if (_runningStarted)
 		{
-			if (!_inputActions.Player.Run.IsPressed())
+			if (!_inputService.PlayerActions.Run.IsPressed())
 			{
 				RunStop();
 			}
