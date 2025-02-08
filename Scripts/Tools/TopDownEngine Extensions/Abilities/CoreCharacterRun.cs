@@ -11,7 +11,7 @@ public class CoreCharacterRun : CharacterAbility
 	[Header("Speed")]
 	[SerializeField] private float runSpeed = 16f;
 	
-	[InjectService] private PlayerInputService _inputService;
+	[InjectService] private IInputService _inputService;
 
 	protected const string _runningAnimationParameterName = "Running";
 	protected int _runningAnimationParameter;
