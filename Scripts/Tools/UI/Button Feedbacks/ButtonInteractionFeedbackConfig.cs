@@ -6,6 +6,7 @@ using Larje.Core.Services;
 using UnityEngine;
 using Lofelt.NiceVibrations;
 using ProjectConstants;
+using SoundType = Larje.Core.Services.SoundType;
 
 namespace Larje.Core.Tools
 {
