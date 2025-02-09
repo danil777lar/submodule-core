@@ -10,8 +10,11 @@ using UnityEngine.InputSystem;
 [BindService(typeof(InputService))]
 public abstract class InputService : Service
 {
+    public abstract Vector2 PlayerMovement { get; }
+    
     public abstract InputAction UIBack { get; }
     public abstract InputAction PlayerRun { get; }
+    public abstract InputAction PlayerPointer { get; }
 
     private List<Map> _maps = new List<Map>();
     

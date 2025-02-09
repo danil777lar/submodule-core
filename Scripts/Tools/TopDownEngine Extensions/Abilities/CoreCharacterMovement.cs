@@ -13,6 +13,8 @@ namespace Larje.Core.Tools.TopDownEngine
     {
         [SerializeField] private bool drawLimitsGizmo = true;
         [SerializeField, Min(0f)] private float minActualSpeedAnimator; 
+        
+        [InjectService] private InputService _inputService;
 
         private bool _useLimit;
         private float _limitRange;
@@ -80,6 +82,12 @@ namespace Larje.Core.Tools.TopDownEngine
             {
                 _speedMultipliers.Remove(multiplier);
             }
+        }
+        
+        protected override void Initialization()
+        {
+            base.Initialization();
+            DIContainer.InjectTo(this);
         }
 
         protected void UpdateMovement(float deltaTime)
@@ -157,6 +165,7 @@ namespace Larje.Core.Tools.TopDownEngine
 
         private void FixedUpdate()
         {
+            UpdateInput();
             UpdateMovement(Time.fixedDeltaTime);
             if (!AbilityPermitted || !AbilityAuthorized)
             {
@@ -164,6 +173,13 @@ namespace Larje.Core.Tools.TopDownEngine
                 _verticalMovement = 0f;
                 SetMovement();
             }
+        }
+
+        private void UpdateInput()
+        {
+            Vector2 input = _inputService.PlayerMovement;
+            _horizontalMovement = input.x;
+            _verticalMovement = input.y;
         }
 
         private Vector3 RotateVector(Vector3 vector, float angle)
