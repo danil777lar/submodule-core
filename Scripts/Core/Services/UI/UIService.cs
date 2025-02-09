@@ -16,6 +16,8 @@ namespace Larje.Core.Services.UI
         [field: Space]
         [field: SerializeField, MMReadOnly] public GameObject FocusedObject { get; private set; }
         
+        [InjectService] private InputService inputService;
+        
         private List<UIProcessor> _processors;
         
         public override void Init()
@@ -64,7 +66,7 @@ namespace Larje.Core.Services.UI
         {
             if (useDeviceBackButton)
             {
-                if (Input.GetKeyDown(KeyCode.Escape))
+                if (inputService.UIBack.WasPerformedThisFrame())
                 {
                     Back();
                 }

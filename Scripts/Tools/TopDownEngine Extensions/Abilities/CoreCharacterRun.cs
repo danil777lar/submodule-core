@@ -35,14 +35,14 @@ public class CoreCharacterRun : CharacterAbility
 	
 	protected override void HandleInput()
 	{
-		if (_inputService.GetActions<PlayerActions>().Run.IsPressed())
+		if (_inputService.PlayerRun.IsPressed())
 		{
 			RunStart();
 		}
 
 		if (_runningStarted)
 		{
-			if (!_inputService.GetActions<PlayerActions>().Run.IsPressed())
+			if (!_inputService.PlayerRun.IsPressed())
 			{
 				RunStop();
 			}
