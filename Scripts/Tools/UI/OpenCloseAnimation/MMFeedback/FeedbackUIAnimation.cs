@@ -61,6 +61,11 @@ namespace Larje.Core.Services.UI
         {
             if (_eventType.HasFlag(eventType))
             {
+                if (Feedback.IsPlaying)
+                {
+                    Feedback.StopFeedbacks();
+                }
+                
                 Feedback.PlayFeedbacks();
                 return GetDelay();
             }
@@ -69,7 +74,16 @@ namespace Larje.Core.Services.UI
                 return 0f;
             }
         }
-        
+
+        private void OnDisable()
+        {
+            if (Feedback.IsPlaying)
+            {
+                Feedback.StopFeedbacks();
+                Feedback.Revert();
+            }
+        }
+
         private float GetDelay()
         {
             return useForceDelay ? forceDelay : Feedback.TotalDuration;
