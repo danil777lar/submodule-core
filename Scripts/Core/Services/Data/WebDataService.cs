@@ -6,23 +6,20 @@ using Larje.Core.Services;
 using MoreMountains.Tools;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Serialization;
 
 [BindService(typeof(DataService))]
 public class WebDataService : DataService
 {
-    [SerializeField] private string getDataUrl = "get_data.php";
-    [SerializeField] private string setDataUrl = "set_data.php";
+    [SerializeField] private string getDataMethod = "get_data";
+    [SerializeField] private string setDataMethod = "set_data";
+    
+    [InjectService] private BackendBridgeService _backendBridgeService;
     
     private string _lastLog = "";
     
-    public string URL { get; private set; }
     public string UserId { get; private set; }
     public string UserFirstName { get; private set; }
-    
-    public void SetLink(string link)
-    {
-        URL = link;
-    }
 
     public void SetUserId(string id)
     {
@@ -44,26 +41,14 @@ public class WebDataService : DataService
     {
         if (UserId != null)
         {
-            Dictionary<string, string> users = new Dictionary<string, string>();
-            users.Add("user_id", UserId);
-            users.Add("user_data", JsonUtility.ToJson(_data));
+            Dictionary<string, string> data = new Dictionary<string, string>();
+            data.Add("user_id", UserId);
+            data.Add("user_data", JsonUtility.ToJson(_data));
 
-            UnityWebRequest request = UnityWebRequest.Post(URL + setDataUrl, users);
-            StartCoroutine(SendRequest(request, (result) =>
+            _backendBridgeService.SendRequest(setDataMethod, data, response =>
             {
-                if (result.result == UnityWebRequest.Result.Success)
-                {
-                    Log("Web Data Service: Save Complete!", false);
-                }
-                else
-                {
-                    Log("Web Data Service: Save Error - " + result.error, true);
-                }
-            }));
-        }
-        else
-        {
-            Log("Web Data Service: Save Error: User ID is null", true);
+                Debug.Log($"Web Data Service: Save Data result => {response["result"]}");
+            });
         }
     }
 
@@ -71,46 +56,17 @@ public class WebDataService : DataService
     {
         if (UserId != null)
         {
-            Dictionary<string, string> users = new Dictionary<string, string>();
-            users.Add("user_id", UserId);
+            Dictionary<string, string> data = new Dictionary<string, string>();
+            data.Add("user_id", UserId);
 
-            UnityWebRequest request = UnityWebRequest.Post(URL + getDataUrl, users);
-            StartCoroutine(SendRequest(request, (result) => 
+            _backendBridgeService.SendRequest(getDataMethod, data, response =>
             {
-                if (result.result == UnityWebRequest.Result.Success)
+                if (response.TryGetValue("user_data", out string jsonData))
                 {
-                    string json = result.downloadHandler.text;
-                    _data = JsonUtility.FromJson<GameData>(json);
-                    
-                    Log("Web Data Service: Load Complete!", false);
+                    _data = JsonUtility.FromJson<GameData>(jsonData);
                 }
-                else
-                {
-                    Log("Web Data Service: Load Error - " + result.error, true);
-                }
-            }));
-        }
-        else
-        {
-            Log("Web Data Service: Load Error: User ID is null", true);
-        }
-    }
-
-    private void Update()
-    {
-        MMDebug.DebugOnScreen(_lastLog);
-    }
-    
-    private void Log(string text, bool error)
-    {
-        _lastLog = $"[{DateTime.Now.ToString("HH:mm:ss")}] {text}";
-        if (error)
-        {
-            Debug.LogWarning(text);
-        }
-        else
-        {
-            Debug.Log(text);
+                Debug.Log($"Web Data Service: Load Data result => {response["result"]}");
+            });
         }
     }
 

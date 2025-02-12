@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using DG.Tweening;
 using MoreMountains.Tools;
 using TMPro;
-using UnityEditor.UI;
-using UnityEngine;
 
 public static class TextMeshProUGUIExtensions
 {
