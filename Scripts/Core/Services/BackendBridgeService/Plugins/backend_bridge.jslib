@@ -1,9 +1,15 @@
 mergeInto(LibraryManager.library,
-{ 
-    GetCurrentLocation: function (goName, methodName)
-    {
-        goNameStr = UTF8ToString(goName);
-        methodNameStr = UTF8ToString(methodName);
-        window.unityInstance.SendMessage(goNameStr, methodNameStr, path.ToString());
-    },
-};
+    { 
+        GetCurrentLocation: function (goName, methodName)
+        {
+            const checkWindow = setInterval(() => 
+            {
+                if (typeof window !== "undefined") 
+                {
+                    clearInterval(checkWindow);
+                    window.unityInstance.SendMessage("Backend Bridge Service", "CatchLocation", window.location.href);
+                }
+            }, 100);
+        },
+    }
+);
