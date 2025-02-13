@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -13,6 +14,7 @@ public class BackendBridgeService : Service
     [SerializeField] private string additionalPath;
 
     private string _url;
+    private List<RequestData> _requests = new List<RequestData>();
     
     #if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")] private static extern void GetCurrentLocation(string goName, string methodName);
@@ -43,9 +45,31 @@ public class BackendBridgeService : Service
     
     public void SendRequest(string method, Dictionary<string, string> data, Action<Dictionary<string, string>> callback)
     {
-        data.Add("app_name", appName);
+        RequestData rd = new RequestData
+        {
+            method = method,
+            data = data,
+            callback = callback
+        };
+        _requests.Add(rd);
+    }
+
+    private void Update()
+    {
+        if (!string.IsNullOrEmpty(_url))
+        {
+            while (_requests.Count > 0)
+            {
+                ProcessRequest(_requests[0]);
+            }
+        }
+    }
+    
+    private void ProcessRequest(RequestData rd)
+    {
+        rd.data.Add("app_name", appName);
         
-        UnityWebRequest request = UnityWebRequest.Post($"{_url}/{method}", data);
+        UnityWebRequest request = UnityWebRequest.Post($"{_url}/{rd.method}", rd.data);
         request.SendWebRequest().completed += operation =>
         {
             if (request.result == UnityWebRequest.Result.Success)
@@ -53,12 +77,21 @@ public class BackendBridgeService : Service
                 string response = request.downloadHandler.text;
                 Dictionary<string, string> responseDict = 
                     JsonConvert.DeserializeObject<Dictionary<string, string>>(response);
-                callback?.Invoke(responseDict);
+                rd.callback?.Invoke(responseDict);
             }
             else
             {
                 Debug.LogError($"BackendBridgeService | request failed: {request.error}");
             }
         };
+        
+        _requests.Remove(rd);
+    }
+
+    private class RequestData
+    {
+        public string method;
+        public Dictionary<string, string> data;
+        public Action<Dictionary<string, string>> callback;
     }
 }
