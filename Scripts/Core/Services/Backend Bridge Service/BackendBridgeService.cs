@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Larje.Core;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Serialization;
 
+[BindService(typeof(BackendBridgeService))]
 public class BackendBridgeService : Service
 {
     [SerializeField] private bool useOnlyHostUrl;
@@ -67,11 +69,14 @@ public class BackendBridgeService : Service
     
     private void ProcessRequest(RequestData rd)
     {
+        Debug.Log($"BackendBridgeService | process request '{rd.method}'");
+        
         rd.data.Add("app_name", appName);
         
         UnityWebRequest request = UnityWebRequest.Post($"{_url}/{rd.method}", rd.data);
         request.SendWebRequest().completed += operation =>
         {
+            Debug.Log($"BackendBridgeService | request '{rd.method}' completed\n{request.downloadHandler.text}");
             if (request.result == UnityWebRequest.Result.Success)
             {
                 string response = request.downloadHandler.text;

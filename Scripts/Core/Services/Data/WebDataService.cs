@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Larje.Core;
 using Larje.Core.Services;
 using MoreMountains.Tools;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Serialization;
@@ -11,20 +13,27 @@ using UnityEngine.Serialization;
 [BindService(typeof(DataService))]
 public class WebDataService : DataService
 {
+    [Space(20f)] 
+    [SerializeField] private string aesKey;
+    [SerializeField] private string aesIV;
+    [Space]
     [SerializeField] private string getDataMethod = "get_data";
     [SerializeField] private string setDataMethod = "set_data";
+
+    [InjectService] private BackendBridgeService _backend;
     
-    [InjectService] private BackendBridgeService _backendBridgeService;
-    
-    private string _lastLog = "";
-    
-    public string UserId { get; private set; }
+    private bool _loaded;
+
+    public string UserId { get; private set; } = "0";
     public string UserFirstName { get; private set; }
 
     public void SetUserId(string id)
     {
-        UserId = id;
-        Load();
+        if (string.IsNullOrEmpty(id))
+        {
+            UserId = id;
+            Load();
+        }
     }
 
     public void SetFirstName(string nick)
@@ -32,23 +41,43 @@ public class WebDataService : DataService
         UserFirstName = nick;
     }
 
+    public float GetLoadPercent()
+    {
+        return _loaded ? 1f : 0f;
+    }
+
     public override void DeleteSave()
     {
-        
     }
 
     public override void Save()
     {
         if (UserId != null)
         {
+            Debug.Log("Web Data Service: Try Save!");
+            
+            string json = JsonUtility.ToJson(_data);
+            
             Dictionary<string, string> data = new Dictionary<string, string>();
             data.Add("user_id", UserId);
-            data.Add("user_data", JsonUtility.ToJson(_data));
+            data.Add("user_data", AESUtility.Encrypt(json, aesKey, aesIV));
 
-            _backendBridgeService.SendRequest(setDataMethod, data, response =>
+            _backend.SendRequest(setDataMethod, data, response =>
             {
-                Debug.Log($"Web Data Service: Save Data result => {response["result"]}");
+                if (response["result"] == "success")
+                {
+                    Debug.Log("Web Data Service: Save Complete!");
+                    Debug.Log($"SavedData:\n{JToken.Parse(json).ToString(Formatting.Indented)}");
+                }
+                else
+                {
+                    Debug.Log("Web Data Service: Save Error");
+                }
             });
+        }
+        else
+        {
+            Debug.Log("Web Data Service: Save Error: User ID is null");
         }
     }
 
@@ -56,18 +85,49 @@ public class WebDataService : DataService
     {
         if (UserId != null)
         {
+            Debug.Log("Web Data Service: Try Load!");
+            
             Dictionary<string, string> data = new Dictionary<string, string>();
             data.Add("user_id", UserId);
 
-            _backendBridgeService.SendRequest(getDataMethod, data, response =>
+            _backend.SendRequest(setDataMethod, data, response =>
             {
-                if (response.TryGetValue("user_data", out string jsonData))
+                if (response["result"] == "success")
                 {
-                    _data = JsonUtility.FromJson<GameData>(jsonData);
+                    string rawText = response["user_data"];
+                    if (string.IsNullOrEmpty(rawText) || string.IsNullOrWhiteSpace(rawText))
+                    {
+                        _data = _defaultProfile.profileData;
+                    }
+                    else
+                    {
+                        string json = AESUtility.Decrypt(rawText, aesKey, aesIV);
+                        _data = JsonUtility.FromJson<GameData>(json);
+                    }
+
+                    OnLoaded();
+                    Debug.Log("Web Data Service: Load Complete!");
                 }
-                Debug.Log($"Web Data Service: Load Data result => {response["result"]}");
+                else
+                {
+                    Debug.Log("Web Data Service: Load Error");
+                }
             });
         }
+        else
+        {
+            Debug.Log("Web Data Service: Load Error: User ID is null");
+        }
+    }
+
+    private void OnLoaded()
+    {
+        if (!_loaded)
+        {
+            _data.IternalData.SessionNum++;
+            Save();
+        }
+        _loaded = true;
     }
 
     private IEnumerator SendRequest(UnityWebRequest request, Action<UnityWebRequest> onComplete)
@@ -76,5 +136,17 @@ public class WebDataService : DataService
         
         onComplete?.Invoke(request);
         request.Dispose();
+    }
+
+    [ContextMenu("Generate Key")]
+    private void GenerateKey()
+    {
+        Debug.Log(AESUtility.GenerateKey());
+    }
+    
+    [ContextMenu("Generate IV")]
+    private void GenerateIV()
+    {
+        Debug.Log(AESUtility.GenerateIV());
     }
 }
