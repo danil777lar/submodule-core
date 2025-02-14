@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using Larje.Core;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -72,8 +73,15 @@ public class BackendBridgeService : Service
         Debug.Log($"BackendBridgeService | process request '{rd.method}'");
         
         rd.data.Add("app_name", appName);
+
+        string jsonData = JsonConvert.SerializeObject(rd.data);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
         
-        UnityWebRequest request = UnityWebRequest.Post($"{_url}/{rd.method}", rd.data);
+        UnityWebRequest request = new UnityWebRequest($"{_url}/{rd.method}", "POST");
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Accept", "application/json");
+        
         request.SendWebRequest().completed += operation =>
         {
             Debug.Log($"BackendBridgeService | request '{rd.method}' completed\n{request.downloadHandler.text}");
