@@ -3,12 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Larje.Core;
 using Larje.Core.Services;
-using MoreMountains.Tools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.Serialization;
 
 [BindService(typeof(DataService))]
 public class WebDataService : DataService
@@ -129,15 +126,7 @@ public class WebDataService : DataService
         }
         _loaded = true;
     }
-
-    private IEnumerator SendRequest(UnityWebRequest request, Action<UnityWebRequest> onComplete)
-    {
-        yield return request.SendWebRequest();
-        
-        onComplete?.Invoke(request);
-        request.Dispose();
-    }
-
+    
     [ContextMenu("Generate Key")]
     private void GenerateKey()
     {

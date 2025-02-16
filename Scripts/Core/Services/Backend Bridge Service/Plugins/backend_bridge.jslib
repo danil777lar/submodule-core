@@ -2,21 +2,16 @@ mergeInto(LibraryManager.library,
     { 
         GetCurrentLocation: function (goName, methodName)
         {
-            goStr = UTF8ToString(goName);
-            meStr = UTF8ToString(methodName);
-
+            const goStr = UTF8ToString(goName);
+            const meStr = UTF8ToString(methodName);
             const checkWindow = setInterval(() => 
             {
-                if (typeof window !== "undefined") 
+                if ((typeof window !== "undefined") && (typeof window.unityInstance !== "undefined") && (typeof window.unityInstance.SendMessage === "function"))  
                 {
-                
-                    console.log(goStr);
-                    console.log(meStr);
-
-                    clearInterval(checkWindow);
                     window.unityInstance.SendMessage(goStr, meStr, window.location.href);
+                    clearInterval(checkWindow);
                 }
-            }, 100);
+            }, 1000);
         },
     }
 );
