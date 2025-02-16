@@ -87,7 +87,7 @@ public class WebDataService : DataService
             Dictionary<string, string> data = new Dictionary<string, string>();
             data.Add("user_id", UserId);
 
-            _backend.SendRequest(setDataMethod, data, response =>
+            _backend.SendRequest(getDataMethod, data, response =>
             {
                 if (response["result"] == "success")
                 {

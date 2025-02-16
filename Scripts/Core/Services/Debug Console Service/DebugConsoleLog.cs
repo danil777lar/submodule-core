@@ -3,18 +3,28 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.PlayerLoop;
 
-public class DebugConsoleLog : MonoBehaviour
+public class DebugConsoleLog : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private List<LogColor> logColors;
+
+    private bool _drawStack;
+    private DebugConsoleService.Log _log;
     
     public void Init(DebugConsoleService.Log log, int fontSize)
     {
+        _log = log;
         text.fontSize = fontSize;
-        text.color = GetColor(log.type);
-        text.text = $"[{log.type.ToString()}] {log.text}";
+        DrawText();
+    }
+    
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        _drawStack = !_drawStack;
+        DrawText();   
     }
 
     private void OnValidate()
@@ -35,6 +45,16 @@ public class DebugConsoleLog : MonoBehaviour
         return color;
     }
 
+    private void DrawText()
+    {
+        text.color = GetColor(_log.type);
+        text.text = $"[{_log.type.ToString()}] {_log.text}";
+        if (_drawStack)
+        {
+            text.text += $"\n\nStack trace:\n{_log.stackTrace}";
+        }
+    }
+
     [Serializable]
     private class LogColor
     {
@@ -46,5 +66,5 @@ public class DebugConsoleLog : MonoBehaviour
         {
             inspectorName = Type.ToString();
         }
-    } 
+    }
 }

@@ -72,19 +72,20 @@ public class BackendBridgeService : Service
     {
         Debug.Log($"BackendBridgeService | process request '{rd.method}'");
         
-        rd.data.Add("app_name", appName);
+        rd.data.Add("app", appName);
 
         string jsonData = JsonConvert.SerializeObject(rd.data);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonData);
         
         UnityWebRequest request = new UnityWebRequest($"{_url}/{rd.method}", "POST");
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Accept", "application/json");
         
         request.SendWebRequest().completed += operation =>
         {
-            Debug.Log($"BackendBridgeService | request '{rd.method}' completed\n{request.downloadHandler.text}");
+            Debug.Log($"BackendBridgeService | request '{rd.method}' completed \n {request.downloadHandler.text}");
             if (request.result == UnityWebRequest.Result.Success)
             {
                 string response = request.downloadHandler.text;
