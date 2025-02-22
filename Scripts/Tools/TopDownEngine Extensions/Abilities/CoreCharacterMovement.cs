@@ -177,9 +177,12 @@ namespace Larje.Core.Tools.TopDownEngine
 
         private void UpdateInput()
         {
-            Vector2 input = _inputService.PlayerMovement;
-            _horizontalMovement = input.x;
-            _verticalMovement = input.y;
+            if (!ScriptDrivenInput)
+            {
+                Vector2 input = _inputService.PlayerMovement;
+                _horizontalMovement = input.x;
+                _verticalMovement = input.y;
+            }
         }
 
         private Vector3 RotateVector(Vector3 vector, float angle)
