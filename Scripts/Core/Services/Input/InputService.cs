@@ -60,6 +60,30 @@ public abstract class InputService : Service
 
         return default;
     }
+    
+    public InputAction GetAction(string mapName, string actionName)
+    {
+        Map map = _maps.Find(map => map.type.Name == mapName);
+        if (map != null)
+        {
+            InputAction action = map.map.FindAction(actionName);
+            if (action != null)
+            {
+                return action;
+            }
+            else
+            {
+                Debug.LogError("Input Service | Cant find action " + actionName + " in map " + mapName);
+            }
+        }
+        else
+        {
+            Debug.LogError("Input Service | Cant find map of type " + mapName);
+        }
+
+        
+        return null;
+    }
 
     public void AddCondition<T>(Func<bool> condition)
     {
