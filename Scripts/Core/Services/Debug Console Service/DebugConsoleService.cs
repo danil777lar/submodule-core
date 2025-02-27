@@ -3,16 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
+using Larje.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class DebugConsoleService : Service
 {
     [SerializeField] private bool enableConsole;
+    [SerializeField] private bool showConsoleButton;
     [Space]
     [SerializeField] private GameObject consoleRoot;
     [SerializeField] private GameObject buttonRoot;
     
+    [InjectService] private InputService _inputService;
+
+    private bool _consoleOpened;
     private List<Log> _unityLogs = new List<Log>();
     private List<Log> _jsLogs = new List<Log>();
 
@@ -33,6 +38,12 @@ public class DebugConsoleService : Service
             #if UNITY_WEBGL && !UNITY_EDITOR
             RegisterLogCallback(gameObject.name, "HandleJSLog");
             #endif
+            
+            _inputService.UIDebug.performed += ctx => ToggleConsole();
+
+            InputService.Condition condition = new InputService.Condition(
+                () => !_consoleOpened, InputService.ConditionOperation.And, "Debug Console");
+            _inputService.AddCondition<InputSystem_Actions.PlayerActions>(condition);
         }
         else
         {
@@ -43,14 +54,28 @@ public class DebugConsoleService : Service
 
     public void OpenConsole()
     {
+        _consoleOpened = true;
         consoleRoot.SetActive(true);
         buttonRoot.SetActive(false);
     }
 
     public void CloseConsole()
     {
+        _consoleOpened = false;
         consoleRoot.SetActive(false);
-        buttonRoot.SetActive(true);
+        buttonRoot.SetActive(true && showConsoleButton);
+    }
+    
+    public void ToggleConsole()
+    {
+        if (_consoleOpened)
+        {
+            CloseConsole();
+        }
+        else
+        {
+            OpenConsole();
+        }
     }
     
     private void HandleUnityLog(string logString, string stackTrace, LogType type)

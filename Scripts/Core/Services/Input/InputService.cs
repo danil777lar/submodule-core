@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Larje.Core;
+using MoreMountains.Tools;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,11 +11,13 @@ using UnityEngine.InputSystem;
 [BindService(typeof(InputService))]
 public abstract class InputService : Service
 {
-    public abstract Vector2 PlayerMovement { get; }
-
     public abstract InputAction UIBack { get; }
+    public abstract InputAction UIDebug { get; }
+    
+    public abstract Vector2 PlayerMovement { get; }
     public abstract InputAction PlayerRun { get; }
     public abstract InputAction PlayerPointer { get; }
+    
     public abstract Dictionary<Type, bool> DefaultStates { get; }
 
     private List<Map> _maps = new List<Map>();
@@ -31,7 +34,7 @@ public abstract class InputService : Service
             Map map = new Map();
             map.type = type;
             map.instance = Activator.CreateInstance(type, new object[] { input });
-            map.conditions = new List<Func<bool>>();
+            map.conditions = new List<Condition>();
 
             MethodInfo getMethod = type.GetMethod("Get");
             if (getMethod == null)
@@ -85,7 +88,7 @@ public abstract class InputService : Service
         return null;
     }
 
-    public void AddCondition<T>(Func<bool> condition)
+    public void AddCondition<T>(Condition condition)
     {
         Map map = _maps.Find(map => map.type == typeof(T));
         if (map != null && !map.conditions.Contains(condition))
@@ -94,7 +97,7 @@ public abstract class InputService : Service
         }
     }
 
-    public void RemoveCondition<T>(Func<bool> condition)
+    public void RemoveCondition<T>(Condition condition)
     {
         Map map = _maps.Find(map => map.type == typeof(T));
         if (map != null && map.conditions.Contains(condition))
@@ -107,17 +110,29 @@ public abstract class InputService : Service
     {
         foreach (Map map in _maps)
         {
-            bool isEnabled = true;
+            bool isEnabled = DefaultStates[map.type];
+            string debug = $"Map " + map.type.Name + $" conditions: \n {isEnabled}";
             if (map.conditions.Count > 0)
             {
-                foreach (Func<bool> condition in map.conditions)
+                List<Condition> orConditions = map.conditions
+                    .FindAll(condition => condition.Operation == ConditionOperation.Or);
+                List<Condition> andConditions = map.conditions
+                    .FindAll(condition => condition.Operation == ConditionOperation.And);
+                
+                foreach (Condition condition in orConditions)
                 {
-                    isEnabled &= condition();
+                    isEnabled |= condition.Func();
+                    debug += $" | {condition.Name}:{condition.Func()}";
                 }
-            }
-            else
-            {
-                isEnabled = DefaultStates[map.type];
+                
+                foreach (Condition condition in andConditions)
+                {
+                    isEnabled &= condition.Func();
+                    debug += $" & {condition.Name}:{condition.Func()}";
+                }
+                
+                debug += $" = {isEnabled}";
+                //MMDebug.DebugOnScreen(debug);
             }
 
             if (isEnabled)
@@ -130,12 +145,32 @@ public abstract class InputService : Service
             }
         }
     }
-
+    
+    public enum ConditionOperation
+    {
+        And,
+        Or
+    }
+    
+    public class Condition
+    {
+        public Func<bool> Func { get; }
+        public ConditionOperation Operation { get; }
+        public string Name { get; }
+        
+        public Condition(Func<bool> func, ConditionOperation operation = ConditionOperation.And, string name = "")
+        {
+            Func = func;
+            Operation = operation;
+            Name = name;
+        }
+    }
+    
     private class Map
     {
         public InputActionMap map;
         public Type type;
         public object instance;
-        public List<Func<bool>> conditions;
+        public List<Condition> conditions;
     }
 }
