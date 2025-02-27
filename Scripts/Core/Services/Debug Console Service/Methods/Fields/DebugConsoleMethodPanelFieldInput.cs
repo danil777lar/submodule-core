@@ -29,9 +29,17 @@ public class DebugConsoleMethodPanelFieldInput : DebugConsoleMethodPanelField
             }
             else
             {
-                v = Convert.ChangeType(value, _targetType);
+                try
+                {
+                    v = Convert.ChangeType(value, _targetType);
+                }
+                catch (Exception e)
+                {
+                    v = Activator.CreateInstance(_targetType); 
+                }
             }
         }
+        
         _onValueSet.Invoke(v);
     }
 }

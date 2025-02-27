@@ -36,10 +36,9 @@ public class DebugConsoleMethodPanel : MonoBehaviour
 
     private void SpawnParameterFields()
     {
-        foreach (KeyValuePair<ParameterInfo, object> p in _parameters)
+        List<ParameterInfo> parameters = _parameters.Keys.ToList(); 
+        foreach (ParameterInfo parameter in parameters)
         {
-            ParameterInfo parameter = p.Key;
-            
             DebugConsoleMethodPanelField field = null;
             if (parameter.ParameterType.IsPrimitive || parameter.ParameterType == typeof(string))
             {
@@ -62,6 +61,13 @@ public class DebugConsoleMethodPanel : MonoBehaviour
 
     private void OnExecuteButtonClicked()
     {
-        _methodInfo.Invoke(null, _parameters.Values.ToArray());
+        try
+        {
+            _methodInfo.Invoke(null, _parameters.Values.ToArray());
+        }
+        catch (TargetInvocationException e)
+        {
+            Debug.LogWarning(e.InnerException.Message);
+        }
     }
 }
