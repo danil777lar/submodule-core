@@ -43,6 +43,11 @@ public class DebugConsoleMethodPanelFieldDropDown : DebugConsoleMethodPanelField
     
     private void OnDropDownValueChanged(int value)
     {
+        if (value < 0 || value >= dropdown.options.Count)
+        {
+            return;
+        }
+        
         string key = dropdown.options[value].text;
         _onValueSet.Invoke(_values[key]);
     }

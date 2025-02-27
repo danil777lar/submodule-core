@@ -18,6 +18,8 @@ public class DebugConsoleMethodPanel : MonoBehaviour
 
     private MethodInfo _methodInfo;
     private Dictionary<ParameterInfo, object> _parameters;
+
+    public MethodInfo MethodInfo => _methodInfo;
     
     public void Init(MethodInfo methodInfo)
     {

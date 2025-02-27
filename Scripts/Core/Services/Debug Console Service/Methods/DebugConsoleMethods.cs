@@ -1,26 +1,70 @@
+using Larje.Core;
+using Larje.Core.Services;
+using Larje.Core.Services.UI;
 using NUnit.Framework.Internal;
 using ProjectConstants;
 using UnityEngine;
 
 public static partial class DebugConsoleMethods
 {
-    public static void Test(string testTextA, string testTextB)
+    #region Currency 
+    
+    [MethodGroup("Currency")]
+    public static void AddCurrency(CurrencyType type, CurrencyPlacementType place, int count)
     {
-        Debug.Log("Test: " + testTextA + " " + testTextB);
+        ICurrencyService currencyService = DIContainer.GetService<ICurrencyService>();
+        currencyService.AddCurrency(type, place, count);
     }
     
-    public static void Test(int testInt, float testFloat)
+    [MethodGroup("Currency")]
+    public static void SpendCurrency(CurrencyType type, CurrencyPlacementType place, int count)
     {
-        Debug.Log("Test: " + testInt + " " + testFloat);
+        ICurrencyService currencyService = DIContainer.GetService<ICurrencyService>();
+        currencyService.TrySpendCurrency(type, place, count);
     }
     
-    public static void Test(CurrencyCounter counter)
+    [MethodGroup("Currency")]
+    public static void SetCurrency(CurrencyType type, CurrencyPlacementType place, int count)
     {
-        
+        ICurrencyService currencyService = DIContainer.GetService<ICurrencyService>();
+        currencyService.SetCurrency(type, place, count);
     }
     
-    public static void Test(CurrencyType currencyType, CurrencyPlacementType placementType, int count)
+    #endregion
+
+    #region Sound
+    
+    [MethodGroup("Sound")]
+    public static void PlaySound(SoundType sound)
     {
-        Debug.Log($"Test: {currencyType} {placementType} {count}");   
+        SoundService soundService = DIContainer.GetService<SoundService>();
+        soundService.Play(sound);
     }
+    
+    #endregion
+
+    #region UI
+
+    [MethodGroup("UI")]
+    public static void OpenScreen(UIScreenType screen)
+    {
+        UIService uiService = DIContainer.GetService<UIService>();
+        uiService.GetProcessor<UIScreenProcessor>().OpenScreen(new UIScreen.Args(screen));
+    }
+    
+    [MethodGroup("UI")]
+    public static void OpenPopup(UIPopupType popup, UIPopupCombinationType combination)
+    {
+        UIService uiService = DIContainer.GetService<UIService>();
+        uiService.GetProcessor<UIPopupProcessor>().OpenPopup(new UIPopup.Args(popup, combination));
+    }
+    
+    [MethodGroup("UI")]
+    public static void OpenToast(UIToastType toast, string text)
+    {
+        UIService uiService = DIContainer.GetService<UIService>();
+        uiService.GetProcessor<UIToastProcessor>().OpenToast(new UIToast.Args(toast, text));
+    }
+
+    #endregion
 }
