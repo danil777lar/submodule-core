@@ -55,7 +55,7 @@ public class DebugConsoleMethodPanel : MonoBehaviour
             }
             
             string label = $"{parameter.ParameterType.Name}: {parameter.Name}";
-            Instantiate(field, transform).Init(parameter.GetType(), label,
+            Instantiate(field, transform).Init(parameter.ParameterType, label,
                 (v) => _parameters[parameter] = v);
         }
     }
