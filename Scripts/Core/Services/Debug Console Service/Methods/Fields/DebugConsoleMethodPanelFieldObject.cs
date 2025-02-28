@@ -1,10 +1,14 @@
 using System;
+using System.Reflection;
 using UnityEngine;
 
-public class DebugConsoleMethodPanelFieldObject : DebugConsoleMethodPanelField
+namespace Larje.Core.Services.DebugConsole
 {
-    public override void Init(Type type, string paramName, Action<object> onValueSet)
+    public class DebugConsoleMethodPanelFieldObject : DebugConsoleMethodPanelField
     {
-        base.Init(type, paramName, onValueSet);
+        public override void Init(ParameterInfo param, Action<object> onValueSet)
+        {
+            base.Init(param, onValueSet);
+        }
     }
 }

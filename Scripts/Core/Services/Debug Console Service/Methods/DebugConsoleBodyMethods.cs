@@ -7,83 +7,90 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DebugConsoleBodyMethods : MonoBehaviour
+namespace Larje.Core.Services.DebugConsole
 {
-    [SerializeField] private Transform content;
-    [SerializeField] private DebugConsoleMethodPanel methodPanelPrefab;
-    [SerializeField] private Button groupPrefab;
+    public class DebugConsoleBodyMethods : MonoBehaviour
+    {
+        [SerializeField] private Transform content;
+        [SerializeField] private DebugConsoleMethodPanel methodPanelPrefab;
+        [SerializeField] private DebugConsoleMethodGroupPanel groupPrefab;
 
-    private List<DebugConsoleMethodPanel> _panels;
-    private Dictionary<string, Button> _methodHeaders;
-    private Dictionary<string, List<MethodInfo>> _methodsByGroup;
-    
-    private void OnEnable()
-    {
-        Rebuild();
-    }
-    
-    private void Rebuild()
-    {
-        content.MMDestroyAllChildren();
-        List<MethodInfo> methods = GetMethods();
-        
-        _panels = new List<DebugConsoleMethodPanel>();
-        _methodHeaders = new Dictionary<string, Button>();
-        _methodsByGroup = new Dictionary<string, List<MethodInfo>>();
-        
-        foreach (MethodInfo method in methods)
-        {
-            string groupName = method.HasAttribute(typeof(MethodGroupAttribute)) ? 
-                method.GetAttribute<MethodGroupAttribute>().GroupName : "Ungrouped";
-            if (!_methodsByGroup.ContainsKey(groupName))
-            {
-                _methodsByGroup.Add(groupName, new List<MethodInfo>());
-            }
-            _methodsByGroup[groupName].Add(method);
-        }
-        
-        foreach (KeyValuePair<string, List<MethodInfo>> group in _methodsByGroup)
-        {
-            Button groupHeader = Instantiate(groupPrefab, content);
-            groupHeader.onClick.AddListener(() => SetActiveGroup(group.Key));
-            groupHeader.GetComponentInChildren<TextMeshProUGUI>().text = group.Key;
-            _methodHeaders.Add(group.Key, groupHeader);
+        private List<DebugConsoleMethodPanel> _panels;
+        private Dictionary<string, DebugConsoleMethodGroupPanel> _methodGroups;
+        private Dictionary<string, List<MethodInfo>> _methodsByGroup;
 
-            foreach (MethodInfo method in group.Value)
-            {
-                DebugConsoleMethodPanel methodPanel = Instantiate(methodPanelPrefab, content);
-                methodPanel.Init(method);
-                methodPanel.gameObject.SetActive(false);
-                _panels.Add(methodPanel);
-            }
+        private void OnEnable()
+        {
+            Rebuild();
         }
-        
-        SetActiveGroup(_methodsByGroup.Keys.First());
-    }
 
-    private void SetActiveGroup(string group)
-    {
-        foreach (KeyValuePair<string, List<MethodInfo>> groups in _methodsByGroup)
+        private void Rebuild()
         {
-            foreach (MethodInfo method in groups.Value)
+            content.MMDestroyAllChildren();
+            List<MethodInfo> methods = GetMethods();
+
+            _panels = new List<DebugConsoleMethodPanel>();
+            _methodGroups = new Dictionary<string, DebugConsoleMethodGroupPanel>();
+            _methodsByGroup = new Dictionary<string, List<MethodInfo>>();
+
+            foreach (MethodInfo method in methods)
             {
-                _panels.Find(x => x.MethodInfo == method)
-                    .gameObject.SetActive(groups.Key == group);
+                string groupName = method.HasAttribute(typeof(MethodGroupAttribute))
+                    ? method.GetAttribute<MethodGroupAttribute>().GroupName
+                    : "Ungrouped";
+                if (!_methodsByGroup.ContainsKey(groupName))
+                {
+                    _methodsByGroup.Add(groupName, new List<MethodInfo>());
+                }
+
+                _methodsByGroup[groupName].Add(method);
+            }
+
+            int groupIndex = 0;
+            foreach (KeyValuePair<string, List<MethodInfo>> group in _methodsByGroup)
+            {
+                DebugConsoleMethodGroupPanel groupHeader = Instantiate(groupPrefab, content);
+                groupHeader.Init(groupIndex, group.Key, () => OnGroupClicked(group.Key), OnGroupUpdate);
+                _methodGroups.Add(group.Key, groupHeader);
+
+                foreach (MethodInfo method in group.Value)
+                {
+                    DebugConsoleMethodPanel methodPanel = Instantiate(methodPanelPrefab);
+                    methodPanel.Init(method);
+                    groupHeader.AddChild(methodPanel.transform);
+                    _panels.Add(methodPanel);
+                }
+                
+                groupIndex++;
+            }
+
+            _methodGroups.First().Value.SetState(true);
+        }
+
+        private void OnGroupClicked(string groupName)
+        {
+            foreach (KeyValuePair<string, DebugConsoleMethodGroupPanel> group in _methodGroups)
+            {
+                group.Value.SetState(group.Key == groupName);
             }
         }
-        
-        foreach (KeyValuePair<string, Button> header in _methodHeaders)
+
+        private void OnGroupUpdate()
         {
-            header.Value.GetComponent<Image>().color = header.Key == group ? Color.white : Color.white * 0.6f;
+            RectTransform rectTransform = content as RectTransform;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
         }
-    }
-    
-    private List<MethodInfo> GetMethods()
-    {
-        List<MethodInfo> methods = new List<MethodInfo>();
-        methods = typeof(DebugConsoleMethods)
-            .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-            .ToList();
-        return methods;
+
+        private List<MethodInfo> GetMethods()
+        {
+            List<MethodInfo> methods = new List<MethodInfo>();
+            methods = typeof(DebugConsoleMethods)
+                .GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.Instance |
+                            BindingFlags.DeclaredOnly)
+                .ToList();
+            return methods;
+        }
     }
 }

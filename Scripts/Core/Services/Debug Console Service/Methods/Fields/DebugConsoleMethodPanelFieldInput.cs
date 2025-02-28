@@ -1,45 +1,49 @@
 using System;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
 
-public class DebugConsoleMethodPanelFieldInput : DebugConsoleMethodPanelField
+namespace Larje.Core.Services.DebugConsole
 {
-    [SerializeField] private TMP_InputField inputField;
-    
-    private Type _targetType;
-    private Action<object> _onValueSet;
-    
-    public override void Init(Type type, string paramName, Action<object> onValueSet)
+    public class DebugConsoleMethodPanelFieldInput : DebugConsoleMethodPanelField
     {
-        base.Init(type, paramName, onValueSet);
-        
-        _targetType = type;
-        _onValueSet = onValueSet;
-        inputField.onValueChanged.AddListener(OnInputFieldValueChanged);
-    }
-    
-    private void OnInputFieldValueChanged(string value)
-    {
-        object v = value;
-        if (_targetType != typeof(string))
+        [SerializeField] private TMP_InputField inputField;
+
+        private Type _targetType;
+        private Action<object> _onValueSet;
+
+        public override void Init(ParameterInfo param, Action<object> onValueSet)
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                v = Activator.CreateInstance(_targetType); 
-            }
-            else
-            {
-                try
-                {
-                    v = Convert.ChangeType(value, _targetType);
-                }
-                catch (Exception e)
-                {
-                    v = Activator.CreateInstance(_targetType); 
-                }
-            }
+            base.Init(param, onValueSet);
+
+            _targetType = param.ParameterType;
+            _onValueSet = onValueSet;
+            inputField.onValueChanged.AddListener(OnInputFieldValueChanged);
         }
-        
-        _onValueSet.Invoke(v);
+
+        private void OnInputFieldValueChanged(string value)
+        {
+            object v = value;
+            if (_targetType != typeof(string))
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    v = Activator.CreateInstance(_targetType);
+                }
+                else
+                {
+                    try
+                    {
+                        v = Convert.ChangeType(value, _targetType);
+                    }
+                    catch (Exception e)
+                    {
+                        v = Activator.CreateInstance(_targetType);
+                    }
+                }
+            }
+
+            _onValueSet.Invoke(v);
+        }
     }
 }

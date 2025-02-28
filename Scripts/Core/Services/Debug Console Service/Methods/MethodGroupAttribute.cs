@@ -1,11 +1,14 @@
 using System;using UnityEngine;
 
-public class MethodGroupAttribute : Attribute
+namespace Larje.Core.Services.DebugConsole
 {
-    public string GroupName { get; private set; }
-
-    public MethodGroupAttribute(string groupName)
+    public class MethodGroupAttribute : Attribute
     {
-        GroupName = groupName;
+        public string GroupName { get; private set; }
+
+        public MethodGroupAttribute(string groupName)
+        {
+            GroupName = groupName;
+        }
     }
 }

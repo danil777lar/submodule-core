@@ -291,7 +291,7 @@ MonoBehaviour:
   content: {fileID: 8099309148710243550}
   methodPanelPrefab: {fileID: 9090821694991365236, guid: c9ea6a2a0696b04589979dd07fba52a6,
     type: 3}
-  groupPrefab: {fileID: 808302389819793387, guid: acb66e5b2236b96dba6cbd0ada51799b,
+  groupPrefab: {fileID: 130061556573700353, guid: acb66e5b2236b96dba6cbd0ada51799b,
     type: 3}
 --- !u!1 &8111817324596787139
 GameObject:
@@ -438,7 +438,7 @@ MonoBehaviour:
     m_Top: 200
     m_Bottom: 200
   m_ChildAlignment: 3
-  m_Spacing: 25
+  m_Spacing: 100
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1

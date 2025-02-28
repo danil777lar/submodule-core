@@ -1,14 +1,34 @@
 using System;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-public abstract class DebugConsoleMethodPanelField : MonoBehaviour
+namespace Larje.Core.Services.DebugConsole
 {
-    [SerializeField] private TextMeshProUGUI label;
-    
-    public virtual void Init(Type type, string paramName, Action<object> onValueSet)
+    public abstract class DebugConsoleMethodPanelField : MonoBehaviour
     {
-        label.text = paramName;
+        [SerializeField] private TextMeshProUGUI label;
+
+        public virtual void Init(ParameterInfo param, Action<object> onValueSet)
+        {
+            label.text = GetLabel(param);
+        }
+
+        private string GetLabel(ParameterInfo param)
+        {
+            string typeColor = ColorUtility.ToHtmlStringRGB(label.color * 0.75f);
+            
+            string nameStr = param.Name;
+            string typeStrRaw = param.ParameterType.Name.ToLower();
+            if (typeStrRaw.Length > 7)
+            {
+                typeStrRaw = typeStrRaw.Substring(0, 7);
+                typeStrRaw += "...";
+            }
+            
+            string typeStr = $"<color=#{typeColor}>({typeStrRaw})</color>";
+            return $"{typeStr} {nameStr}";
+        }
     }
 }

@@ -5,52 +5,55 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DebugConsole : MonoBehaviour
+namespace Larje.Core.Services.DebugConsole
 {
-    [SerializeField] private Button closeButton;
-    [SerializeField] private List<ConsoleModule> modules;
-    [Space] 
-    [SerializeField] private Button buttonPrefab;
-    [SerializeField] private Transform buttonsRoot;
-
-    private DebugConsoleService _service;
-    
-    private void Start()
+    public class DebugConsole : MonoBehaviour
     {
-        _service = GetComponentInParent<DebugConsoleService>();
-        closeButton.onClick.AddListener(Close);
-        
-        SpawnButtons();
-        OnModuleButtonClicked(modules[0]);
-    }
+        [SerializeField] private Button closeButton;
+        [SerializeField] private List<ConsoleModule> modules;
+        [Space] 
+        [SerializeField] private Button buttonPrefab;
+        [SerializeField] private Transform buttonsRoot;
 
-    private void SpawnButtons()
-    {
-        foreach (ConsoleModule module in modules)
+        private DebugConsoleService _service;
+
+        private void Start()
         {
-            Button button = Instantiate(buttonPrefab, buttonsRoot);
-            button.GetComponentInChildren<TextMeshProUGUI>().text = module.Name;
-            button.onClick.AddListener(() => OnModuleButtonClicked(module));
-        }        
-    }
+            _service = GetComponentInParent<DebugConsoleService>();
+            closeButton.onClick.AddListener(Close);
 
-    private void OnModuleButtonClicked(ConsoleModule module)
-    {
-        foreach (ConsoleModule m in modules)
-        {
-            m.Root.SetActive(m == module);
+            SpawnButtons();
+            OnModuleButtonClicked(modules[0]);
         }
-    }
 
-    private void Close()
-    {
-        _service.CloseConsole();
-    }
+        private void SpawnButtons()
+        {
+            foreach (ConsoleModule module in modules)
+            {
+                Button button = Instantiate(buttonPrefab, buttonsRoot);
+                button.GetComponentInChildren<TextMeshProUGUI>().text = module.Name;
+                button.onClick.AddListener(() => OnModuleButtonClicked(module));
+            }
+        }
 
-    [Serializable]
-    private class ConsoleModule
-    {
-        [field: SerializeField] public string Name { get; private set; }
-        [field: SerializeField] public GameObject Root { get; private set; }
+        private void OnModuleButtonClicked(ConsoleModule module)
+        {
+            foreach (ConsoleModule m in modules)
+            {
+                m.Root.SetActive(m == module);
+            }
+        }
+
+        private void Close()
+        {
+            _service.CloseConsole();
+        }
+
+        [Serializable]
+        private class ConsoleModule
+        {
+            [field: SerializeField] public string Name { get; private set; }
+            [field: SerializeField] public GameObject Root { get; private set; }
+        }
     }
 }
