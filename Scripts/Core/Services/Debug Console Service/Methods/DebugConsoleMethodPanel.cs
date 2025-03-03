@@ -77,13 +77,16 @@ namespace Larje.Core.Services.DebugConsole
         private string FormatName(string input)
         {
             string result = input;
-            for (int i = 1; i < input.Length; i++)
+
+            int i = 0;
+            while (i < result.Length)
             {
-                if (char.IsUpper(input[i]))
+                if (char.IsUpper(result[i]))
                 {
                     result = result.Insert(i, " ");
                     i++;
                 }
+                i++;
             }
             return result;
         }

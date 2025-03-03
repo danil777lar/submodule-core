@@ -76,35 +76,35 @@ namespace Larje.Core.Services.DebugConsole
         #region Level
 
         [MethodGroup("Level")]
-        public static void SpawnCurrentLevel()
+        public static void SpawnLevel()
         {
             ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
             levelService.SpawnCurrentLevel();
         }
         
         [MethodGroup("Level")]
-        public static void SetCurrentLevelIndex(int index)
+        public static void SetLevelIndex(int index)
         {
             ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
             levelService.SetCurrentLevelIndex(index);
         }
         
         [MethodGroup("Level")]
-        public static void TryStartCurrentLevel(LevelStartType startType)
+        public static void StartLevel(LevelStartType startType)
         {
             ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
             levelService.TryStartCurrentLevel(new LevelProcessor.StartData(startType));
         }
         
         [MethodGroup("Level")]
-        public static void TryStopCurrentLevel(LevelStopType stopType)
+        public static void StopLevel(LevelStopType stopType)
         {
             ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
             levelService.TryStopCurrentLevel(new LevelProcessor.StopData(stopType));
         }
         
         [MethodGroup("Level")]
-        public static void TrySendEventToCurrentLevel(string eventName)
+        public static void SendLevelEvent(string eventName)
         {
             ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
             
