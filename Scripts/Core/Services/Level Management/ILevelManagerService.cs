@@ -11,12 +11,15 @@ namespace Larje.Core.Services
         public int GetCurrentLevelCount();
 
         public int GetCurrentLevelIndex();
+        public void SetCurrentLevelIndex(int id);
 
         public T GetCurrentLevelData<T>() where T : LevelProcessor.LevelData;
 
         public void SpawnCurrentLevel();
         
         public void IncrementLevelId();
+
+        public void TrySendEventToCurrentLevel(LevelEvent levelEvent);
         
         public void TryStartCurrentLevel(LevelProcessor.StartData data);
 

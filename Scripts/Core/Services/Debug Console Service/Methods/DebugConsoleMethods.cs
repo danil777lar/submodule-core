@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Larje.Core;
 using Larje.Core.Services;
 using Larje.Core.Services.UI;
@@ -68,6 +71,55 @@ namespace Larje.Core.Services.DebugConsole
             uiService.GetProcessor<UIToastProcessor>().OpenToast(new UIToast.Args(toast, text));
         }
 
+        #endregion
+        
+        #region Level
+
+        [MethodGroup("Level")]
+        public static void SpawnCurrentLevel()
+        {
+            ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
+            levelService.SpawnCurrentLevel();
+        }
+        
+        [MethodGroup("Level")]
+        public static void SetCurrentLevelIndex(int index)
+        {
+            ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
+            levelService.SetCurrentLevelIndex(index);
+        }
+        
+        [MethodGroup("Level")]
+        public static void TryStartCurrentLevel(LevelStartType startType)
+        {
+            ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
+            levelService.TryStartCurrentLevel(new LevelProcessor.StartData(startType));
+        }
+        
+        [MethodGroup("Level")]
+        public static void TryStopCurrentLevel(LevelStopType stopType)
+        {
+            ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
+            levelService.TryStopCurrentLevel(new LevelProcessor.StopData(stopType));
+        }
+        
+        [MethodGroup("Level")]
+        public static void TrySendEventToCurrentLevel(string eventName)
+        {
+            ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
+            
+            List<Type> derivedTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .Where(t => t.IsClass && t.IsSubclassOf(typeof(LevelEvent))).ToList();
+            
+            Type type = derivedTypes.FirstOrDefault(x => x.Name.ToLower() == eventName.ToLower());
+            if (type != null)
+            {
+                LevelEvent levelEvent = (LevelEvent) Activator.CreateInstance(type);
+                levelService.TrySendEventToCurrentLevel(levelEvent);
+            }
+        }
+        
         #endregion
     }
 }

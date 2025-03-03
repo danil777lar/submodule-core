@@ -114,6 +114,14 @@ namespace Larje.Core.Services
                 _currentLevel.TryStopLevel(data);
             }
         }
+        
+        public void TrySendEventToCurrentLevel(LevelEvent levelEvent)
+        {
+            if (_currentLevel != null)
+            {
+                _currentLevel.SendEvent(levelEvent);
+            }
+        }
 
         public T GetCurrentLevelData<T>() where T : LevelProcessor.LevelData 
         {
@@ -161,6 +169,12 @@ namespace Larje.Core.Services
                 id = randomLevels[0];
             }
             return id;
+        }
+        
+        public void SetCurrentLevelIndex(int id)
+        {
+            _dataService.Data.levelManagerAddressablesData.CurrentLevelCount = id;
+            _dataService.Save();
         }
 
         private Transform GetLevelHolder()
