@@ -5,12 +5,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.PlayerLoop;
+using UnityEngine.UI;
 
 namespace Larje.Core.Services.DebugConsole
 {
     public class DebugConsoleLog : MonoBehaviour, IPointerClickHandler
     {
-        [SerializeField] private TextMeshProUGUI text;
+        [SerializeField] private TMP_InputField text;
+        [SerializeField] private Image controlRect; 
         [SerializeField] private List<LogColor> logColors;
 
         private bool _drawStack;
@@ -20,9 +22,9 @@ namespace Larje.Core.Services.DebugConsole
         public void Init(DebugConsoleService.Log log, int fontSize, Action onPointerClick)
         {
             _log = log;
-            text.fontSize = fontSize;
+            text.textComponent.fontSize = fontSize;
             _onPointerClick = onPointerClick;
-            
+
             DrawText();
         }
 
@@ -30,10 +32,19 @@ namespace Larje.Core.Services.DebugConsole
         {
             _drawStack = !_drawStack;
             DrawText();
-            
+
             _onPointerClick?.Invoke();
         }
 
+        private void Update()
+        {
+            RectTransform rect = (RectTransform)text.transform;
+            rect.sizeDelta = new Vector2(rect.sizeDelta.x, text.textComponent.preferredHeight);
+
+            RectTransform rectChild = (RectTransform)text.textComponent.transform.parent;
+            rectChild.sizeDelta = new Vector2(rectChild.sizeDelta.x, text.textComponent.preferredHeight);
+        }
+        
         private void OnValidate()
         {
             logColors.ForEach(x => x.Validate());
@@ -54,7 +65,8 @@ namespace Larje.Core.Services.DebugConsole
 
         private void DrawText()
         {
-            text.color = GetColor(_log.type);
+            controlRect.color = GetColor(_log.type);
+            text.textComponent.color = GetColor(_log.type);
             text.text = $"[{_log.type.ToString()}] {_log.text}";
             if (_drawStack)
             {

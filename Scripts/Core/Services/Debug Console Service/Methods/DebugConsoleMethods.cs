@@ -141,6 +141,16 @@ namespace Larje.Core.Services.DebugConsole
                 GameObject prefab = handle.Result;
                 GameObject instance = GameObject.Instantiate(prefab);
                 instance.transform.position = pos;
+                
+                GUIDHolder guidHolder = instance.GetComponent<GUIDHolder>();
+                if (guidHolder == null)
+                {
+                    guidHolder = instance.AddComponent<GUIDHolder>();
+                }
+                guidHolder.GenerateGUID();
+                
+                Debug.Log($"Object {instance.name} spawned at {pos} with GUID {guidHolder.GUID}");
+                ClipboardUtility.CopyToClipboard(guidHolder.GUID);
             };
         }
         

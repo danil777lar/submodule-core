@@ -44,7 +44,19 @@ namespace Larje.Core.Services.DebugConsole
 
         private void RebuildLogsLayout()
         {
+            StartCoroutine(RebuildLogsLayoutCo());
+        }
+
+        private IEnumerator RebuildLogsLayoutCo()
+        {
             RectTransform rectTransform = logsRoot as RectTransform;
+            
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+
+            yield return null;
+            
             LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
             LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
             LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
