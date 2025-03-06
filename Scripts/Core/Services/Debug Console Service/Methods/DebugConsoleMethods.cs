@@ -126,9 +126,9 @@ namespace Larje.Core.Services.DebugConsole
         #region Objects
 
         [MethodGroup("Objects")]
-        public static void CopyCursorPoint(float distance = 5)
+        public static void CopyCameraPosition(float distanceForward = 5)
         {
-            Vector3 point = Camera.main.transform.position += Camera.main.transform.forward * distance;
+            Vector3 point = Camera.main.transform.position + Camera.main.transform.forward * distanceForward;
             ClipboardUtility.CopyToClipboard(point.ToString());
         }
         
@@ -139,7 +139,8 @@ namespace Larje.Core.Services.DebugConsole
             Addressables.LoadAssetAsync<GameObject>(key).Completed += handle =>
             {
                 GameObject prefab = handle.Result;
-                GameObject.Instantiate(prefab);
+                GameObject instance = GameObject.Instantiate(prefab);
+                instance.transform.position = pos;
             };
         }
         
