@@ -18,9 +18,12 @@ namespace Larje.Core.Tools.TopDownEngine
 
         private bool _useLimit;
         private float _limitRange;
+        private Vector3 _lastDirection;
         private Vector3 _limitDirection;
         private Vector3 _lastPosition;
         private List<Func<float>> _speedMultipliers = new List<Func<float>>();
+        private List<Func<bool>> _changeSpeedConditions = new List<Func<bool>>();
+        private List<Func<bool>> _changeDirectionConditions = new List<Func<bool>>();
 
         protected const string _blendAnimationParameterName = "MoveBlend";
         protected const string _actualSpeedAnimationParameterName = "ActualSpeed";
@@ -84,13 +87,45 @@ namespace Larje.Core.Tools.TopDownEngine
             }
         }
         
+        public void TryAddChangeSpeedCondition(Func<bool> condition)
+        {
+            if (!_changeSpeedConditions.Contains(condition))
+            {
+                _changeSpeedConditions.Add(condition);
+            }
+        }
+        
+        public void TryRemoveChangeSpeedCondition(Func<bool> condition)
+        {
+            if (_changeSpeedConditions.Contains(condition))
+            {
+                _changeSpeedConditions.Remove(condition);
+            }
+        }
+        
+        public void TryAddChangeDirectionCondition(Func<bool> condition)
+        {
+            if (!_changeDirectionConditions.Contains(condition))
+            {
+                _changeDirectionConditions.Add(condition);
+            }
+        }
+        
+        public void TryRemoveChangeDirectionCondition(Func<bool> condition)
+        {
+            if (_changeDirectionConditions.Contains(condition))
+            {
+                _changeDirectionConditions.Remove(condition);
+            }
+        }
+        
         protected override void Initialization()
         {
             base.Initialization();
             DIContainer.InjectTo(this);
         }
 
-        protected void UpdateMovement(float deltaTime)
+        protected void UpdateProperties(float deltaTime)
         {
             if (deltaTime > 0f)
             {
@@ -129,44 +164,64 @@ namespace Larje.Core.Tools.TopDownEngine
 
         protected override void HandleDirection()
         {
-            base.HandleDirection();
-            
-            RawDirection = new Vector3(_horizontalMovement, 0f, _verticalMovement);
-
-            if (_useLimit && _limitDirection != Vector3.zero)
+            if (_changeDirectionConditions.Count > 0 && !_changeDirectionConditions.All(x => x.Invoke()))
             {
-                Vector3 direction = new Vector3(_horizontalMovement, 0f, _verticalMovement);
-                if (direction != Vector3.zero)
+                _horizontalMovement = _lastDirection.x;
+                _verticalMovement = _lastDirection.z;
+            }
+            else
+            {
+                base.HandleDirection();
+                RawDirection = new Vector3(_horizontalMovement, 0f, _verticalMovement);
+                if (_useLimit && _limitDirection != Vector3.zero)
                 {
-                    float angle = Vector3.Angle(_limitDirection, direction);
-                    float signedAngle = Vector3.SignedAngle(_limitDirection, direction, Vector3.up);
-
-                    if (angle < _limitRange * 0.5f)
+                    Vector3 direction = new Vector3(_horizontalMovement, 0f, _verticalMovement);
+                    if (direction != Vector3.zero)
                     {
-                        float rotateAngle = _limitRange * 0.5f - angle;
-                        rotateAngle *= signedAngle < 0f ? -1 : 1f;
-                        direction = RotateVector(direction, rotateAngle);
-                        _horizontalMovement = direction.x;
-                        _verticalMovement = direction.z;
-                    }
-                }
+                        float angle = Vector3.Angle(_limitDirection, direction);
+                        float signedAngle = Vector3.SignedAngle(_limitDirection, direction, Vector3.up);
 
-                if (drawLimitsGizmo)
-                {
-                    Debug.DrawRay(transform.position, direction.normalized * 2.2f, Color.blue);
-                    Debug.DrawRay(transform.position, _limitDirection.normalized * 2f, Color.red);
-                    Debug.DrawRay(transform.position, RotateVector(_limitDirection.normalized, _limitRange * 0.5f) * 2f,
-                        Color.yellow);
-                    Debug.DrawRay(transform.position,
-                        RotateVector(_limitDirection.normalized, _limitRange * -0.5f) * 2f, Color.yellow);
-                }
+                        if (angle < _limitRange * 0.5f)
+                        {
+                            float rotateAngle = _limitRange * 0.5f - angle;
+                            rotateAngle *= signedAngle < 0f ? -1 : 1f;
+                            direction = RotateVector(direction, rotateAngle);
+                            _horizontalMovement = direction.x;
+                            _verticalMovement = direction.z;
+                        }
+                    }
+
+                    if (drawLimitsGizmo)
+                    {
+                        Debug.DrawRay(transform.position, direction.normalized * 2.2f, Color.blue);
+                        Debug.DrawRay(transform.position, _limitDirection.normalized * 2f, Color.red);
+                        Debug.DrawRay(transform.position, RotateVector(_limitDirection.normalized, _limitRange * 0.5f) * 2f,
+                            Color.yellow);
+                        Debug.DrawRay(transform.position,
+                            RotateVector(_limitDirection.normalized, _limitRange * -0.5f) * 2f, Color.yellow);
+                    }
+                }   
+                
+                _lastDirection = new Vector3(_horizontalMovement, 0f, _verticalMovement);
             }
         }
+
+        /*protected override void SetMovement()
+        {
+            if (_changeMoveConditions.Count > 0 && !_changeMoveConditions.All(x => x.Invoke()))
+            {
+                _controller.SetMovement (_movementVector);
+            }
+            else
+            {
+                base.SetMovement();   
+            }
+        }*/
 
         private void FixedUpdate()
         {
             UpdateInput();
-            UpdateMovement(Time.fixedDeltaTime);
+            UpdateProperties(Time.fixedDeltaTime);
             if (!AbilityPermitted || !AbilityAuthorized)
             {
                 _horizontalMovement = 0f;
