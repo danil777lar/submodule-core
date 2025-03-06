@@ -13,4 +13,11 @@ public static class Vector3Extensions
     public static Vector3 XXX(this Vector3 s) => new Vector3(s.x, s.x, s.x);
     public static Vector3 YYY(this Vector3 s) => new Vector3(s.y, s.y, s.y);
     public static Vector3 ZZZ(this Vector3 s) => new Vector3(s.z, s.z, s.z);
+    
+    public static Vector3 Parse(string s)
+    {
+        s = s.Replace("(", "").Replace(")", "");
+        string[] parts = s.Split(',');
+        return new Vector3(float.Parse(parts[0]), float.Parse(parts[1]), float.Parse(parts[2]));
+    }
 }

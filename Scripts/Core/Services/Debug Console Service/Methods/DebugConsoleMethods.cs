@@ -7,6 +7,7 @@ using Larje.Core.Services.UI;
 using NUnit.Framework.Internal;
 using ProjectConstants;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace Larje.Core.Services.DebugConsole
 {
@@ -118,6 +119,28 @@ namespace Larje.Core.Services.DebugConsole
                 LevelEvent levelEvent = (LevelEvent) Activator.CreateInstance(type);
                 levelService.TrySendEventToCurrentLevel(levelEvent);
             }
+        }
+        
+        #endregion
+        
+        #region Objects
+
+        [MethodGroup("Objects")]
+        public static void CopyCursorPoint(float distance = 5)
+        {
+            Vector3 point = Camera.main.transform.position += Camera.main.transform.forward * distance;
+            ClipboardUtility.CopyToClipboard(point.ToString());
+        }
+        
+        [MethodGroup("Objects")]
+        public static void SpawnObject(string key, string position)
+        {
+            Vector3 pos = Vector3Extensions.Parse(position);
+            Addressables.LoadAssetAsync<GameObject>(key).Completed += handle =>
+            {
+                GameObject prefab = handle.Result;
+                GameObject.Instantiate(prefab);
+            };
         }
         
         #endregion
