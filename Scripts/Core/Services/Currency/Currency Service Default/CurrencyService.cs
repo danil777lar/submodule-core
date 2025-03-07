@@ -11,13 +11,13 @@ namespace Larje.Core.Services
     public class CurrencyService : Service, ICurrencyService
     {
         [InjectService] private DataService _dataService;
-        private List<CurrencyData> _currencyDatas;
+        
+        private List<CurrencyData> CurrencyData => _dataService.Data.CurrencyData; 
 
         public event Action EventCurrencyChanged;
         
         public override void Init()
         {
-            _currencyDatas = _dataService.Data.CurrencyData;
         }
 
         public void AddCurrency(CurrencyType currency, CurrencyPlacementType placement, int count)
@@ -55,7 +55,7 @@ namespace Larje.Core.Services
 
         public int GetCurrency(CurrencyType currency, CurrencyPlacementType placement)
         {
-            CurrencyData currencyData = _currencyDatas.Find(x => x.CurrencyType == currency);
+            CurrencyData currencyData = CurrencyData.Find(x => x.CurrencyType == currency);
             if (currencyData == null)
             {
                 return 0;
@@ -72,11 +72,11 @@ namespace Larje.Core.Services
 
         public void SetCurrency(CurrencyType currency, CurrencyPlacementType placement, int count)
         {
-            CurrencyData currencyData = _currencyDatas.Find(x => x.CurrencyType == currency);
+            CurrencyData currencyData = CurrencyData.Find(x => x.CurrencyType == currency);
             if (currencyData == null)
             {
                 currencyData = new CurrencyData().Build(currency);
-                _currencyDatas.Add(currencyData);
+                CurrencyData.Add(currencyData);
             }
 
             PlacementData placementData = currencyData.placements.Find(x => x.CurrencyPlacementType == placement);

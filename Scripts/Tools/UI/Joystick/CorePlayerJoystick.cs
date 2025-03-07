@@ -22,8 +22,8 @@ namespace Larje.Core.Tools
         private Vector2 _startTouchPosition;
         private Vector2 _currentTouchPosition;
 
-        public event Action EventPointerDown;
-        public event Action EventPointerUp;
+        public event Action<Vector2> EventPointerDown;
+        public event Action<Vector2> EventPointerUp;
 
         public Vector2 GetNormalizedValue()
         {
@@ -35,13 +35,13 @@ namespace Larje.Core.Tools
         public void OnPointerDown(PointerEventData eventData)
         {
             _uiTouch = true;
-            EventPointerDown?.Invoke();
+            EventPointerDown?.Invoke(eventData.position);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             _uiTouch = false;
-            EventPointerUp?.Invoke();
+            EventPointerUp?.Invoke(eventData.position);
         }
         
         private void Start()
