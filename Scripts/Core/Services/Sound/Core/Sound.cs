@@ -13,11 +13,13 @@ public class Sound
     private float _loopLength = 0f;
     private float _defaultVolume = 1f;
     private float _defaultPitch = 1f;
+    private string _channel = "Default";
     
     private Func<float, float> _volume = (t) => 1f;
     private Func<float, float> _pitch = (t) => 1f;
     private Func<float, float> _spatialBlend = (t) => 0f;
     private Func<float, Vector3> _position = (t) => Vector3.zero;
+    private Func<string, SoundChannelData> _getChannel;
     
     private List<Action> _onComplete = new List<Action>();
     private List<Action> _onDestroy = new List<Action>();
@@ -32,12 +34,14 @@ public class Sound
     
     public object Target => _target;
     
-    public Sound(AsyncOperationHandle<GameObject> operation, UnityEvent<float> eventUpdate, UnityEvent eventDestroy)
+    public Sound(AsyncOperationHandle<GameObject> operation, UnityEvent<float> eventUpdate, UnityEvent eventDestroy, 
+        Func<string, SoundChannelData> getChannel)
     {
         operation.Completed += OnSoundLoaded;
         
         _eventUpdate = eventUpdate;
         _eventDestroy = eventDestroy;
+        _getChannel = getChannel;
         
         Subscribe();
     }
@@ -51,6 +55,12 @@ public class Sound
     public Sound SetLoop(bool loop)
     {
         _loops = loop ? -1 : 1;
+        return this;
+    }
+    
+    public Sound SetChannel(string channel)
+    {
+        _channel = channel;
         return this;
     }
 
@@ -125,7 +135,7 @@ public class Sound
 
         float t = _loopLength / _audioSource.clip.length;
         
-        _audioSource.volume = _volume(t) * _defaultVolume;
+        _audioSource.volume = _volume(t) * _defaultVolume * _getChannel.Invoke(_channel).Volume;
         _audioSource.pitch = _pitch(t) * _defaultPitch;
         _audioSource.spatialBlend = _spatialBlend(t);
         _audioSource.transform.position = _position(t);

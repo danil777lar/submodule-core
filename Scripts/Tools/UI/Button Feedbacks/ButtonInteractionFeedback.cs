@@ -70,7 +70,7 @@ namespace Larje.Core.Tools
                 .SetTarget(this)
                 .SetEase(options.InAnimEase);
 
-            if (options.UseVibration && _dataService.Data.Settings.Vibration)
+            if (options.UseVibration && _dataService.Data.Settings.VibrationGlobal)
             {
                 HapticPatterns.PlayPreset(options.VibrationPreset);
             }

@@ -20,10 +20,8 @@ namespace Larje.Core.Services
     [Serializable]
     public partial class Settings
     {
-        public bool Vibration = true;
+        public bool VibrationGlobal = true;
         public bool SoundGlobal = true;
-        public float SoundValue = 1f;
-        public float MusicValue = 1f;
     }
 
     [Serializable]

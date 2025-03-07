@@ -46,6 +46,13 @@ namespace Larje.Core.Services.DebugConsole
             SoundService soundService = DIContainer.GetService<SoundService>();
             soundService.Play(sound);
         }
+        
+        [MethodGroup("Sound")]
+        public static void SetChannelVolume(string channel, float volume)
+        {
+            DataService dataService = DIContainer.GetService<DataService>();
+            dataService.Data.Settings.SoundData.GetChannel(channel).Volume = volume;
+        }
 
         #endregion
 

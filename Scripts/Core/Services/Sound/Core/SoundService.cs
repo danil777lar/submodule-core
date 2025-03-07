@@ -44,7 +44,7 @@ namespace Larje.Core.Services
             SoundData data = new SoundData();
             _sounds.Add(data);
 
-            data.Sound = new Sound(soundReference.InstantiateAsync(transform), OnUpdate, data.OnDestroy)
+            data.Sound = new Sound(soundReference.InstantiateAsync(transform), OnUpdate, data.OnDestroy, GetChannel)
                 .AddDestroy(() => Stop(data.Sound));
             
             return data.Sound;
@@ -81,6 +81,11 @@ namespace Larje.Core.Services
         private void Update()
         {
             OnUpdate?.Invoke(Time.deltaTime);
+        }
+        
+        private SoundChannelData GetChannel(string channelName)
+        {
+            return _dataService.Data.Settings.SoundData.GetChannel(channelName);
         }
         
         private class SoundData
