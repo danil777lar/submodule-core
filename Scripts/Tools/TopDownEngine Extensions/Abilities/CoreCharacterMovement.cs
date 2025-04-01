@@ -19,7 +19,7 @@ namespace Larje.Core.Tools.TopDownEngine
         private Vector3 _lastDirection;
         private Vector3 _limitDirection;
         private Vector3 _lastPosition;
-        private Func<Vector2> _inputMovement;
+        private Dictionary<Func<Vector2>, Func<int>> _inputMovement;
         private List<Func<float>> _speedMultipliers = new List<Func<float>>();
         private List<Func<bool>> _changeSpeedConditions = new List<Func<bool>>();
         private List<Func<bool>> _changeDirectionConditions = new List<Func<bool>>();
@@ -58,9 +58,22 @@ namespace Larje.Core.Tools.TopDownEngine
                 ModelRelativeDirection.z, _character._animatorParameters, _character.RunAnimatorSanityChecks);
         }
 
-        public void SetInput(Func<Vector2> input)
+        public void AddInput(Func<Vector2> input, Func<int> priority)
         {
-            _inputMovement = input;
+            _inputMovement ??= new Dictionary<Func<Vector2>, Func<int>>();
+            if (!_inputMovement.ContainsKey(input))
+            {
+                _inputMovement.Add(input, priority);   
+            }
+        }
+
+        public void RemoveInput(Func<Vector2> input)
+        {
+            _inputMovement ??= new Dictionary<Func<Vector2>, Func<int>>();
+            if (_inputMovement.ContainsKey(input))
+            {
+                _inputMovement.Remove(input);   
+            }
         }
 
         public void SetLimit(Vector3 direction, float range)
@@ -226,8 +239,17 @@ namespace Larje.Core.Tools.TopDownEngine
         {
             if (_inputMovement != null)
             {
-                _horizontalMovement = _inputMovement().x;
-                _verticalMovement = _inputMovement().y;
+                if (_inputMovement.Count > 0)
+                {
+                    Func<Vector2> input = _inputMovement
+                        .OrderByDescending(x => x.Value.Invoke()).First().Key;
+                    
+                    if (input != null)
+                    {
+                        _horizontalMovement = input().x;
+                        _verticalMovement = input().y;
+                    }
+                }
             }
         }
 

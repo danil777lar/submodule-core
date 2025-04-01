@@ -2,9 +2,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Larje.Core;
 using MoreMountains.Tools;
 using MoreMountains.TopDownEngine;
+using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using PlayerActions = InputSystem_Actions.PlayerActions;
@@ -15,14 +17,27 @@ public class CoreCharacterRun : CharacterAbility
 	[SerializeField] private float runSpeed = 16f;
 
 	protected bool _runningStarted = false;
-	protected Func<bool> _inputRunning;
+	protected Dictionary<Func<bool>, Func<int>> _inputRunning;
 	
 	protected const string _runningAnimationParameterName = "Running";
 	protected int _runningAnimationParameter;
 	
-	public void SetInputRunning(Func<bool> inputRunning)
+	public void AddInput(Func<bool> input, Func<int> priority)
 	{
-		_inputRunning = inputRunning;
+		_inputRunning ??= new Dictionary<Func<bool>, Func<int>>();
+
+		if (!_inputRunning.ContainsKey(input))
+		{
+			_inputRunning.Add(input, priority);
+		}
+	}
+
+	public void RemoveInput(Func<bool> input)
+	{
+		if (_inputRunning.ContainsKey(input))
+		{
+			_inputRunning.Remove(input);
+		}
 	}
 	
 	public override void ProcessAbility()
@@ -39,13 +54,19 @@ public class CoreCharacterRun : CharacterAbility
 			return;
 		}
 		
-		if (_inputRunning.Invoke())
+		Func<bool> input = _inputRunning
+			.OrderByDescending(x => x.Value.Invoke()).First().Key;
+		
+		if (input != null)
 		{
-			RunStart();
-		}
-		if (_runningStarted && !_inputRunning.Invoke())
-		{
-			RunStop();
+			if (input())
+			{
+				RunStart();
+			}
+			if (_runningStarted && !input())
+			{
+				RunStop();
+			}	
 		}
 	}
 	

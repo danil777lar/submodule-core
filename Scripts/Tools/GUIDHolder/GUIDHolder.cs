@@ -8,7 +8,7 @@ public class GUIDHolder : MonoBehaviour
     public static bool TryGetInstance<T>(string guid, out T component) where T : Component
     {
         GameObject go = _guidHolders.Find(x => x.GUID == guid)?.gameObject;
-        component = go?.GetComponent<T>();
+        component = go?.GetComponentInChildren<T>();
         return component != null;
     }
 
