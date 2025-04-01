@@ -8,7 +8,9 @@ namespace Larje.Core.Services
 {
     public abstract class LevelProcessor : MonoBehaviour
     {
-        protected bool IsLevelPlaying = false;
+        protected bool isLevelPlaying = false;
+        
+        public bool IsLevelPlaying => isLevelPlaying;
 
         public abstract void TryStartLevel(StartData data);
 
@@ -24,21 +26,21 @@ namespace Larje.Core.Services
         
         protected void StartLevel(StartData data)
         {
-            if (!IsLevelPlaying)
+            if (!isLevelPlaying)
             {
                 GetComponentsInChildren<ILevelStartHandler>(true)
                     .ToList().ForEach(x => x.OnLevelStarted(data));
-                IsLevelPlaying = true;
+                isLevelPlaying = true;
             }
         }
 
         protected void StopLevel(StopData data)
         {
-            if (IsLevelPlaying)
+            if (isLevelPlaying)
             {
                 GetComponentsInChildren<ILevelEndHandler>(true)
                     .ToList().ForEach(x => x.OnLevelEnded(data));
-                IsLevelPlaying = false;
+                isLevelPlaying = false;
             }
         }
 

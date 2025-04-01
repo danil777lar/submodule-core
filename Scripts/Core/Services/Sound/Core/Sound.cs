@@ -49,42 +49,88 @@ public class Sound
     public Sound SetLoop(int loops)
     {
         _loops = loops;
+        ApplyValues();
+        
         return this;
     }
 
     public Sound SetLoop(bool loop)
     {
         _loops = loop ? -1 : 1;
+        ApplyValues();
+        
         return this;
     }
     
     public Sound SetChannel(string channel)
     {
         _channel = channel;
+        ApplyValues();
+        
         return this;
     }
 
     public Sound SetVolume(Func<float, float> volume)
     {
         _volume = volume;
+        ApplyValues();
+        
+        return this;
+    }
+    
+    public Sound SetVolume(float volume)
+    {
+        _volume = (t) => volume;
+        ApplyValues();
+        
         return this;
     }
 
     public Sound SetPitch(Func<float, float> pitch)
     {
         _pitch = pitch;
+        ApplyValues();
+        
+        return this;
+    }
+    
+    public Sound SetPitch(float pitch)
+    {
+        _pitch = (t) => pitch;
+        ApplyValues();
+        
         return this;
     }
     
     public Sound SetSpatialBlend(Func<float, float> spatialBlend)
     {
         _spatialBlend = spatialBlend;
+        ApplyValues();
+        
+        return this;
+    }
+    
+    public Sound SetSpatialBlend(float spatialBlend)
+    {
+        _spatialBlend = (t) => spatialBlend;
+        ApplyValues();
+        
         return this;
     }
 
     public Sound SetPosition(Func<float, Vector3> position)
     {
         _position = position;
+        ApplyValues();
+        
+        return this;
+    }
+    
+    public Sound SetPosition(Vector3 position)
+    {
+        _position = (t) => position;
+        ApplyValues();
+        
         return this;
     }
 
@@ -115,6 +161,9 @@ public class Sound
         
         _defaultVolume = _audioSource.volume;
         _defaultPitch = _audioSource.pitch;
+        
+        ApplyValues();
+        _audioSource.Play();
     }
     
     private void Subscribe()
@@ -133,18 +182,25 @@ public class Sound
     {
         if (_soundObject == null || _audioSource == null) return;
 
-        float t = _loopLength / _audioSource.clip.length;
-        
-        _audioSource.volume = _volume(t) * _defaultVolume * _getChannel.Invoke(_channel).Volume;
-        _audioSource.pitch = _pitch(t) * _defaultPitch;
-        _audioSource.spatialBlend = _spatialBlend(t);
-        _audioSource.transform.position = _position(t);
+        ApplyValues();
         
         _loopLength += deltaTime * _audioSource.pitch;
         if (_loopLength >= _audioSource.clip.length)
         {
             LoopComplete();
         }
+    }
+
+    private void ApplyValues()
+    {
+        if (_soundObject == null || _audioSource == null) return;
+        
+        float t = _loopLength / _audioSource.clip.length;
+        
+        _audioSource.volume = _volume(t) * _defaultVolume * _getChannel.Invoke(_channel).Volume;
+        _audioSource.pitch = _pitch(t) * _defaultPitch;
+        _audioSource.spatialBlend = _spatialBlend(t);
+        _audioSource.transform.position = _position(t);
     }
 
     private void LoopComplete()

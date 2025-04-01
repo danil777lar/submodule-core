@@ -52,6 +52,16 @@ namespace Larje.Core.Services
             return currentItem != null;
         }
 
+        public bool HasLockedItems(ItemType itemType)
+        {
+            bool hasLockedItems = false;
+            foreach (Item item in GetAllItems(itemType))
+            {
+                hasLockedItems |= !IsItemUnlocked(itemType, item.Name);
+            }
+            return hasLockedItems;
+        }
+
         public List<Item> GetAllItems(ItemType itemType)
         {
             return GetConfigByType(itemType).Items.ToList();

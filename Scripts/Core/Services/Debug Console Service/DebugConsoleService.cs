@@ -41,7 +41,10 @@ namespace Larje.Core.Services.DebugConsole
             RegisterLogCallback(gameObject.name, "HandleJSLog");
 #endif
 
-                _inputService.UIDebug.performed += ctx => ToggleConsole();
+                if (_inputService.UIDebug != null)
+                {
+                    _inputService.UIDebug.performed += ctx => ToggleConsole();
+                }
 
                 InputService.Condition condition = new InputService.Condition(
                     () => !_consoleOpened, InputService.ConditionOperation.And, "Debug Console");
