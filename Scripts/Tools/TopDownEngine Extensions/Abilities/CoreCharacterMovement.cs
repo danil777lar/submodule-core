@@ -14,13 +14,12 @@ namespace Larje.Core.Tools.TopDownEngine
         [SerializeField] private bool drawLimitsGizmo = true;
         [SerializeField, Min(0f)] private float minActualSpeedAnimator; 
         
-        [InjectService] private InputService _inputService;
-
         private bool _useLimit;
         private float _limitRange;
         private Vector3 _lastDirection;
         private Vector3 _limitDirection;
         private Vector3 _lastPosition;
+        private Func<Vector2> _inputMovement;
         private List<Func<float>> _speedMultipliers = new List<Func<float>>();
         private List<Func<bool>> _changeSpeedConditions = new List<Func<bool>>();
         private List<Func<bool>> _changeDirectionConditions = new List<Func<bool>>();
@@ -57,6 +56,11 @@ namespace Larje.Core.Tools.TopDownEngine
 
             MMAnimatorExtensions.UpdateAnimatorFloat(_animator, _modelRelativeDirectionYParameter,
                 ModelRelativeDirection.z, _character._animatorParameters, _character.RunAnimatorSanityChecks);
+        }
+
+        public void SetInput(Func<Vector2> input)
+        {
+            _inputMovement = input;
         }
 
         public void SetLimit(Vector3 direction, float range)
@@ -205,19 +209,7 @@ namespace Larje.Core.Tools.TopDownEngine
                 _lastDirection = new Vector3(_horizontalMovement, 0f, _verticalMovement);
             }
         }
-
-        /*protected override void SetMovement()
-        {
-            if (_changeMoveConditions.Count > 0 && !_changeMoveConditions.All(x => x.Invoke()))
-            {
-                _controller.SetMovement (_movementVector);
-            }
-            else
-            {
-                base.SetMovement();   
-            }
-        }*/
-
+        
         private void FixedUpdate()
         {
             UpdateInput();
@@ -232,11 +224,10 @@ namespace Larje.Core.Tools.TopDownEngine
 
         private void UpdateInput()
         {
-            if (!ScriptDrivenInput)
+            if (_inputMovement != null)
             {
-                Vector2 input = _inputService.PlayerMovement;
-                _horizontalMovement = input.x;
-                _verticalMovement = input.y;
+                _horizontalMovement = _inputMovement().x;
+                _verticalMovement = _inputMovement().y;
             }
         }
 

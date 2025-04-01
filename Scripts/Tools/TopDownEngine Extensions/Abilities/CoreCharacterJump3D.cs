@@ -28,16 +28,16 @@ namespace Larje.Core.Tools.TopDownEngine
 		[Header("Feedbacks")] 
 		public MMFeedbacks JumpStartFeedback;
 		public MMFeedbacks JumpStopFeedback;
-
-		protected bool _doubleJumping;
+		
 		protected Vector3 _jumpForce;
 		protected Vector3 _jumpOrigin;
 		protected CharacterButtonActivation _characterButtonActivation;
 		protected CharacterCrouch _characterCrouch;
+		protected bool _doubleJumping;
 		protected bool _jumpStopped = false;
-		protected float _jumpStartedAt = 0f;
 		protected bool _buttonReleased = false;
 		protected int _initialNumberOfJumps;
+		protected float _jumpStartedAt = 0f;
 
 		protected const string _jumpingAnimationParameterName = "Jumping";
 		protected const string _doubleJumpingAnimationParameterName = "DoubleJumping";
@@ -49,6 +49,22 @@ namespace Larje.Core.Tools.TopDownEngine
 		public event Action EventJump;
 		public event Action EventLanding;
 
+		public void InputJumpStart()
+		{
+			if (AbilityAuthorized)
+			{
+				JumpStart();
+			}
+		}
+		
+		public void InputJumpStop()
+		{
+			if (AbilityAuthorized)
+			{
+				_buttonReleased = true;
+			}
+		}
+		
 		protected override void Initialization()
 		{
 			base.Initialization();
@@ -60,26 +76,6 @@ namespace Larje.Core.Tools.TopDownEngine
 			JumpStartFeedback?.Initialization(this.gameObject);
 			JumpStopFeedback?.Initialization(this.gameObject);
 			_initialNumberOfJumps = NumberOfJumps;
-		}
-
-		protected override void HandleInput()
-		{
-			base.HandleInput();
-			if (!AbilityAuthorized
-			    || (_condition.CurrentState != CharacterStates.CharacterConditions.Normal))
-			{
-				return;
-			}
-
-			if (_inputManager.JumpButton.State.CurrentState == MMInput.ButtonStates.ButtonDown)
-			{
-				JumpStart();
-			}
-
-			if (_inputManager.JumpButton.State.CurrentState == MMInput.ButtonStates.ButtonUp)
-			{
-				_buttonReleased = true;
-			}
 		}
 
 		public override void ProcessAbility()

@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Larje.Core.Tools.TopDownEngine
 {
-	public class CharacterCapsulePush3D : CharacterAbility
+	public class CoreCharacterCapsulePush3D : CharacterAbility
 	{
 		protected const string _pushingAnimationParameterName = "Pushing";
 		
