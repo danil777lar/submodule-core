@@ -19,10 +19,11 @@ namespace Larje.Core.Tools.TopDownEngine
         private Vector3 _lastDirection;
         private Vector3 _limitDirection;
         private Vector3 _lastPosition;
-        private Dictionary<Func<Vector2>, Func<int>> _inputMovement;
+        private List<float> _lastSpeeds = new List<float>();
         private List<Func<float>> _speedMultipliers = new List<Func<float>>();
         private List<Func<bool>> _changeSpeedConditions = new List<Func<bool>>();
         private List<Func<bool>> _changeDirectionConditions = new List<Func<bool>>();
+        private Dictionary<Func<Vector2>, Func<int>> _inputMovement;
 
         protected const string _blendAnimationParameterName = "MoveBlend";
         protected const string _actualSpeedAnimationParameterName = "ActualSpeed";
@@ -146,14 +147,29 @@ namespace Larje.Core.Tools.TopDownEngine
         {
             if (deltaTime > 0f)
             {
-                ActualSpeed = Vector3.Distance(transform.position, _lastPosition) / deltaTime;
+                int frames = 5;
+
+                _lastSpeeds.Add(Vector3.Distance(transform.position, _lastPosition) / deltaTime);
+                if (_lastSpeeds.Count > 5)
+                {
+                    _lastSpeeds.RemoveAt(0);
+                }
+
+                ActualSpeed = 0f;
+                foreach (float speed in _lastSpeeds)
+                {
+                    ActualSpeed += speed;
+                }
+                ActualSpeed /= frames;
+                
+                
                 ActualDirection = (transform.position - _lastPosition).normalized;
                 ModelRelativeDirection = _character.CharacterModel.transform.InverseTransformDirection(ActualDirection);
                 _lastPosition = transform.position;
 
                 if (MovementSpeed > 0f)
                 {
-                    ActualSpeedPercent = ActualSpeed / MovementSpeed;
+                    ActualSpeedPercent = ActualSpeed / (MovementSpeed * GetFullMultiplier());
                 }
                 else
                 {

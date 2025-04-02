@@ -15,11 +15,12 @@ using PlayerActions = InputSystem_Actions.PlayerActions;
 public class CoreCharacterRun : CharacterAbility
 {
 	[Header("Speed")]
-	[SerializeField] private float runSpeedMultiplier = 2f;
-	[SerializeField] private float runSpeedMultiplierInterpolationSpeed = 10f;
+	[SerializeField] private float speedMultiplier = 2f;
+	[SerializeField] private float lerpSpeedEnter = 10f;
+	[SerializeField] private float lerpSpeedExit = 10f;
 
 	private bool _runningStarted = false;
-	private float _runSpeedMultiplierCurrent = 1f;
+	private float _speedMultiplierCurrent = 1f;
 	private CoreCharacterMovement _characterMove;
 	private Dictionary<Func<bool>, Func<int>> _inputRunning;
 	
@@ -97,19 +98,26 @@ public class CoreCharacterRun : CharacterAbility
 		HandleRunningExit();
 	}
 
+	public virtual void ResetMultiplier()
+	{
+		_speedMultiplierCurrent = 1f;
+	}
+
 	protected override void Initialization()
 	{
 		base.Initialization();
 		
 		_characterMove = _character?.FindAbility<CoreCharacterMovement>();
-		_characterMove.TryAddSpeedMultiplier(() => _runSpeedMultiplierCurrent);
+		_characterMove.TryAddSpeedMultiplier(() => _speedMultiplierCurrent);
 	}
 
 	protected void InterpolateMultiplier()
 	{
-		float targetMultiplier = _runningStarted ? runSpeedMultiplier : 1f;
-		_runSpeedMultiplierCurrent = Mathf.Lerp(_runSpeedMultiplierCurrent, targetMultiplier,
-			runSpeedMultiplierInterpolationSpeed * Time.deltaTime);
+		float targetMultiplier = _runningStarted ? speedMultiplier : 1f;
+		float lerpSpeed = _runningStarted ? lerpSpeedEnter : lerpSpeedExit;
+
+		_speedMultiplierCurrent = Mathf.Lerp(_speedMultiplierCurrent, targetMultiplier,
+			Time.deltaTime * lerpSpeed);
 	}
 
 	protected override void HandleInput()
