@@ -1,39 +1,46 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Larje.Core.Tools.TopDownEngine;
 using MoreMountains.Tools;
 using MoreMountains.TopDownEngine;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class CoreCharacterCrouch3D : CharacterAbility
 {
-	[MMReadOnly] public bool ForcedCrouch = false;
+	[SerializeField, MMReadOnly] private bool inATunnel;
+	
 	[Header("Input")]
-	public InputModes InputMode = InputModes.Pressed;
+	[SerializeField] private InputModes inputMode = InputModes.Pressed;
+	
 	[Header("Crawl")]
-	public bool CrawlAuthorized = true;
-	public float CrawlSpeed = 4f;
-	[Space(10)]
+	[SerializeField] private bool crawlAuthorized = true;
+	[SerializeField] private float speedMultiplier = 0.25f;
+	[SerializeField] private float speedMultiplierInterpolationSpeed = 10f;
+	
 	[Header("Crouching")]
-	public bool ResizeColliderWhenCrouched = false;
-	[MMCondition("ResizeColliderWhenCrouched", true)] public bool TranslateColliderOnCrouch = false;
-	public float CrouchedColliderHeight = 1.25f;
-	[Space(10)]
+	[SerializeField] private bool resizeColliderWhenCrouched = false;
+	[SerializeField] private bool translateColliderOnCrouch = false;
+	[SerializeField] private float crouchedColliderHeight = 1.25f;
+	
 	[Header("Offset")]
-	public List<GameObject> ObjectsToOffset;
-	public Vector3 OffsetCrouch;
-	public Vector3 OffsetCrawl;
-	public float OffsetSpeed = 5f;
-	[MMReadOnly] public bool InATunnel;
-
-	protected List<Vector3> _objectsToOffsetOriginalPositions;
+	[SerializeField] private List<GameObject> objectsToOffset;
+	[SerializeField] private Vector3 offsetCrouch;
+	[SerializeField] private Vector3 offsetCrawl;
+	[SerializeField] private float offsetSpeed = 5f;
+	
+	private bool _crouching = false;
+	private float _speedMultiplierCurrent = 1f;
+	private CoreCharacterMovement _characterMove; 
+	private CoreCharacterRun _characterRun;
+	private List<Vector3> _objectsToOffsetOriginalPositions;
+	private Dictionary<Func<bool>, Func<int>> _inputCrouch;
+	
 	protected const string _crouchingAnimationParameterName = "Crouching";
 	protected const string _crawlingAnimationParameterName = "Crawling";
 	protected int _crouchingAnimationParameter;
 	protected int _crawlingAnimationParameter;
-	protected bool _crouching = false;
-
-	private Dictionary<Func<bool>, Func<int>> _inputCrouch;
 
 	public void AddInput(Func<bool> input, Func<int> priority)
 	{
@@ -52,17 +59,42 @@ public class CoreCharacterCrouch3D : CharacterAbility
 			_inputCrouch.Remove(input);
 		}
 	}
+	
+	public override void ProcessAbility()
+	{
+		base.ProcessAbility();
+
+		InterpolateMultiplier();
+		HandleInput();
+		DetermineState();
+
+		if (inputMode != InputModes.Toggle)
+		{
+			CheckExitCrouch();
+		}
+
+		OffsetObjects();
+	}
+	
+	public override void UpdateAnimator()
+	{
+		MMAnimatorExtensions.UpdateAnimatorBool(_animator, _crouchingAnimationParameter,
+			(_movement.CurrentState == CharacterStates.MovementStates.Crouching), _character._animatorParameters,
+			_character.RunAnimatorSanityChecks);
+		MMAnimatorExtensions.UpdateAnimatorBool(_animator, _crawlingAnimationParameter,
+			(_movement.CurrentState == CharacterStates.MovementStates.Crawling), _character._animatorParameters,
+			_character.RunAnimatorSanityChecks);
+	}
 
 	protected override void Initialization()
 	{
 		base.Initialization();
-		InATunnel = false;
+		inATunnel = false;
 
-		// we store our objects to offset's initial positions
-		if (ObjectsToOffset.Count > 0)
+		if (objectsToOffset.Count > 0)
 		{
 			_objectsToOffsetOriginalPositions = new List<Vector3>();
-			foreach (GameObject go in ObjectsToOffset)
+			foreach (GameObject go in objectsToOffset)
 			{
 				if (go != null)
 				{
@@ -70,31 +102,18 @@ public class CoreCharacterCrouch3D : CharacterAbility
 				}
 			}
 		}
+		
+		_characterMove = _character?.FindAbility<CoreCharacterMovement>();
+		_characterMove.TryAddSpeedMultiplier(() => _speedMultiplierCurrent);
+		
+		_characterRun = _character?.FindAbility<CoreCharacterRun>();
 	}
 
-	public override void ProcessAbility()
+	protected virtual void InterpolateMultiplier()
 	{
-		base.ProcessAbility();
-
-		HandleInput();
-		HandleForcedCrouch();
-		DetermineState();
-
-		if (InputMode != InputModes.Toggle)
-		{
-			CheckExitCrouch();
-		}
-
-		OffsetObjects();
-	}
-
-	protected virtual void HandleForcedCrouch()
-	{
-		if (ForcedCrouch && (_movement.CurrentState != CharacterStates.MovementStates.Crouching) &&
-		    (_movement.CurrentState != CharacterStates.MovementStates.Crawling))
-		{
-			Crouch();
-		}
+		float targetMultiplier = _crouching ? speedMultiplier : 1f;
+		_speedMultiplierCurrent = Mathf.Lerp(_speedMultiplierCurrent, targetMultiplier,
+			Time.deltaTime * speedMultiplierInterpolationSpeed);
 	}
 
 	protected override void HandleInput()
@@ -104,7 +123,7 @@ public class CoreCharacterCrouch3D : CharacterAbility
 
 		if (input != null)
 		{
-			switch (InputMode)
+			switch (inputMode)
 			{
 				case InputModes.Pressed:
 					if (input())
@@ -131,90 +150,65 @@ public class CoreCharacterCrouch3D : CharacterAbility
 		}
 	}
 
-	public virtual void StartForcedCrouch()
-	{
-		ForcedCrouch = true;
-		_crouching = true;
-	}
-
-	public virtual void StopForcedCrouch()
-	{
-		ForcedCrouch = false;
-		_crouching = false;
-	}
-
 	protected virtual void Crouch()
 	{
-		if (!AbilityAuthorized // if the ability is not permitted
+		if (!AbilityAuthorized
 		    || (_condition.CurrentState !=
-		        CharacterStates.CharacterConditions.Normal) // or if we're not in our normal stance
-		    || (!_controller.Grounded)) // or if we're grounded
-			// we do nothing and exit
+		        CharacterStates.CharacterConditions.Normal)
+		    || (!_controller.Grounded))
 		{
 			return;
 		}
-
-		// if this is the first time we're here, we trigger our sounds
+		
 		if ((_movement.CurrentState != CharacterStates.MovementStates.Crouching) &&
 		    (_movement.CurrentState != CharacterStates.MovementStates.Crawling))
 		{
-			// we play the crouch start sound 
+			if (_characterRun != null)
+			{
+				_characterRun.RunStop();
+			}
+			
 			PlayAbilityStartFeedbacks();
 			PlayAbilityStartSfx();
 			PlayAbilityUsedSfx();
 		}
 
 		_crouching = true;
-
-		// we set the character's state to Crouching and if it's also moving we set it to Crawling
+		
 		_movement.ChangeState(CharacterStates.MovementStates.Crouching);
-		if ((Mathf.Abs(_horizontalInput) > 0) && (CrawlAuthorized))
+		if ((Mathf.Abs(_horizontalInput) > 0) && (crawlAuthorized))
 		{
 			_movement.ChangeState(CharacterStates.MovementStates.Crawling);
 		}
-
-		// we resize our collider to match the new shape of our character (it's usually smaller when crouched)
-		if (ResizeColliderWhenCrouched)
+		
+		if (resizeColliderWhenCrouched)
 		{
-			_controller.ResizeColliderHeight(CrouchedColliderHeight, TranslateColliderOnCrouch);
-		}
-
-		// we change our character's speed
-		if (_characterMovement != null)
-		{
-			_characterMovement.MovementSpeed = CrawlSpeed;
-		}
-
-		// we prevent movement if we can't crawl
-		if (!CrawlAuthorized)
-		{
-			_characterMovement.MovementSpeed = 0f;
+			_controller.ResizeColliderHeight(crouchedColliderHeight, translateColliderOnCrouch);
 		}
 	}
 
 	protected virtual void OffsetObjects()
 	{
-		// we move all the objects we want to move
-		if (ObjectsToOffset.Count > 0)
+		if (objectsToOffset.Count > 0)
 		{
-			for (int i = 0; i < ObjectsToOffset.Count; i++)
+			for (int i = 0; i < objectsToOffset.Count; i++)
 			{
 				Vector3 newOffset = Vector3.zero;
 				if (_movement.CurrentState == CharacterStates.MovementStates.Crouching)
 				{
-					newOffset = OffsetCrouch;
+					newOffset = offsetCrouch;
 				}
 
 				if (_movement.CurrentState == CharacterStates.MovementStates.Crawling)
 				{
-					newOffset = OffsetCrawl;
+					newOffset = offsetCrawl;
 				}
 
-				if (ObjectsToOffset[i] != null)
+				if (objectsToOffset[i] != null)
 				{
-					ObjectsToOffset[i].transform.localPosition = Vector3.Lerp(
-						ObjectsToOffset[i].transform.localPosition, _objectsToOffsetOriginalPositions[i] + newOffset,
-						Time.deltaTime * OffsetSpeed);
+					objectsToOffset[i].transform.localPosition = Vector3.Lerp(
+						objectsToOffset[i].transform.localPosition, _objectsToOffsetOriginalPositions[i] + newOffset,
+						Time.deltaTime * offsetSpeed);
 				}
 			}
 		}
@@ -225,7 +219,7 @@ public class CoreCharacterCrouch3D : CharacterAbility
 		if ((_movement.CurrentState == CharacterStates.MovementStates.Crouching) ||
 		    (_movement.CurrentState == CharacterStates.MovementStates.Crawling))
 		{
-			if ((_controller.CurrentMovement.magnitude > 0) && (CrawlAuthorized))
+			if ((_controller.CurrentMovement.magnitude > 0) && (crawlAuthorized))
 			{
 				_movement.ChangeState(CharacterStates.MovementStates.Crawling);
 			}
@@ -243,22 +237,11 @@ public class CoreCharacterCrouch3D : CharacterAbility
 		    || (_movement.CurrentState == CharacterStates.MovementStates.Crawling)
 		    || _crouching)
 		{
-			if (_inputManager == null)
-			{
-				if (!ForcedCrouch)
-				{
-					ExitCrouch();
-				}
-
-				return;
-			}
-
-			// but we're not pressing down anymore, or we're not grounded anymore
 			if ((!_controller.Grounded)
 			    || ((_movement.CurrentState != CharacterStates.MovementStates.Crouching)
 			        && (_movement.CurrentState != CharacterStates.MovementStates.Crawling)
-			        && (_inputManager.CrouchButton.IsOff || _inputManager.CrouchButton.IsUp) && (!ForcedCrouch))
-			    || ((_inputManager.CrouchButton.IsOff || _inputManager.CrouchButton.IsUp) && (!ForcedCrouch)))
+			        && (_inputManager.CrouchButton.IsOff || _inputManager.CrouchButton.IsUp))
+			    || ((_inputManager.CrouchButton.IsOff || _inputManager.CrouchButton.IsUp)))
 			{
 				CheckForTunnel();
 			}
@@ -267,11 +250,8 @@ public class CoreCharacterCrouch3D : CharacterAbility
 
 	protected virtual void CheckForTunnel()
 	{
-		// we cast a raycast above to see if we have room enough to go back to normal size
-		InATunnel = !_controller.CanGoBackToOriginalSize();
-
-		// if the character is not in a tunnel, we can go back to normal size
-		if (!InATunnel)
+		inATunnel = !_controller.CanGoBackToOriginalSize();
+		if (!inATunnel)
 		{
 			ExitCrouch();
 		}
@@ -280,20 +260,12 @@ public class CoreCharacterCrouch3D : CharacterAbility
 	protected virtual void ExitCrouch()
 	{
 		_crouching = false;
-
-		// we return to normal walking speed
-		if (_characterMovement != null)
-		{
-			_characterMovement.ResetSpeed();
-		}
-
-		// we play our exit sound
+		
 		StopAbilityUsedSfx();
 		PlayAbilityStopSfx();
 		StopStartFeedbacks();
 		PlayAbilityStopFeedbacks();
-
-		// we go back to Idle state and reset our collider's size
+		
 		if ((_movement.CurrentState == CharacterStates.MovementStates.Crawling) ||
 		    (_movement.CurrentState == CharacterStates.MovementStates.Crouching))
 		{
@@ -309,16 +281,6 @@ public class CoreCharacterCrouch3D : CharacterAbility
 			out _crouchingAnimationParameter);
 		RegisterAnimatorParameter(_crawlingAnimationParameterName, AnimatorControllerParameterType.Bool,
 			out _crawlingAnimationParameter);
-	}
-
-	public override void UpdateAnimator()
-	{
-		MMAnimatorExtensions.UpdateAnimatorBool(_animator, _crouchingAnimationParameter,
-			(_movement.CurrentState == CharacterStates.MovementStates.Crouching), _character._animatorParameters,
-			_character.RunAnimatorSanityChecks);
-		MMAnimatorExtensions.UpdateAnimatorBool(_animator, _crawlingAnimationParameter,
-			(_movement.CurrentState == CharacterStates.MovementStates.Crawling), _character._animatorParameters,
-			_character.RunAnimatorSanityChecks);
 	}
 	
 	public enum InputModes

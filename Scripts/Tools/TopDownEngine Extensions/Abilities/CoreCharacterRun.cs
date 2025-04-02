@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Larje.Core;
+using Larje.Core.Tools.TopDownEngine;
 using MoreMountains.Tools;
 using MoreMountains.TopDownEngine;
 using UnityEditor.Timeline.Actions;
@@ -14,10 +15,13 @@ using PlayerActions = InputSystem_Actions.PlayerActions;
 public class CoreCharacterRun : CharacterAbility
 {
 	[Header("Speed")]
-	[SerializeField] private float runSpeed = 16f;
+	[SerializeField] private float runSpeedMultiplier = 2f;
+	[SerializeField] private float runSpeedMultiplierInterpolationSpeed = 10f;
 
-	protected bool _runningStarted = false;
-	protected Dictionary<Func<bool>, Func<int>> _inputRunning;
+	private bool _runningStarted = false;
+	private float _runSpeedMultiplierCurrent = 1f;
+	private CoreCharacterMovement _characterMove;
+	private Dictionary<Func<bool>, Func<int>> _inputRunning;
 	
 	protected const string _runningAnimationParameterName = "Running";
 	protected int _runningAnimationParameter;
@@ -40,13 +44,74 @@ public class CoreCharacterRun : CharacterAbility
 		}
 	}
 	
+	public override void UpdateAnimator()
+	{
+		MMAnimatorExtensions.UpdateAnimatorBool(_animator, _runningAnimationParameter,
+			(_movement.CurrentState == CharacterStates.MovementStates.Running), _character._animatorParameters,
+			_character.RunAnimatorSanityChecks);
+	}
+	
+	public virtual void RunStart()
+	{
+		if (!AbilityAuthorized
+		    || (!_controller.Grounded)
+		    || (_condition.CurrentState !=
+		        CharacterStates.CharacterConditions.Normal)
+		    || (_movement.CurrentState != CharacterStates.MovementStates.Walking))
+		{
+			return;
+		}
+
+		if (_movement.CurrentState != CharacterStates.MovementStates.Running)
+		{
+			PlayAbilityStartSfx();
+			PlayAbilityUsedSfx();
+			PlayAbilityStartFeedbacks();
+			_runningStarted = true;
+		}
+
+		_movement.ChangeState(CharacterStates.MovementStates.Running);
+	}
+	
+	public virtual void RunStop()
+	{
+		if (_runningStarted)
+		{
+			if ((_characterMove != null))
+			{
+				_characterMove.ResetSpeed();
+				_movement.ChangeState(CharacterStates.MovementStates.Idle);
+			}
+
+			StopFeedbacks();
+			StopSfx();
+			_runningStarted = false;
+		}
+	}
+	
 	public override void ProcessAbility()
 	{
 		base.ProcessAbility();
+		InterpolateMultiplier();
 		HandleInput();
 		HandleRunningExit();
 	}
-	
+
+	protected override void Initialization()
+	{
+		base.Initialization();
+		
+		_characterMove = _character?.FindAbility<CoreCharacterMovement>();
+		_characterMove.TryAddSpeedMultiplier(() => _runSpeedMultiplierCurrent);
+	}
+
+	protected void InterpolateMultiplier()
+	{
+		float targetMultiplier = _runningStarted ? runSpeedMultiplier : 1f;
+		_runSpeedMultiplierCurrent = Mathf.Lerp(_runSpeedMultiplierCurrent, targetMultiplier,
+			runSpeedMultiplierInterpolationSpeed * Time.deltaTime);
+	}
+
 	protected override void HandleInput()
 	{
 		if (_inputRunning == null)
@@ -92,61 +157,18 @@ public class CoreCharacterRun : CharacterAbility
 			StopSfx();
 		}
 
-		if ((Mathf.Abs(_controller.CurrentMovement.magnitude) < runSpeed / 10) &&
+		/*if ((Mathf.Abs(_controller.CurrentMovement.magnitude) < runSpeed / 10) &&
 		    (_movement.CurrentState == CharacterStates.MovementStates.Running))
 		{
 			_movement.ChangeState(CharacterStates.MovementStates.Idle);
 			StopFeedbacks();
 			StopSfx();
-		}
+		}*/
 
 		if (!_controller.Grounded && _abilityInProgressSfx != null)
 		{
 			StopFeedbacks();
 			StopSfx();
-		}
-	}
-
-	public virtual void RunStart()
-	{
-		if (!AbilityAuthorized
-		    || (!_controller.Grounded)
-		    || (_condition.CurrentState !=
-		        CharacterStates.CharacterConditions.Normal)
-		    || (_movement.CurrentState != CharacterStates.MovementStates.Walking))
-		{
-			return;
-		}
-		
-		if (_characterMovement != null)
-		{
-			_characterMovement.MovementSpeed = runSpeed;
-		}
-
-		if (_movement.CurrentState != CharacterStates.MovementStates.Running)
-		{
-			PlayAbilityStartSfx();
-			PlayAbilityUsedSfx();
-			PlayAbilityStartFeedbacks();
-			_runningStarted = true;
-		}
-
-		_movement.ChangeState(CharacterStates.MovementStates.Running);
-	}
-	
-	public virtual void RunStop()
-	{
-		if (_runningStarted)
-		{
-			if ((_characterMovement != null))
-			{
-				_characterMovement.ResetSpeed();
-				_movement.ChangeState(CharacterStates.MovementStates.Idle);
-			}
-
-			StopFeedbacks();
-			StopSfx();
-			_runningStarted = false;
 		}
 	}
 	
@@ -165,22 +187,10 @@ public class CoreCharacterRun : CharacterAbility
 		PlayAbilityStopSfx();
 	}
 
-	protected override void OnDisable()
-	{
-		base.OnDisable();
-	}
-
 	protected override void InitializeAnimatorParameters()
 	{
 		RegisterAnimatorParameter(_runningAnimationParameterName, AnimatorControllerParameterType.Bool,
 			out _runningAnimationParameter);
-	}
-	
-	public override void UpdateAnimator()
-	{
-		MMAnimatorExtensions.UpdateAnimatorBool(_animator, _runningAnimationParameter,
-			(_movement.CurrentState == CharacterStates.MovementStates.Running), _character._animatorParameters,
-			_character.RunAnimatorSanityChecks);
 	}
 }
 #endif
