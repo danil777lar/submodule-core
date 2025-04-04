@@ -147,22 +147,7 @@ namespace Larje.Core.Tools.TopDownEngine
         {
             if (deltaTime > 0f)
             {
-                int frames = 5;
-
-                _lastSpeeds.Add(Vector3.Distance(transform.position, _lastPosition) / deltaTime);
-                if (_lastSpeeds.Count > 5)
-                {
-                    _lastSpeeds.RemoveAt(0);
-                }
-
-                ActualSpeed = 0f;
-                foreach (float speed in _lastSpeeds)
-                {
-                    ActualSpeed += speed;
-                }
-                ActualSpeed /= frames;
-                
-                
+                ActualSpeed = Vector3.Distance(transform.position, _lastPosition) / deltaTime;
                 ActualDirection = (transform.position - _lastPosition).normalized;
                 ModelRelativeDirection = _character.CharacterModel.transform.InverseTransformDirection(ActualDirection);
                 _lastPosition = transform.position;

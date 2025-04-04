@@ -22,8 +22,9 @@ public class CoreCharacterCrouch3D : CharacterAbility
 	
 	[Header("Slide")]
 	[SerializeField] private bool slideOnCrouch = false;
-	//[SerializeField] private float slideMultiplierLerpSpeed = 0.5f;
 	[SerializeField] private float slideSpeedMultiplier = 2f;
+	[SerializeField] private bool multiplyDistanceOnMultiplier = false;
+	[SerializeField] private float slideDistance = 5f;
 	
 	[Header("Collder")]
 	[SerializeField] private bool resizeColliderWhenCrouched = false;
@@ -38,6 +39,7 @@ public class CoreCharacterCrouch3D : CharacterAbility
 	
 	private bool _crouching = false;
 	private bool _sliding = false;
+	private float _slideDistance;
 	private float _speedMultiplierCurrent = 1f;
 	private CoreCharacterMovement _characterMove; 
 	private CoreCharacterRun _characterRun;
@@ -195,16 +197,7 @@ public class CoreCharacterCrouch3D : CharacterAbility
 			PlayAbilityUsedSfx();
 		}
 
-		if (_characterMove.ActualSpeed > _characterMove.MovementSpeed)
-		{
-			Debug.Log($"as:{_characterMove.ActualSpeed} ms:{_characterMove.MovementSpeed} m:{_characterMove.ActualSpeed / _characterMove.MovementSpeed}");
-			
-			_sliding = slideOnCrouch;
-			_speedMultiplierCurrent = _characterMove.ActualSpeed / _characterMove.MovementSpeed;
-			_speedMultiplierCurrent *= slideSpeedMultiplier;
-			
-			_characterRun?.ResetMultiplier();
-		}
+		TryEnterSlide();
 
 		_crouching = true;
 		
@@ -239,16 +232,35 @@ public class CoreCharacterCrouch3D : CharacterAbility
 		_controller.ResetColliderSize();
 	}
 	
+	protected virtual void TryEnterSlide()
+	{
+		if (_characterMove.ActualSpeed > _characterMove.WalkSpeed)
+		{
+			Debug.Log($"as:{_characterMove.ActualSpeed} ws:{_characterMove.WalkSpeed} m:{_characterMove.ActualSpeed / _characterMove.WalkSpeed}");
+			
+			_sliding = slideOnCrouch;
+			_speedMultiplierCurrent = _characterMove.ActualSpeed / _characterMove.WalkSpeed;
+			_speedMultiplierCurrent *= slideSpeedMultiplier;
+			
+			_slideDistance = slideDistance;
+			if (multiplyDistanceOnMultiplier)
+			{
+				_slideDistance *= _speedMultiplierCurrent;
+			}
+			
+			_characterRun?.ResetMultiplier();
+		}
+	}
+	
 	protected virtual void TryExitSlide()
 	{
 		if (_crouching && _sliding)
 		{
-			MMDebug.DebugOnScreen($"speed:{_characterMove.ActualSpeed}\n multiplier:{_speedMultiplierCurrent}");
-			MMDebug.DebugOnScreen($"{_characterMove.ContextSpeedMultiplier}");
-			
-			if (_characterMove.ActualSpeed <= _characterMove.MovementSpeed * speedMultiplier)
+			_slideDistance -= _characterMove.ActualSpeed * Time.deltaTime;
+			if (_characterMove.ActualSpeed <= _characterMove.WalkSpeed * speedMultiplier || _slideDistance <= 0)
 			{
 				_sliding = false;
+				_slideDistance = 0f;
 			}
 		}
 	}
