@@ -4,6 +4,7 @@ using System.Linq;
 using Larje.Core.Tools.TopDownEngine;
 using MoreMountains.Tools;
 using MoreMountains.TopDownEngine;
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -120,17 +121,15 @@ public class CoreCharacterCrouch3D : CharacterAbility
 		_characterMove.TryAddChangeDirectionCondition(CanChangeDirection);
 		
 		_characterRun = _character?.FindAbility<CoreCharacterRun>();
+		if (_characterRun != null)
+		{
+			_characterRun.EventRunStart += OnRunStarted;
+		}
 	}
 
 	protected virtual void InterpolateMultiplier()
 	{
-		if (_sliding)
-		{
-			/*float targetMultiplier = speedMultiplier;
-			_speedMultiplierCurrent = Mathf.Lerp(_speedMultiplierCurrent, targetMultiplier,
-				Time.deltaTime * slideMultiplierLerpSpeed);*/
-		}
-		else
+		if (!_sliding)
 		{
 			float targetMultiplier = _crouching ? speedMultiplier : 1f;
 			float lerpSpeed = _crouching ? lerpSpeedEnter : lerpSpeedExit;
@@ -217,8 +216,10 @@ public class CoreCharacterCrouch3D : CharacterAbility
 	
 	protected virtual void ExitCrouch()
 	{
-		_sliding = false;
 		_crouching = false;
+		_sliding = false;
+		_slideDistance = 0f;
+		_speedMultiplierCurrent = Mathf.Clamp01(_speedMultiplierCurrent);
 		
 		StopAbilityUsedSfx();
 		PlayAbilityStopSfx();
@@ -264,6 +265,14 @@ public class CoreCharacterCrouch3D : CharacterAbility
 				_sliding = false;
 				_slideDistance = 0f;
 			}
+		}
+	}
+	
+	protected virtual void OnRunStarted()
+	{
+		if (!_sliding && _speedMultiplierCurrent <= 1f)
+		{
+			ExitCrouch();
 		}
 	}
 

@@ -20,12 +20,15 @@ public class CoreCharacterRun : CharacterAbility
 	[SerializeField] private float lerpSpeedExit = 10f;
 
 	private bool _runningStarted = false;
+	private bool _lastFrameInput;
 	private float _speedMultiplierCurrent = 1f;
 	private CoreCharacterMovement _characterMove;
 	private Dictionary<Func<bool>, Func<int>> _inputRunning;
 	
 	protected const string _runningAnimationParameterName = "Running";
 	protected int _runningAnimationParameter;
+	
+	public event Action EventRunStart; 
 	
 	public void AddInput(Func<bool> input, Func<int> priority)
 	{
@@ -129,17 +132,26 @@ public class CoreCharacterRun : CharacterAbility
 		
 		Func<bool> input = _inputRunning
 			.OrderByDescending(x => x.Value.Invoke()).First().Key;
-		
+
 		if (input != null)
 		{
-			if (input())
+			bool inputValue = input();
+			
+			if (inputValue)
 			{
+				if (!_lastFrameInput)
+				{
+					EventRunStart?.Invoke();
+				}
 				RunStart();
 			}
-			if (_runningStarted && !input())
+
+			if (_runningStarted && !inputValue)
 			{
 				RunStop();
-			}	
+			}
+			
+			_lastFrameInput = input();
 		}
 	}
 	
