@@ -50,6 +50,8 @@ public class CoreCharacterCrouch3D : CharacterAbility
 	protected const string _crawlingAnimationParameterName = "Crawling";
 	protected int _crouchingAnimationParameter;
 	protected int _crawlingAnimationParameter;
+	
+	public bool IsSliding => _sliding;
 
 	public void AddInput(Func<bool> input, Func<int> priority)
 	{
