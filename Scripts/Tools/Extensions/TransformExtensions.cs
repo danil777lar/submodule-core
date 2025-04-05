@@ -12,4 +12,19 @@ public static class TransformExtensions
         }
         return path;
     }
+
+    public static void DestroyAllChildren(this Transform transform)
+	{
+		for (int t = transform.childCount - 1; t >= 0; t--)
+		{
+			if (Application.isPlaying)
+			{
+				UnityEngine.Object.Destroy(transform.GetChild(t).gameObject);
+			}
+			else
+			{
+				UnityEngine.Object.DestroyImmediate(transform.GetChild(t).gameObject);
+			}
+		}
+	}
 }

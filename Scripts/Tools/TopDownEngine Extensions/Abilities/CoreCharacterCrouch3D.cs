@@ -1,3 +1,5 @@
+#if MOREMOUNTAINS_TOPDOWNENGINE
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -365,3 +367,4 @@ public class CoreCharacterCrouch3D : CharacterAbility
 		Toggle
 	}
 }
+#endif
