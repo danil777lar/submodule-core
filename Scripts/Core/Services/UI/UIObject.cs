@@ -61,7 +61,6 @@ namespace Larje.Core.Services.UI
                     OnAfterOpen(args);
                     EventAfterOpen?.Invoke();
                 });
-                Debug.Log("Open Delay: " + delay);
             }
         }
         
