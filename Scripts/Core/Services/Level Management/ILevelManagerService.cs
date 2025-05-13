@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Larje.Core.Services;
@@ -6,6 +7,10 @@ namespace Larje.Core.Services
 {
     public interface ILevelManagerService
     {
+        public event Action<LevelProcessor> EventLevelInstantiated;
+        
+        public bool IsLevelPlaying { get; }
+
         public bool IsInstantiatingLevel();
         
         public int GetCurrentLevelCount();

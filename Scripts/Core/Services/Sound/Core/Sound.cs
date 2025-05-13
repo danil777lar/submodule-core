@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Cinemachine;
+using Larje.Core.Services;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -20,6 +22,8 @@ public class Sound
     private Func<float, float> _spatialBlend = (t) => 0f;
     private Func<float, Vector3> _position = (t) => Vector3.zero;
     private Func<string, SoundChannelData> _getChannel;
+
+    private List<IAudioSourceOnNewLoopHandler> _newLoopHandlers;
     
     private List<Action> _onComplete = new List<Action>();
     private List<Action> _onDestroy = new List<Action>();
@@ -156,6 +160,7 @@ public class Sound
     {
         _soundObject = operation.Result;
         _audioSource = _soundObject.GetComponent<AudioSource>();
+        _newLoopHandlers = _soundObject.GetComponentsInChildren<IAudioSourceOnNewLoopHandler>().ToList();
 
         _audioSource.loop = true;
         
@@ -184,7 +189,7 @@ public class Sound
 
         ApplyValues();
         
-        _loopLength += deltaTime * _audioSource.pitch;
+        _loopLength += (deltaTime * _audioSource.pitch) / Time.timeScale;
         if (_loopLength >= _audioSource.clip.length)
         {
             LoopComplete();
@@ -205,6 +210,8 @@ public class Sound
 
     private void LoopComplete()
     {
+        _newLoopHandlers.ForEach(x => x.OnNewLoop());
+        
         _loopLength = 0f;
         if (_loops < 0) return;
         

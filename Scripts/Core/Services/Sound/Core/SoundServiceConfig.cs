@@ -45,7 +45,8 @@ namespace Larje.Core.Services
             string[] soundTypes = sounds.Select((x) => FormatName(x.editorAsset.name)).ToArray();  
             
             EnumScriptBuilder builder = new EnumScriptBuilder(NAMESPACE, FILE_NAME, SYMBOL_PREFIX);
-            builder.AddConstant(FILE_NAME, true, soundTypes);
+            builder.SetIntValueType(EnumScriptBuilder.IntValueType.Index);
+            builder.AddConstant(FILE_NAME, false, soundTypes);
             builder.Save();
             #endif
         }

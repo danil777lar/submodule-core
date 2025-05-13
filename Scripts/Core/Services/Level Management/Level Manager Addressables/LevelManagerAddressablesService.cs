@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using MoreMountains.Tools;
 using UnityEditor;
+using UnityEngine.Rendering;
 
 namespace Larje.Core.Services
 {
@@ -23,6 +24,10 @@ namespace Larje.Core.Services
         private bool _isInstantiatingLevel;
         private LevelProcessor _currentLevel;
 
+        public bool IsLevelPlaying => _currentLevel != null && _currentLevel.IsLevelPlaying;
+        
+        public event Action<LevelProcessor> EventLevelInstantiated;
+        
         public override void Init()
         {
             #if !UNITY_EDITOR
@@ -55,11 +60,13 @@ namespace Larje.Core.Services
             _dataService.Save();
             
             GameObject levelInstance = await Addressables.InstantiateAsync(levels[levelId].LevelPrefab, GetLevelHolder()).Task;
+            
             if (levelInstance != null)
             {
                 if (levelInstance.TryGetComponent(out LevelProcessor level))
                 {
                     _currentLevel = level;
+                    EventLevelInstantiated?.Invoke(level);
                 }
                 else
                 {

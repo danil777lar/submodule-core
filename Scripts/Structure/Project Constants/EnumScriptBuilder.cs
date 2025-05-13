@@ -148,6 +148,8 @@ public class EnumScriptBuilder
     {
         switch (_intValueType)
         {
+            case IntValueType.Index:
+                return index.ToString();
             case IntValueType.BiteShift:
                 return GetIntValueByBiteShift(index);
             
@@ -179,6 +181,7 @@ public class EnumScriptBuilder
 
     public enum IntValueType
     {
+        Index,
         BiteShift,
         MD5
     }

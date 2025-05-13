@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Larje.Core;
@@ -6,8 +7,9 @@ using UnityEngine;
 
 public class SoundPlayer : MonoBehaviour
 {
-    [SerializeField] private SoundType soundType;
+    [SerializeField] private SoundSettings sound;
     [Space] 
+    [SerializeField] private bool playOnStart;
     [SerializeField] private int loops = 1;
     [SerializeField, Range(0f, 1f)] private float volume = 1f;
     [SerializeField, Range(0f, 2f)] private float pitch = 1f;
@@ -18,17 +20,32 @@ public class SoundPlayer : MonoBehaviour
     private void Start()
     {
         DIContainer.InjectTo(this);
+        if (playOnStart)
+        {
+            PlaySound();
+        }
     }
-    
+
+    private void OnDestroy()
+    {
+        StopSound();
+    }
+
+    private void OnDisable()
+    {
+        StopSound();
+    }
+
     [ContextMenu("Play Sound")]
     public void PlaySound()
     {
-        _soundService.Play(soundType)
+        sound.Play(x => x
             .SetTarget(this)
             .SetLoop(loops)
             .SetVolume(t => volume)
+            .SetPosition(t => transform.position)
             .SetPitch(t => pitch)
-            .SetSpatialBlend(t => spatialBlend);
+            .SetSpatialBlend(t => spatialBlend));
     }
 
     [ContextMenu("Stop Sound")]
