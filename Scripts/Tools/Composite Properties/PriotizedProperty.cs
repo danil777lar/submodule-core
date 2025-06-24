@@ -9,16 +9,25 @@ namespace Larje.Core.Tools.CompositeProperties
     public class PriotizedProperty<T> 
     {
         private Dictionary<Func<T>, Func<int>> _values = new Dictionary<Func<T>, Func<int>>();
-        
-        public T Value
+
+        public bool TryGetValue(out T value)
         {
-            get
+            Func<T> input = null;
+            
+            if (_values.Count > 0)
             {
-                Func<T> input = _values.OrderByDescending(x => x.Value.Invoke())
+                input = _values.OrderByDescending(x => x.Value.Invoke())
                     .First().Key;
-                
-                return input != null ? input.Invoke() : default; 
             }
+
+            if (input != null)
+            {
+                value = input.Invoke();
+                return true;
+            }
+         
+            value = default;
+            return false;
         }
         
         public void AddValue(Func<T> value, Func<int> priority)
