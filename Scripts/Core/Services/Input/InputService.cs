@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Larje.Core;
-using MoreMountains.Tools;
+using ProjectConstants;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -18,6 +18,7 @@ public abstract class InputService : Service
     public abstract InputAction PlayerRun { get; }
     public abstract InputAction PlayerPointer { get; }
     
+    public abstract Dictionary<InputActionMapType, Type> ActionMapTypes { get; }
     public abstract Dictionary<Type, bool> DefaultStates { get; }
 
     private List<Map> _maps = new List<Map>();
@@ -64,9 +65,9 @@ public abstract class InputService : Service
         return default;
     }
     
-    public InputAction GetAction(string mapName, string actionName)
+    public InputAction GetAction(InputActionMapType mapType, string actionName)
     {
-        Map map = _maps.Find(map => map.type.Name == mapName);
+        Map map = _maps.Find(map => map.type == ActionMapTypes[mapType]);
         if (map != null)
         {
             InputAction action = map.map.FindAction(actionName);
@@ -76,30 +77,30 @@ public abstract class InputService : Service
             }
             else
             {
-                Debug.LogError("Input Service | Cant find action " + actionName + " in map " + mapName);
+                Debug.LogError("Input Service | Cant find action " + actionName + " in map " + map.type.Name);
             }
         }
         else
         {
-            Debug.LogError("Input Service | Cant find map of type " + mapName);
+            Debug.LogError("Input Service | Cant find map of type " + mapType);
         }
 
         
         return null;
     }
 
-    public void AddCondition<T>(Condition condition)
+    public void AddCondition(InputActionMapType mapType, Condition condition)
     {
-        Map map = _maps.Find(map => map.type == typeof(T));
+        Map map = _maps.Find(map => map.type == ActionMapTypes[mapType]);
         if (map != null && !map.conditions.Contains(condition))
         {
             map.conditions.Add(condition);
         }
     }
 
-    public void RemoveCondition<T>(Condition condition)
+    public void RemoveCondition(InputActionMapType mapType, Condition condition)
     {
-        Map map = _maps.Find(map => map.type == typeof(T));
+        Map map = _maps.Find(map => map.type == ActionMapTypes[mapType]);
         if (map != null && map.conditions.Contains(condition))
         {
             map.conditions.Remove(condition);
@@ -132,7 +133,6 @@ public abstract class InputService : Service
                 }
                 
                 debug += $" = {isEnabled}";
-                //MMDebug.DebugOnScreen(debug);
             }
 
             if (isEnabled)

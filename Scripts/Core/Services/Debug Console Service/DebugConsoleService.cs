@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AOT;
 using Larje.Core;
+using ProjectConstants;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -48,7 +49,7 @@ namespace Larje.Core.Services.DebugConsole
 
                 InputService.Condition condition = new InputService.Condition(
                     () => !_consoleOpened, InputService.ConditionOperation.And, "Debug Console");
-                _inputService.AddCondition<InputSystem_Actions.PlayerActions>(condition);
+                _inputService.AddCondition(InputActionMapType.Player, condition);
             }
             else
             {
