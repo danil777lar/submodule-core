@@ -54,7 +54,19 @@ public class ButtonInteractionFeedbackConfigEditor : Editor
             foreach (ButtonInteractionEffect effect in state.Effects)
             {
                 GUILayout.BeginVertical(EditorStyles.helpBox);
+                
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(effect.GetType().Name, UnityEditor.EditorStyles.boldLabel);
+                if (GUILayout.Button("X"))
+                {
+                    state.Effects.Remove(effect);
+                    break;
+                }
+                GUILayout.EndHorizontal();
+                GUILayout.Space(10);
+                
                 effect.DrawEditor();
+                
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndVertical();

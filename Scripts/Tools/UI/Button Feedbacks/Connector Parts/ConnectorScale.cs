@@ -20,7 +20,7 @@ public class ConnectorScale : ButtonInteractionConnectorPart
         Vector3 finalScale = Vector3.one;
         foreach (Vector3 scale in _scales)
         {
-            finalScale.Scale(scale);
+            finalScale = Vector3.Scale(finalScale, scale);
         }
         
         properties.Transform.localScale = finalScale;
