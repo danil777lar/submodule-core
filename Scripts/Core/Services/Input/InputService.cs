@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Larje.Core;
+using MoreMountains.Tools;
 using ProjectConstants;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -11,13 +12,15 @@ using UnityEngine.InputSystem;
 [BindService(typeof(InputService))]
 public abstract class InputService : Service
 {
+    [SerializeField, MMReadOnly] private List<MapDebug> mapDebugs; 
+    
     public abstract InputAction UIBack { get; }
     public abstract InputAction UIDebug { get; }
-    
+
     public abstract Vector2 PlayerMovement { get; }
     public abstract InputAction PlayerRun { get; }
     public abstract InputAction PlayerPointer { get; }
-    
+
     public abstract Dictionary<InputActionMapType, Type> ActionMapTypes { get; }
     public abstract Dictionary<Type, bool> DefaultStates { get; }
 
@@ -64,7 +67,7 @@ public abstract class InputService : Service
 
         return default;
     }
-    
+
     public InputAction GetAction(InputActionMapType mapType, string actionName)
     {
         Map map = _maps.Find(map => map.type == ActionMapTypes[mapType]);
@@ -85,7 +88,7 @@ public abstract class InputService : Service
             Debug.LogError("Input Service | Cant find map of type " + mapType);
         }
 
-        
+
         return null;
     }
 
@@ -119,19 +122,19 @@ public abstract class InputService : Service
                     .FindAll(condition => condition.Operation == ConditionOperation.Or);
                 List<Condition> andConditions = map.conditions
                     .FindAll(condition => condition.Operation == ConditionOperation.And);
-                
+
                 foreach (Condition condition in orConditions)
                 {
                     isEnabled |= condition.Func();
                     debug += $" | {condition.Name}:{condition.Func()}";
                 }
-                
+
                 foreach (Condition condition in andConditions)
                 {
                     isEnabled &= condition.Func();
                     debug += $" & {condition.Name}:{condition.Func()}";
                 }
-                
+
                 debug += $" = {isEnabled}";
             }
 
@@ -144,20 +147,33 @@ public abstract class InputService : Service
                 map.map.Disable();
             }
         }
+        
+        #if UNITY_EDITOR
+        mapDebugs = new List<MapDebug>();
+        foreach (Map map in _maps)
+        {
+            MapDebug mapDebug = new MapDebug
+            {
+                Name = map.type.Name,
+                State = map.map.enabled ? "Enabled" : "Disabled"
+            };
+            mapDebugs.Add(mapDebug);
+        }
+        #endif
     }
-    
+
     public enum ConditionOperation
     {
         And,
         Or
     }
-    
+
     public class Condition
     {
         public Func<bool> Func { get; }
         public ConditionOperation Operation { get; }
         public string Name { get; }
-        
+
         public Condition(Func<bool> func, ConditionOperation operation = ConditionOperation.And, string name = "")
         {
             Func = func;
@@ -165,12 +181,19 @@ public abstract class InputService : Service
             Name = name;
         }
     }
-    
+
     private class Map
     {
         public InputActionMap map;
         public Type type;
         public object instance;
         public List<Condition> conditions;
+    }
+
+    [Serializable]
+    private struct MapDebug
+    {
+        public string Name;
+        public string State;
     }
 }
