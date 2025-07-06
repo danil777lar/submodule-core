@@ -5,11 +5,11 @@ using UnityEngine;
 [Serializable]
 public class ButtonInteractionState
 {
-    public float durationIn = 0.25f;
-    public float durationOut = 0.25f;
+    [SerializeField] public float durationIn = 0.25f;
+    [SerializeField] public float durationOut = 0.25f;
     
-    public ButtonInteractionStateType stateType;
-    public List<ButtonInteractionEffect> Effects = new List<ButtonInteractionEffect>();
+    [SerializeField] public ButtonInteractionStateType stateType;
+    [SerializeField, SerializeReference] public List<ButtonInteractionEffect> Effects = new List<ButtonInteractionEffect>();
 
     public void Evaluate(ButtonInteractionConnector connector, float t)
     {

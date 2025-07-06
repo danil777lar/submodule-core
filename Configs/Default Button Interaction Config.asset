@@ -14,23 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   material: {fileID: -876546973899608171, guid: 2ac6f692a6b65cc53afc28907d29a701,
     type: 3}
-  interactable:
-    scaleValue: 0.8
-    inAnimDuration: 0.1
-    outAnimDuration: 0.25
-    inAnimEase: 1
-    outAnimEase: 27
-    useVibration: 0
-    vibrationPreset: 0
-    useSound: 0
-    soundType: 0
-  nonInteractable:
-    scaleValue: 0.8
-    inAnimDuration: 0.1
-    outAnimDuration: 0.25
-    inAnimEase: 1
-    outAnimEase: 27
-    useVibration: 0
-    vibrationPreset: 0
-    useSound: 0
-    soundType: 0
+  states:
+  - durationIn: 0.25
+    durationOut: 0.25
+    stateType: 0
+  - durationIn: 0.25
+    durationOut: 0.25
+    stateType: 1
+  - durationIn: 0.25
+    durationOut: 0.25
+    stateType: 2
+  - durationIn: 0.25
+    durationOut: 0.25
+    stateType: 3
+  - durationIn: 0.25
+    durationOut: 0.25
+    stateType: 4
