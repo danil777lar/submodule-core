@@ -15,7 +15,7 @@ MonoBehaviour:
   material: {fileID: -876546973899608171, guid: 2ac6f692a6b65cc53afc28907d29a701,
     type: 3}
   states:
-  - durationIn: 0.25
+  - durationIn: 1
     durationOut: 0.25
     stateType: 0
     Effects: []

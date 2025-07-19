@@ -16,6 +16,13 @@ public class ButtonInteractionFeedbackConfigEditor : Editor
         {
             DrawState(state);
         }
+        
+        GUILayout.Space(20);
+        if (GUILayout.Button("Save"))
+        {
+            EditorUtility.SetDirty(target);
+            AssetDatabase.SaveAssets();
+        }
     }
 
     private void DrawState(ButtonInteractionState state)
