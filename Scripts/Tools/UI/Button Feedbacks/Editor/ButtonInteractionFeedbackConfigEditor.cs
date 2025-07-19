@@ -15,6 +15,10 @@ public class ButtonInteractionFeedbackConfigEditor : Editor
     {
         ButtonInteractionFeedbackConfig config = (ButtonInteractionFeedbackConfig)target;
         
+        SerializedProperty materialProp = serializedObject.FindProperty("material");
+        EditorGUILayout.PropertyField(materialProp, new GUIContent("Material"));
+        GUILayout.Space(20);
+        
         foreach (ButtonInteractionState state in config.States)
         {
             DrawState(state);
@@ -93,8 +97,19 @@ public class ButtonInteractionFeedbackConfigEditor : Editor
     {
         if (effectIndex >= 0)
         {
-            state.Effects.Add(new ScaleEffect());
+            state.Effects.Add(GetEffect(effectIndex));
         }
+    }
+
+    private ButtonInteractionEffect GetEffect(int index)
+    {
+        Type[] effects = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => typeof(ButtonInteractionEffect).IsAssignableFrom(type) && !type.IsAbstract && type != typeof(ButtonInteractionEffect))
+            .ToArray();
+        
+        ButtonInteractionEffect effect = (ButtonInteractionEffect)Activator.CreateInstance(effects[index]);
+        return effect;
     }
     
     private string[] GetEffects()

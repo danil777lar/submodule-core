@@ -29,6 +29,7 @@ MonoBehaviour:
     stateType: 2
     Effects:
     - rid: 7150094869480603722
+    - rid: 7150094869480603909
   - durationIn: 0.25
     durationOut: 0.25
     stateType: 3
@@ -186,6 +187,34 @@ MonoBehaviour:
             tangentMode: 0
             weightedMode: 0
             inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 7150094869480603909
+      type: {class: MaterialFloatPropertyEffect, ns: , asm: Assembly-CSharp}
+      data:
+        propertyName: _Specular_Value
+        curve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 2.3689895
+            outSlope: 2.3689895
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.14440018
             outWeight: 0
           m_PreInfinity: 2
           m_PostInfinity: 2
