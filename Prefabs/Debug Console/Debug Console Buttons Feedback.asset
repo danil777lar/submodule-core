@@ -12,23 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32d4734eb66483b4d9fc24a3475c75f0, type: 3}
   m_Name: Debug Console Buttons Feedback
   m_EditorClassIdentifier: 
-  interactable:
-    scaleValue: 1.1
-    inAnimDuration: 0.1
-    outAnimDuration: 0.25
-    inAnimEase: 1
-    outAnimEase: 27
-    useVibration: 0
-    vibrationPreset: 0
-    useSound: 0
-    soundType: 0
-  nonInteractable:
-    scaleValue: 0.8
-    inAnimDuration: 0.1
-    outAnimDuration: 0.25
-    inAnimEase: 1
-    outAnimEase: 27
-    useVibration: 0
-    vibrationPreset: 0
-    useSound: 0
-    soundType: 0
+  material: {fileID: 0}
+  states: []
+  references:
+    version: 2
+    RefIds: []

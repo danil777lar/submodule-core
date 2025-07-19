@@ -18,15 +18,175 @@ MonoBehaviour:
   - durationIn: 0.25
     durationOut: 0.25
     stateType: 0
+    Effects: []
   - durationIn: 0.25
     durationOut: 0.25
     stateType: 1
+    Effects:
+    - rid: 7150094869480603723
   - durationIn: 0.25
     durationOut: 0.25
     stateType: 2
+    Effects:
+    - rid: 7150094869480603722
   - durationIn: 0.25
     durationOut: 0.25
     stateType: 3
+    Effects: []
   - durationIn: 0.25
     durationOut: 0.25
     stateType: 4
+    Effects: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 7150094869480603722
+      type: {class: ScaleEffect, ns: , asm: Assembly-CSharp}
+      data:
+        xCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1.1
+            inSlope: 0.2718134
+            outSlope: 0.2718134
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.14484048
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        yCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1.1
+            inSlope: 0.29562482
+            outSlope: 0.29562482
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.08136439
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        zCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 7150094869480603723
+      type: {class: ScaleEffect, ns: , asm: Assembly-CSharp}
+      data:
+        xCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: -0.6148986
+            outSlope: -0.6148986
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.13468091
+          - serializedVersion: 3
+            time: 1
+            value: 0.8
+            inSlope: 0.00037116965
+            outSlope: 0.00037116965
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 1
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        yCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: -0.5996895
+            outSlope: -0.5996895
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.33181056
+          - serializedVersion: 3
+            time: 1
+            value: 0.8
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        zCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
