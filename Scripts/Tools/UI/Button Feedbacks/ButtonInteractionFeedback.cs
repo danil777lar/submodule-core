@@ -5,6 +5,7 @@ using UnityEngine;
 using DG.Tweening;
 using Larje.Core.Services;
 using Lofelt.NiceVibrations;
+using MoreMountains.Tools;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -22,7 +23,7 @@ namespace Larje.Core.Tools
         private Selectable _selectable;
         private ButtonInteractionConnector _connector;
         
-        private Dictionary<ButtonInteractionStateType, float> _states;
+        private Dictionary<ButtonInteractionStateType, Dictionary<string, string>> _states;
         
         public void OnPointerDown(PointerEventData eventData)
         {
@@ -57,7 +58,7 @@ namespace Larje.Core.Tools
             
             InitMaterial();
             
-            _states = new Dictionary<ButtonInteractionStateType, float>();
+            _states = new Dictionary<ButtonInteractionStateType, Dictionary<string, string>>();
 
             ButtonProperties properties = new ButtonProperties(transform, _material);
             _connector = new ButtonInteractionConnector(properties);
@@ -69,15 +70,21 @@ namespace Larje.Core.Tools
         {
             SetActiveState(ButtonInteractionStateType.NoInteractable, !_selectable.interactable);
             
-            _states ??= new Dictionary<ButtonInteractionStateType, float>();
+            _states ??= new Dictionary<ButtonInteractionStateType, Dictionary<string, string>>();
             
             _connector.Clear();
             Dictionary<string, List<object>> values = new Dictionary<string, List<object>>();
             foreach (ButtonInteractionState state in config.States)
             {
-                _states.TryAdd(state.stateType, 0f);
+                if (!_states.ContainsKey(state.stateType))
+                {
+                    _states[state.stateType] = new Dictionary<string, string>();
+                }
+                
+                _states[state.stateType][ButtonInteractionEffect.KEY_DELTA_TIME] = Time.deltaTime.ToString();
                 state.Evaluate(_connector, _states[state.stateType]);
             }
+            
             _connector.Apply();
         }
 
@@ -110,22 +117,12 @@ namespace Larje.Core.Tools
 
         private void SetActiveState(ButtonInteractionStateType state, bool isActive)
         {
-            string id = gameObject.GetInstanceID() + state.ToString();
-            string idTrue = id + "True";
-            string idFalse = id + "False";
-
-            if (isActive && DOTween.IsTweening(idTrue)) return;
-            if (!isActive && DOTween.IsTweening(idFalse)) return;
-
-            _states.TryAdd(state, 0f);
-            DOTween.Kill(isActive ? idTrue : idFalse);
-            DOTween.To(
-                () => _states[state],
-                (v) => _states[state] = v, 
-                isActive ? 1f : 0f,
-                isActive ? GetState(state).durationIn : GetState(state).durationOut)
-                    .SetTarget(isActive ? idTrue : idFalse)
-                    .SetEase(Ease.Linear);
+            _states ??= new Dictionary<ButtonInteractionStateType, Dictionary<string, string>>();
+            if (!_states.ContainsKey(state))
+            {
+                _states[state] = new Dictionary<string, string>();
+            }
+            _states[state][ButtonInteractionEffect.KEY_IS_ACTIVE] = isActive.ToString();
         }
 
         private ButtonInteractionState GetState(ButtonInteractionStateType type)

@@ -14,12 +14,5 @@ namespace Larje.Core.Tools
             
         public Material Material => material;
         public IReadOnlyCollection<ButtonInteractionState> States => states;
-
-        private void OnValidate()
-        {
-            #if UNITY_EDITOR
-            UnityEditor.EditorUtility.SetDirty(this);
-            #endif
-        }
     }
 }

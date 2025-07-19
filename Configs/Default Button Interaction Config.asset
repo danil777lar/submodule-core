@@ -15,28 +15,18 @@ MonoBehaviour:
   material: {fileID: -876546973899608171, guid: 2ac6f692a6b65cc53afc28907d29a701,
     type: 3}
   states:
-  - durationIn: 0.25
-    durationOut: 0.25
-    stateType: 0
+  - stateType: 0
     Effects: []
-  - durationIn: 0.1
-    durationOut: 0.1
-    stateType: 1
+  - stateType: 1
     Effects:
     - rid: 7150094869480603723
-  - durationIn: 0.1
-    durationOut: 0.1
-    stateType: 2
+  - stateType: 2
     Effects:
     - rid: 7150094869480603722
     - rid: 7150094869480603909
-  - durationIn: 0.25
-    durationOut: 0.25
-    stateType: 3
+  - stateType: 3
     Effects: []
-  - durationIn: 0.25
-    durationOut: 0.25
-    stateType: 4
+  - stateType: 4
     Effects: []
   references:
     version: 2
@@ -44,6 +34,8 @@ MonoBehaviour:
     - rid: 7150094869480603722
       type: {class: ScaleEffect, ns: , asm: Assembly-CSharp}
       data:
+        speedIn: 5
+        speedOut: 5
         xCurve:
           serializedVersion: 2
           m_Curve:
@@ -119,6 +111,8 @@ MonoBehaviour:
     - rid: 7150094869480603723
       type: {class: ScaleEffect, ns: , asm: Assembly-CSharp}
       data:
+        speedIn: 5
+        speedOut: 5
         xCurve:
           serializedVersion: 2
           m_Curve:
@@ -194,6 +188,8 @@ MonoBehaviour:
     - rid: 7150094869480603909
       type: {class: MaterialFloatPropertyEffect, ns: , asm: Assembly-CSharp}
       data:
+        speedIn: 1
+        speedOut: 0.5
         propertyName: _Specular_Value
         curve:
           serializedVersion: 2

@@ -8,6 +8,7 @@ using UnityEngine;
 [CustomEditor(typeof(ButtonInteractionFeedbackConfig))]
 public class ButtonInteractionFeedbackConfigEditor : Editor
 {
+    private Type[] _effectTypes = Type.EmptyTypes;
     private Dictionary<ButtonInteractionState, int> _selectedEffects = new Dictionary<ButtonInteractionState, int>();
     private Dictionary<ButtonInteractionState, bool> _stateFoldouts = new Dictionary<ButtonInteractionState, bool>();
 
@@ -32,6 +33,11 @@ public class ButtonInteractionFeedbackConfigEditor : Editor
         }
     }
 
+    private void OnEnable()
+    {
+        _effectTypes = GetEffects();
+    }
+
     private void DrawState(ButtonInteractionState state)
     {
         GUILayout.BeginVertical(EditorStyles.helpBox);
@@ -47,20 +53,13 @@ public class ButtonInteractionFeedbackConfigEditor : Editor
         if (_stateFoldouts[state])
         {
             GUILayout.BeginVertical(EditorStyles.helpBox);
-            state.durationIn = EditorGUILayout.FloatField("Duration In", state.durationIn);
-            state.durationOut = EditorGUILayout.FloatField("Duration Out", state.durationOut);
-            GUILayout.EndVertical();
-
-            GUILayout.Space(10);
-            
-            GUILayout.BeginVertical(EditorStyles.helpBox);
-            
             GUILayout.BeginHorizontal();
             
             GUILayout.Label($"Effects ");
             
             int selectedEffect = _selectedEffects.ContainsKey(state) ? _selectedEffects[state] : 0;
-            _selectedEffects[state] = EditorGUILayout.Popup("", selectedEffect, GetEffects()); 
+            string[] effectOptions = _effectTypes.Select((type) => type.ToString()).ToArray();
+            _selectedEffects[state] = EditorGUILayout.Popup("", selectedEffect, effectOptions); 
             if (GUILayout.Button("Add"))
             {
                 AddEffect(state, _selectedEffects[state]);
@@ -103,22 +102,17 @@ public class ButtonInteractionFeedbackConfigEditor : Editor
 
     private ButtonInteractionEffect GetEffect(int index)
     {
-        Type[] effects = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(assembly => assembly.GetTypes())
-            .Where(type => typeof(ButtonInteractionEffect).IsAssignableFrom(type) && !type.IsAbstract && type != typeof(ButtonInteractionEffect))
-            .ToArray();
-        
-        ButtonInteractionEffect effect = (ButtonInteractionEffect)Activator.CreateInstance(effects[index]);
+        ButtonInteractionEffect effect = (ButtonInteractionEffect)Activator.CreateInstance(_effectTypes[index]);
         return effect;
     }
     
-    private string[] GetEffects()
+    private Type[] GetEffects()
     {
         Type[] effects = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
             .Where(type => typeof(ButtonInteractionEffect).IsAssignableFrom(type) && !type.IsAbstract && type != typeof(ButtonInteractionEffect))
             .ToArray();
 
-        return effects.Select(type => type.Name).ToArray();
+        return effects;
     }
 }
