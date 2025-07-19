@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Larje.Core.Tools;
 using UnityEditor;
 using UnityEngine;
@@ -6,6 +8,7 @@ using UnityEngine;
 [CustomEditor(typeof(ButtonInteractionFeedbackConfig))]
 public class ButtonInteractionFeedbackConfigEditor : Editor
 {
+    private Dictionary<ButtonInteractionState, int> _selectedEffects = new Dictionary<ButtonInteractionState, int>();
     private Dictionary<ButtonInteractionState, bool> _stateFoldouts = new Dictionary<ButtonInteractionState, bool>();
 
     public override void OnInspectorGUI()
@@ -51,9 +54,12 @@ public class ButtonInteractionFeedbackConfigEditor : Editor
             GUILayout.BeginHorizontal();
             
             GUILayout.Label($"Effects ");
-            if (GUILayout.Button("Add Effect"))
+            
+            int selectedEffect = _selectedEffects.ContainsKey(state) ? _selectedEffects[state] : 0;
+            _selectedEffects[state] = EditorGUILayout.Popup("", selectedEffect, GetEffects()); 
+            if (GUILayout.Button("Add"))
             {
-                AddEffect(state);
+                AddEffect(state, _selectedEffects[state]);
             }
             
             GUILayout.EndHorizontal();
@@ -83,8 +89,21 @@ public class ButtonInteractionFeedbackConfigEditor : Editor
         GUILayout.EndVertical();
     }
 
-    private void AddEffect(ButtonInteractionState state)
+    private void AddEffect(ButtonInteractionState state, int effectIndex = -1)
     {
-        state.Effects.Add(new ScaleEffect());
+        if (effectIndex >= 0)
+        {
+            state.Effects.Add(new ScaleEffect());
+        }
+    }
+    
+    private string[] GetEffects()
+    {
+        Type[] effects = AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => typeof(ButtonInteractionEffect).IsAssignableFrom(type) && !type.IsAbstract && type != typeof(ButtonInteractionEffect))
+            .ToArray();
+
+        return effects.Select(type => type.Name).ToArray();
     }
 }
