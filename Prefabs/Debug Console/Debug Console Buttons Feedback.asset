@@ -13,7 +13,95 @@ MonoBehaviour:
   m_Name: Debug Console Buttons Feedback
   m_EditorClassIdentifier: 
   material: {fileID: 0}
-  states: []
+  states:
+  - stateType: 0
+    Effects: []
+  - stateType: 1
+    Effects:
+    - rid: 7150095052392104018
+  - stateType: 2
+    Effects: []
+  - stateType: 3
+    Effects: []
+  - stateType: 4
+    Effects: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7150095052392104018
+      type: {class: ScaleEffect, ns: , asm: Assembly-CSharp}
+      data:
+        speedIn: 5
+        speedOut: 5
+        xCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0.07046621
+            outSlope: 0.07046621
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.07736755
+          - serializedVersion: 3
+            time: 1
+            value: 1.025
+            inSlope: -0.00022170134
+            outSlope: -0.00022170134
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 1
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        yCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0.325467
+            outSlope: 0.325467
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0.034782607
+          - serializedVersion: 3
+            time: 1
+            value: 1.1
+            inSlope: -0.0011668358
+            outSlope: -0.0011668358
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.38086957
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        zCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4

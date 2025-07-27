@@ -15,7 +15,7 @@ public class ButtonInteractionFeedbackConfigEditor : Editor
     public override void OnInspectorGUI()
     {
         ButtonInteractionFeedbackConfig config = (ButtonInteractionFeedbackConfig)target;
-        
+        config.ValidateStates();
         SerializedProperty materialProp = serializedObject.FindProperty("material");
         EditorGUILayout.PropertyField(materialProp, new GUIContent("Material"));
         GUILayout.Space(20);

@@ -14,5 +14,16 @@ namespace Larje.Core.Tools
             
         public Material Material => material;
         public IReadOnlyCollection<ButtonInteractionState> States => states;
+
+        public void ValidateStates()
+        {
+            foreach (ButtonInteractionStateType state in Enum.GetValues(typeof(ButtonInteractionStateType)))
+            {
+                if (!states.Exists(s => s.stateType == state))
+                {
+                    states.Add(new ButtonInteractionState { stateType = state });
+                }
+            }
+        }
     }
 }

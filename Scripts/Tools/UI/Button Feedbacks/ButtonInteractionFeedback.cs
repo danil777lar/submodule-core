@@ -49,7 +49,7 @@ namespace Larje.Core.Tools
         {
             DIContainer.InjectTo(this);
             
-            _selectable = GetComponent<Selectable>();
+            _selectable = GetComponentInChildren<Selectable>();
             if (config == null)
             {
                 Debug.LogError("Button Interaction Feedback: config is null", gameObject);
@@ -68,6 +68,11 @@ namespace Larje.Core.Tools
 
         private void Update()
         {
+            if (config == null)
+            {
+                return;
+            }
+            
             SetActiveState(ButtonInteractionStateType.NoInteractable, !_selectable.interactable);
             
             _states ??= new Dictionary<ButtonInteractionStateType, Dictionary<string, string>>();
