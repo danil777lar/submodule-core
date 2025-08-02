@@ -8,8 +8,8 @@ namespace Larje.Core.Tools.CompositeProperties
     [Serializable]
     public class BoolComposite
     {
-        [SerializeField] private bool defaultValue;
-        [SerializeField] private Operation operation;
+        [SerializeField] private bool defaultValue = true;
+        [SerializeField] private Operation operation = Operation.And;
         [SerializeField, MMReadOnly] private bool value; 
         
         private List<Func<bool>> _values = new List<Func<bool>>();
