@@ -98,7 +98,9 @@ namespace Larje.Core.Services
         private void OpenDataPath()
         {
             CheckExistDirectory(GameSaveDir);
-            System.Diagnostics.Process.Start("explorer.exe","/select,"+GameSaveDir);
+            
+            Debug.Log(GameSaveDir);
+            LarjeSystemUtility.OpenFileExplorer(GameSaveDir);
         }
         
         private void SetDefaultData()

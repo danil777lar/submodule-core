@@ -135,7 +135,7 @@ namespace Larje.Core.Services.DebugConsole
         public static void CopyCameraPosition(float distanceForward = 5)
         {
             Vector3 point = Camera.main.transform.position + Camera.main.transform.forward * distanceForward;
-            ClipboardUtility.CopyToClipboard(point.ToString());
+            LarjeSystemUtility.CopyToClipboard(point.ToString());
         }
         
         [MethodGroup("Objects")]
@@ -156,7 +156,7 @@ namespace Larje.Core.Services.DebugConsole
                 guidHolder.GenerateGUID();
                 
                 Debug.Log($"Object {instance.name} spawned at {pos} with GUID {guidHolder.GUID}");
-                ClipboardUtility.CopyToClipboard(guidHolder.GUID);
+                LarjeSystemUtility.CopyToClipboard(guidHolder.GUID);
             };
         }
         
