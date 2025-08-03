@@ -7,90 +7,73 @@ using UnityEngine;
 
 namespace Larje.Core.Services
 { 
-    [BindService(typeof(DataService))]
-    public class DataService : Service
+    [BindService(typeof(IDataService))]
+    public class DataService : Service, IDataService
     {
         private const string DATA_PATH = "Saves"; 
         private const string FILE_EXTENSION = ".save"; 
         
-        [SerializeField] protected DefaultProfile _defaultProfile;
-        [SerializeField] protected GameData _data;
+        [SerializeField] protected SystemData systemData;
+        [SerializeField] protected GameData gameData;
 
-        private string _saveName = "default";
+        private string _systemSaveName = "system";
+        private string _gameSaveName = "default";
         
-        public GameData Data => _data;
+        public SystemData SystemData => systemData;
+        public GameData GameData => gameData;
         
-        private string SaveDir => Path.Combine(Application.persistentDataPath, DATA_PATH);
-        private string SavePath => Path.Combine(SaveDir, _saveName);
+        private string GameSaveDir => Path.Combine(Application.persistentDataPath, DATA_PATH);
+        private string GameSavePath => Path.Combine(GameSaveDir, _gameSaveName + FILE_EXTENSION);
+        private string SystemSavePath => Path.Combine(Application.persistentDataPath, _systemSaveName + FILE_EXTENSION);
 
         public override void Init()
         {
             Load();
-            _data.IternalData.SessionNum++;
+            systemData.IternalData.SessionNum++;
             Save();
-        }
-        
-        public virtual void SetDefaultData()
-        {
-            if (_defaultProfile == null) 
-            {
-                Debug.LogError($"Data Service: Default Data Profile is null", gameObject);
-                return;
-            }
-
-            _data = _defaultProfile.profileData;
-            Save();
-            Load();
         }
 
         [ContextMenu("Save")]
-        public virtual void Save()
+        public void Save()
         {
             Save("");
         }
         
-        public virtual void Save(string saveName)
+        public void Save(string saveName)
         {
             if (!string.IsNullOrEmpty(saveName))
             {
-                _saveName = saveName;
+                _gameSaveName = saveName;
             }
             
-            byte[] jsonDataBytes = Encoding.UTF8.GetBytes(JsonUtility.ToJson(_data, false));
-            CheckExistDirectory(SaveDir);
-            File.WriteAllText(SavePath, Convert.ToBase64String(jsonDataBytes));
-        }
-        
-        [ContextMenu("Open Data Path")]
-        public virtual void OpenDataPath()
-        {
-            CheckExistDirectory(SaveDir);
-            System.Diagnostics.Process.Start("explorer.exe","/select,"+SaveDir);
+            byte[] jsonDataBytes = Encoding.UTF8.GetBytes(JsonUtility.ToJson(gameData, false));
+            CheckExistDirectory(GameSaveDir);
+            File.WriteAllText(GameSavePath, Convert.ToBase64String(jsonDataBytes));
         }
         
         [ContextMenu("Clear Progress")]
-        public virtual void DeleteSave()
+        public void DeleteSave()
         {
-            CheckExistDirectory(SaveDir);
-            if (File.Exists(SavePath))
+            CheckExistDirectory(GameSaveDir);
+            if (File.Exists(GameSavePath))
             {
-                File.Delete(SavePath);
+                File.Delete(GameSavePath);
             }
         }
 
         public List<string> GetSaves()
         {
-            CheckExistDirectory(SaveDir);
-            string[] files = Directory.GetFiles(SaveDir, "*" + FILE_EXTENSION, SearchOption.AllDirectories);
+            CheckExistDirectory(GameSaveDir);
+            string[] files = Directory.GetFiles(GameSaveDir, "*" + FILE_EXTENSION, SearchOption.AllDirectories);
             return files.ToList();
         }
 
-        protected virtual void Load()
+        private void Load()
         {
-            CheckExistDirectory(SaveDir);
-            if (File.Exists(SavePath))
+            CheckExistDirectory(GameSaveDir);
+            if (File.Exists(GameSavePath))
             {
-                _data = JsonUtility.FromJson<GameData>(Encoding.UTF8.GetString(Convert.FromBase64String(File.ReadAllText(SavePath))));
+                gameData = JsonUtility.FromJson<GameData>(Encoding.UTF8.GetString(Convert.FromBase64String(File.ReadAllText(GameSavePath))));
             }
             else
             {
@@ -98,7 +81,7 @@ namespace Larje.Core.Services
             }
         }
 
-        protected virtual void OnDestroy()
+        private void OnDestroy()
         {
             Save();
         }
@@ -109,6 +92,20 @@ namespace Larje.Core.Services
             {
                 Directory.CreateDirectory(dir);
             }
+        }
+        
+        [ContextMenu("Open Data Path")]
+        private void OpenDataPath()
+        {
+            CheckExistDirectory(GameSaveDir);
+            System.Diagnostics.Process.Start("explorer.exe","/select,"+GameSaveDir);
+        }
+        
+        private void SetDefaultData()
+        {
+            gameData = new GameData();
+            Save();
+            Load();
         }
     }
 }

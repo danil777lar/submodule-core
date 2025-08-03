@@ -12,7 +12,7 @@ namespace Larje.Core.Services
     {
         [SerializeField] private SoundServiceConfig config;
         
-        [InjectService] private DataService _dataService;
+        [InjectService] private IDataService _dataService;
         
         private bool _isLoaded;
         private List<SoundData> _sounds = new List<SoundData>();
@@ -85,7 +85,7 @@ namespace Larje.Core.Services
         
         private SoundChannelData GetChannel(string channelName)
         {
-            return _dataService.Data.Settings.SoundData.GetChannel(channelName);
+            return _dataService.SystemData.Settings.SoundData.GetChannel(channelName);
         }
         
         private class SoundData

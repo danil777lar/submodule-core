@@ -10,11 +10,11 @@ namespace Larje.Core.Services
         [SerializeField, Min(1)] private int tasksCount;
         [SerializeField] private List<TaskConfig> taskConfigs;
 
-        [InjectService] private DataService _dataService;
+        [InjectService] private IDataService _dataService;
         
         protected List<TaskConfig.Processor> _processors;
 
-        public virtual DateTime LastReset => DateTime.Parse(_dataService.Data.DailyTasksServiceData.LastDailyTaskReset);
+        public virtual DateTime LastReset => DateTime.Parse(_dataService.GameData.DailyTasksServiceData.LastDailyTaskReset);
         public virtual DateTime NextReset => DateTime.Today.AddDays(1);
         public override IReadOnlyCollection<TaskConfig> Tasks => taskConfigs.FindAll(x => x.Initialized);
 
@@ -35,7 +35,7 @@ namespace Larje.Core.Services
         {
             ClearTasks();
 
-            _dataService.Data.DailyTasksServiceData.LastDailyTaskReset = DateTime.Now.ToString();
+            _dataService.GameData.DailyTasksServiceData.LastDailyTaskReset = DateTime.Now.ToString();
 
             List<TaskConfig> createdTasks = new List<TaskConfig>();
             for (int i = 0; i < tasksCount; i++)
@@ -66,7 +66,7 @@ namespace Larje.Core.Services
 
         protected virtual bool NeedToResetTasks()
         {
-            string lastResetString = _dataService.Data.DailyTasksServiceData.LastDailyTaskReset;
+            string lastResetString = _dataService.GameData.DailyTasksServiceData.LastDailyTaskReset;
             if (Tasks.Count > 0 && DateTime.TryParse(lastResetString, out DateTime lastReset))
             {
                 return TimeSpan.FromTicks(lastReset.Ticks).Days != TimeSpan.FromTicks(DateTime.Now.Ticks).Days;

@@ -33,7 +33,7 @@ namespace Larje.Core.Services
 
         public virtual void ClearTaskData()
         {
-            DIContainer.GetService<DataService>().Data.ClearTaskData(Type);
+            DIContainer.GetService<IDataService>().GameData.ClearTaskData(Type);
         }
 
         [ContextMenu("Set Localization Keys")]
@@ -56,7 +56,7 @@ namespace Larje.Core.Services
 
         protected virtual TaskData GetData()
         {
-            return DIContainer.GetService<DataService>().Data.GetTaskData(Type);
+            return DIContainer.GetService<IDataService>().GameData.GetTaskData(Type);
         }
 
         public abstract class Processor

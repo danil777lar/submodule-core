@@ -18,7 +18,7 @@ namespace Larje.Core.Services
         [SerializeField] private Transform levelHolder;
         [SerializeField, HideInInspector] private LevelOptions[] levels;
 
-        [InjectService] private DataService _dataService;
+        [InjectService] private IDataService _dataService;
 
         private bool _firstLevelSpawn = true;
         private bool _isInstantiatingLevel;
@@ -56,7 +56,7 @@ namespace Larje.Core.Services
 
             GetLevelHolder().MMDestroyAllChildren();
             int levelId = GetCurrentLevelIndex();
-            _dataService.Data.levelManagerAddressablesData.LastLevelIndex = levelId;
+            _dataService.GameData.levelManagerAddressablesData.LastLevelIndex = levelId;
             _dataService.Save();
             
             GameObject levelInstance = await Addressables.InstantiateAsync(levels[levelId].LevelPrefab, GetLevelHolder()).Task;
@@ -97,8 +97,8 @@ namespace Larje.Core.Services
 
         public void IncrementLevelId()
         {
-            _dataService.Data.levelManagerAddressablesData.CurrentLevelCount++;
-            List<int> randomLevels = _dataService.Data.levelManagerAddressablesData.RandomLevels;
+            _dataService.GameData.levelManagerAddressablesData.CurrentLevelCount++;
+            List<int> randomLevels = _dataService.GameData.levelManagerAddressablesData.RandomLevels;
             if (randomLevels != null && randomLevels.Count > 0)
             {
                 randomLevels.RemoveAt(0);
@@ -149,25 +149,25 @@ namespace Larje.Core.Services
 
         public int GetCurrentLevelCount()
         {
-            return _dataService.Data.levelManagerAddressablesData.CurrentLevelCount;
+            return _dataService.GameData.levelManagerAddressablesData.CurrentLevelCount;
         }
         
         public int GetCurrentLevelIndex()
         {
-            int id = _dataService.Data.levelManagerAddressablesData.CurrentLevelCount;
+            int id = _dataService.GameData.levelManagerAddressablesData.CurrentLevelCount;
             if (id >= levels.Length)
             {
-                List<int> randomLevels = _dataService.Data.levelManagerAddressablesData.RandomLevels;
+                List<int> randomLevels = _dataService.GameData.levelManagerAddressablesData.RandomLevels;
                 if (randomLevels == null || randomLevels.Count == 0)
                 {
                     randomLevels = new List<int>();
-                    _dataService.Data.levelManagerAddressablesData.RandomLevels = randomLevels;
+                    _dataService.GameData.levelManagerAddressablesData.RandomLevels = randomLevels;
                     foreach (LevelOptions level in levels.Where(x => x.AddToRandomList))
                     {
                         randomLevels.Add(levels.ToList().IndexOf(level));
                     }
                     randomLevels.MMShuffle();
-                    if (randomLevels.Count > 1 && randomLevels[0] == _dataService.Data.levelManagerAddressablesData.LastLevelIndex)
+                    if (randomLevels.Count > 1 && randomLevels[0] == _dataService.GameData.levelManagerAddressablesData.LastLevelIndex)
                     {
                         randomLevels.MMSwap(0, UnityEngine.Random.Range(1, randomLevels.Count));
                     }
@@ -180,7 +180,7 @@ namespace Larje.Core.Services
         
         public void SetCurrentLevelIndex(int id)
         {
-            _dataService.Data.levelManagerAddressablesData.CurrentLevelCount = id;
+            _dataService.GameData.levelManagerAddressablesData.CurrentLevelCount = id;
             _dataService.Save();
         }
 

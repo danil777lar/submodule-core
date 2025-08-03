@@ -49,8 +49,8 @@ namespace Larje.Core.Services.DebugConsole
         [MethodGroup("Sound")]
         public static void SetChannelVolume(string channel, float volume)
         {
-            DataService dataService = DIContainer.GetService<DataService>();
-            dataService.Data.Settings.SoundData.GetChannel(channel).Volume = volume;
+            IDataService dataService = DIContainer.GetService<IDataService>();
+            dataService.SystemData.Settings.SoundData.GetChannel(channel).Volume = volume;
         }
 
         #endregion

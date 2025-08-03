@@ -7,8 +7,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
-[BindService(typeof(DataService))]
-public class WebDataService : DataService
+[BindService(typeof(IDataService))]
+public class WebDataService : Service, IDataService
 {
     [Space(20f)] 
     [SerializeField] private string aesKey;
@@ -24,6 +24,11 @@ public class WebDataService : DataService
     public string UserId { get; private set; } = "0";
     public string UserFirstName { get; private set; }
 
+    public override void Init()
+    {
+        
+    }
+    
     public void SetUserId(string id)
     {
         if (string.IsNullOrEmpty(id))
@@ -43,17 +48,30 @@ public class WebDataService : DataService
         return _loaded ? 1f : 0f;
     }
 
-    public override void DeleteSave()
+    public void DeleteSave()
     {
     }
 
-    public override void Save(string saveName = "")
+    public List<string> GetSaves()
     {
-        if (UserId != null)
+        throw new NotImplementedException();
+    }
+
+    public SystemData SystemData { get; }
+    public GameData GameData { get; }
+
+    public void Save()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Save(string saveName = "")
+    {
+        /*if (UserId != null)
         {
             Debug.Log("Web Data Service: Try Save!");
             
-            string json = JsonUtility.ToJson(_data);
+            string json = JsonUtility.ToJson(gameData);
             
             Dictionary<string, string> data = new Dictionary<string, string>();
             data.Add("user_id", UserId);
@@ -75,12 +93,12 @@ public class WebDataService : DataService
         else
         {
             Debug.Log("Web Data Service: Save Error: User ID is null");
-        }
+        }*/
     }
 
-    protected override void Load()
+    protected void Load()
     {
-        if (UserId != null)
+        /*if (UserId != null)
         {
             Debug.Log("Web Data Service: Try Load!");
             
@@ -94,12 +112,12 @@ public class WebDataService : DataService
                     string rawText = response["user_data"];
                     if (string.IsNullOrEmpty(rawText) || string.IsNullOrWhiteSpace(rawText))
                     {
-                        _data = _defaultProfile.profileData;
+                        gameData = new GameData();
                     }
                     else
                     {
                         string json = AESUtility.Decrypt(rawText, aesKey, aesIV);
-                        _data = JsonUtility.FromJson<GameData>(json);
+                        gameData = JsonUtility.FromJson<GameData>(json);
                     }
 
                     OnLoaded();
@@ -114,17 +132,17 @@ public class WebDataService : DataService
         else
         {
             Debug.Log("Web Data Service: Load Error: User ID is null");
-        }
+        }*/
     }
 
     private void OnLoaded()
     {
-        if (!_loaded)
+        /*if (!_loaded)
         {
-            _data.IternalData.SessionNum++;
+            systemData.IternalData.SessionNum++;
             Save();
         }
-        _loaded = true;
+        _loaded = true;*/
     }
     
     [ContextMenu("Generate Key")]

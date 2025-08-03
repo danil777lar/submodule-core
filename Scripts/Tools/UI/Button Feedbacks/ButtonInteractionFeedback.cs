@@ -16,7 +16,7 @@ namespace Larje.Core.Tools
     {
         [SerializeField] private ButtonInteractionFeedbackConfig config;
         
-        [InjectService] private DataService _dataService;
+        [InjectService] private IDataService _dataService;
         [InjectService] private SoundService _soundService;
         
         private Material _material;

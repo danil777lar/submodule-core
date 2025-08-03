@@ -10,9 +10,9 @@ namespace Larje.Core.Services
     [BindService(typeof(ICurrencyService), typeof(CurrencyService))]
     public class CurrencyService : Service, ICurrencyService
     {
-        [InjectService] private DataService _dataService;
+        [InjectService] private IDataService _dataService;
         
-        private List<CurrencyData> CurrencyData => _dataService.Data.CurrencyData; 
+        private List<CurrencyData> CurrencyData => _dataService.GameData.CurrencyData; 
 
         public event Action EventCurrencyChanged;
         

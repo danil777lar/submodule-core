@@ -12,7 +12,7 @@ namespace Larje.Core.Services
         [SerializeField] private bool setFirstItemAsDefault;
         [SerializeField] private List<ItemsHolderConfig> configs;
 
-        [InjectService] private DataService _dataService;
+        [InjectService] private IDataService _dataService;
 
         public event Action EventCurrentItemChanged;
         public event Action EventNewItemUnlocked;
@@ -78,7 +78,7 @@ namespace Larje.Core.Services
 
         protected ItemsData GetSkinsData(ItemType itemType)
         {
-            ItemsData data = _dataService.Data.ItemsData
+            ItemsData data = _dataService.GameData.ItemsData
                 .ToList().Find(x => x.ItemType == itemType);
 
             if (data == null)
@@ -89,7 +89,7 @@ namespace Larje.Core.Services
                 data.ItemType = itemType;
                 data.CurrentItem = defaultSkin;
                 data.UnlockedItems.Add(defaultSkin);
-                _dataService.Data.ItemsData.Add(data);
+                _dataService.GameData.ItemsData.Add(data);
                 _dataService.Save();
             }
 

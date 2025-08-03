@@ -10,15 +10,7 @@ namespace Larje.Core.Services
     {
         public override void OnInspectorGUI()
         {
-            if (Application.isPlaying)
-            {
-                base.OnInspectorGUI();
-            }
-            else 
-            {
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("_defaultProfile"));
-                serializedObject.ApplyModifiedProperties();
-            }
+            base.OnInspectorGUI();
         }
     }
 }
