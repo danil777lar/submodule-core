@@ -90,7 +90,7 @@ namespace Larje.Core.Services
                 data.CurrentItem = defaultSkin;
                 data.UnlockedItems.Add(defaultSkin);
                 _dataService.GameData.ItemsData.Add(data);
-                _dataService.Save();
+                _dataService.SaveGameData();
             }
 
             return data;

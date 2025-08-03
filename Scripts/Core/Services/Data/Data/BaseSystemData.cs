@@ -6,8 +6,8 @@ namespace Larje.Core.Services
     [Serializable]
     public class SystemData
     {
-        public Settings Settings;
-        public IternalData IternalData;
+        public Settings Settings = new Settings();
+        public IternalData IternalData = new IternalData();
     }
     
     [Serializable]

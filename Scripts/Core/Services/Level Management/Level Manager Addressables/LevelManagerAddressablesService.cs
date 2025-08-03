@@ -57,7 +57,7 @@ namespace Larje.Core.Services
             GetLevelHolder().MMDestroyAllChildren();
             int levelId = GetCurrentLevelIndex();
             _dataService.GameData.levelManagerAddressablesData.LastLevelIndex = levelId;
-            _dataService.Save();
+            _dataService.SaveGameData();
             
             GameObject levelInstance = await Addressables.InstantiateAsync(levels[levelId].LevelPrefab, GetLevelHolder()).Task;
             
@@ -103,7 +103,7 @@ namespace Larje.Core.Services
             {
                 randomLevels.RemoveAt(0);
             }
-            _dataService.Save();
+            _dataService.SaveGameData();
         }
 
         public void TryStartCurrentLevel(LevelProcessor.StartData data)
@@ -171,7 +171,7 @@ namespace Larje.Core.Services
                     {
                         randomLevels.MMSwap(0, UnityEngine.Random.Range(1, randomLevels.Count));
                     }
-                    _dataService.Save();
+                    _dataService.SaveGameData();
                 }
                 id = randomLevels[0];
             }
@@ -181,7 +181,7 @@ namespace Larje.Core.Services
         public void SetCurrentLevelIndex(int id)
         {
             _dataService.GameData.levelManagerAddressablesData.CurrentLevelCount = id;
-            _dataService.Save();
+            _dataService.SaveGameData();
         }
 
         private Transform GetLevelHolder()

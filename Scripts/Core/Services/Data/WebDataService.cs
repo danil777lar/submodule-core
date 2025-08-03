@@ -48,11 +48,16 @@ public class WebDataService : Service, IDataService
         return _loaded ? 1f : 0f;
     }
 
+    public bool LoadGameData(string saveName)
+    {
+        throw new NotImplementedException();
+    }
+
     public void DeleteSave()
     {
     }
 
-    public List<string> GetSaves()
+    public List<SaveMetaData> GetSaves()
     {
         throw new NotImplementedException();
     }
@@ -65,7 +70,7 @@ public class WebDataService : Service, IDataService
         throw new NotImplementedException();
     }
 
-    public void Save(string saveName = "")
+    public void SaveGameData(string saveName = "")
     {
         /*if (UserId != null)
         {

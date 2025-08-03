@@ -88,7 +88,7 @@ namespace Larje.Core.Services
 
             placementData.count = count;
             EventCurrencyChanged?.Invoke();
-            _dataService.Save();
+            _dataService.SaveGameData();
         }
     }
 }

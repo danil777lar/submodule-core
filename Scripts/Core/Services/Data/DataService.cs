@@ -11,10 +11,13 @@ namespace Larje.Core.Services
     public class DataService : Service, IDataService
     {
         private const string DATA_PATH = "Saves"; 
-        private const string FILE_EXTENSION = ".save"; 
+        private const string SAVE_FILE_EXTENSION = ".save"; 
+        private const string META_FILE_EXTENSION = ".meta"; 
         
-        [SerializeField] protected SystemData systemData;
-        [SerializeField] protected GameData gameData;
+        [SerializeField] private bool loadGameDataOnInit = true;
+        [Space]
+        [SerializeField] private SystemData systemData;
+        [SerializeField] private GameData gameData;
 
         private string _systemSaveName = "system";
         private string _gameSaveName = "default";
@@ -22,72 +25,131 @@ namespace Larje.Core.Services
         public SystemData SystemData => systemData;
         public GameData GameData => gameData;
         
-        private string GameSaveDir => Path.Combine(Application.persistentDataPath, DATA_PATH);
-        private string GameSavePath => Path.Combine(GameSaveDir, _gameSaveName + FILE_EXTENSION);
-        private string SystemSavePath => Path.Combine(Application.persistentDataPath, _systemSaveName + FILE_EXTENSION);
+        private string SystemSavePath => Path.Combine(Application.persistentDataPath, _systemSaveName);
 
         public override void Init()
         {
-            Load();
-            systemData.IternalData.SessionNum++;
-            Save();
-        }
-
-        [ContextMenu("Save")]
-        public void Save()
-        {
-            Save("");
+            InitSystemData();
+            InitGameData();
         }
         
-        public void Save(string saveName)
+        public void SaveGameData(string saveName = "")
         {
             if (!string.IsNullOrEmpty(saveName))
             {
                 _gameSaveName = saveName;
             }
             
-            byte[] jsonDataBytes = Encoding.UTF8.GetBytes(JsonUtility.ToJson(gameData, false));
-            CheckExistDirectory(GameSaveDir);
-            File.WriteAllText(GameSavePath, Convert.ToBase64String(jsonDataBytes));
+            SaveMetaData metaData = new SaveMetaData
+            {
+                name = _gameSaveName,
+                date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                savePath = GetSavePath(_gameSaveName + SAVE_FILE_EXTENSION),
+                imagePath = string.Empty
+            };
+            
+            WriteFile(GetSavePath(_gameSaveName + META_FILE_EXTENSION), metaData);
+            WriteFile(GetSavePath(_gameSaveName + SAVE_FILE_EXTENSION), gameData);
+        }
+
+        public bool LoadGameData(string saveName = "")
+        {
+            if (TryReadFile(GetSavePath(_gameSaveName + SAVE_FILE_EXTENSION), out GameData result))
+            {
+                if (!string.IsNullOrEmpty(saveName))
+                {
+                    _gameSaveName = saveName;
+                }
+                gameData = result;
+                return true;
+            }
+
+            return false;
+        }
+        
+        public void SaveSystemData()
+        {
+            WriteFile(SystemSavePath, systemData);
         }
         
         [ContextMenu("Clear Progress")]
         public void DeleteSave()
         {
-            CheckExistDirectory(GameSaveDir);
-            if (File.Exists(GameSavePath))
-            {
-                File.Delete(GameSavePath);
-            }
         }
 
-        public List<string> GetSaves()
+        public List<SaveMetaData> GetSaves()
         {
-            CheckExistDirectory(GameSaveDir);
-            string[] files = Directory.GetFiles(GameSaveDir, "*" + FILE_EXTENSION, SearchOption.AllDirectories);
-            return files.ToList();
-        }
-
-        private void Load()
-        {
-            CheckExistDirectory(GameSaveDir);
-            if (File.Exists(GameSavePath))
+            List<SaveMetaData> saves = new List<SaveMetaData>();
+            CheckExistDirectory(GetSavePath());
+            string[] files = Directory.GetFiles(GetSavePath(), "*" + META_FILE_EXTENSION, SearchOption.AllDirectories);
+            foreach (string file in files)
             {
-                gameData = JsonUtility.FromJson<GameData>(Encoding.UTF8.GetString(Convert.FromBase64String(File.ReadAllText(GameSavePath))));
+                if (TryReadFile(file, out SaveMetaData metaData))
+                {
+                    saves.Add(metaData);
+                }
             }
-            else
-            {
-                SetDefaultData();
-            }
+            return saves;
         }
 
         private void OnDestroy()
         {
-            Save();
+            SaveSystemData();
         }
 
-        private void CheckExistDirectory(string dir)
+        private void InitSystemData()
         {
+            if (!TryReadFile(SystemSavePath, out this.systemData))
+            {
+                this.systemData = new SystemData();
+                WriteFile(SystemSavePath, systemData);
+            }
+            
+            systemData.IternalData.SessionNum++;
+            SaveSystemData();
+        }
+
+        private void InitGameData()
+        {
+            if (loadGameDataOnInit && !LoadGameData())
+            {
+                gameData = new GameData();
+                SaveGameData();
+            }
+        }
+
+        private bool TryReadFile<T>(string path, out T result)
+        {
+            result = default;
+            CheckExistDirectory(Path.GetDirectoryName(path));
+            if (!File.Exists(path))
+            {
+                return false;
+            }
+            
+            try
+            {
+                string json = File.ReadAllText(path);
+                result = JsonUtility.FromJson<T>(json);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"DataService: Failed to read file {path}: {e.Message}");
+                return false;
+            }
+        }
+        
+        private void WriteFile(string path, object data)
+        {
+            CheckExistDirectory(path);
+            string json = JsonUtility.ToJson(data, true);
+            File.WriteAllText(path, json);
+        }
+
+        private void CheckExistDirectory(string path)
+        {
+            string dir = Path.GetDirectoryName(path);
             if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
@@ -97,17 +159,14 @@ namespace Larje.Core.Services
         [ContextMenu("Open Data Path")]
         private void OpenDataPath()
         {
-            CheckExistDirectory(GameSaveDir);
-            
-            Debug.Log(GameSaveDir);
-            LarjeSystemUtility.OpenFileExplorer(GameSaveDir);
+            CheckExistDirectory(GetSavePath());
+            Debug.Log(GetSavePath());
+            LarjeSystemUtility.OpenFileExplorer(GetSavePath());
         }
-        
-        private void SetDefaultData()
+
+        private string GetSavePath(string fileName = "")
         {
-            gameData = new GameData();
-            Save();
-            Load();
+            return Path.Combine(Application.persistentDataPath, DATA_PATH, fileName);
         }
     }
 }
