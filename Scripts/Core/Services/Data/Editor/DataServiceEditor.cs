@@ -16,7 +16,6 @@ namespace Larje.Core.Services
             }
             else 
             {
-                EditorGUILayout.PropertyField(serializedObject.FindProperty("_profileName"));
                 EditorGUILayout.PropertyField(serializedObject.FindProperty("_defaultProfile"));
                 serializedObject.ApplyModifiedProperties();
             }

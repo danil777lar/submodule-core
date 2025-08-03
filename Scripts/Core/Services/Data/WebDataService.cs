@@ -47,7 +47,7 @@ public class WebDataService : DataService
     {
     }
 
-    public override void Save()
+    public override void Save(string saveName = "")
     {
         if (UserId != null)
         {
