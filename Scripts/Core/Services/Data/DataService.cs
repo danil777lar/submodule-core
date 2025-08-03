@@ -73,8 +73,24 @@ namespace Larje.Core.Services
         }
         
         [ContextMenu("Clear Progress")]
-        public void DeleteSave()
+        public void DeleteAllData()
         {
+            try
+            {
+                string savePath = GetSavePath();
+                if (Directory.Exists(savePath))
+                {
+                    Directory.Delete(savePath, true);
+                }
+                File.Delete(SystemSavePath);
+                
+                InitSystemData();
+                InitGameData();
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"DataService: Failed to delete all data: {e.Message}");
+            }
         }
 
         public List<SaveMetaData> GetSaves()

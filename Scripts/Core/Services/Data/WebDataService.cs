@@ -53,7 +53,7 @@ public class WebDataService : Service, IDataService
         throw new NotImplementedException();
     }
 
-    public void DeleteSave()
+    public void DeleteAllData()
     {
     }
 

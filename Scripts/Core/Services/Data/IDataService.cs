@@ -12,6 +12,6 @@ namespace Larje.Core.Services
         public void SaveGameData(string saveName = "");
         public bool LoadGameData(string saveName = "");
         public List<SaveMetaData> GetSaves();
-        public void DeleteSave();
+        public void DeleteAllData();
     }
 }
