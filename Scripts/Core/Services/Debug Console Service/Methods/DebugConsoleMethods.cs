@@ -12,6 +12,24 @@ namespace Larje.Core.Services.DebugConsole
 {
     public static partial class DebugConsoleMethods
     {
+        #region Data
+
+        [MethodGroup("Data")]
+        public static void Save(string saveName = "")
+        {
+            IDataService dataService = DIContainer.GetService<IDataService>();
+            dataService.SaveGameData(saveName);
+        }
+        
+        [MethodGroup("Data")]
+        public static void Load(string saveName = "")
+        {
+            IDataService dataService = DIContainer.GetService<IDataService>();
+            dataService.LoadGameData(saveName);
+        }
+
+        #endregion
+        
         #region Currency
 
         [MethodGroup("Currency")]

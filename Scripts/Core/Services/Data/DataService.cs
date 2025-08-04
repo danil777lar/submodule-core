@@ -10,8 +10,8 @@ namespace Larje.Core.Services
     [BindService(typeof(IDataService))]
     public class DataService : Service, IDataService
     {
-        private const int META_DATA_LINE = 1;
-        private const int CONTENT_DATA_LINE = 2;
+        private const int META_DATA_LINE = 0;
+        private const int CONTENT_DATA_LINE = 1;
         
         private const string DATA_PATH = "Saves"; 
         private const string SAVE_FILE_EXTENSION = ".save"; 
@@ -47,13 +47,11 @@ namespace Larje.Core.Services
 
         public bool LoadGameData(string saveName = "")
         {
-            string path = GetSavePath(_gameSaveName + SAVE_FILE_EXTENSION);
+            string save = string.IsNullOrEmpty(saveName) ? _gameSaveName : saveName;
+            string path = GetSavePath(save + SAVE_FILE_EXTENSION);
             if (TryReadFile(path, CONTENT_DATA_LINE, out GameData result))
             {
-                if (!string.IsNullOrEmpty(saveName))
-                {
-                    _gameSaveName = saveName;
-                }
+                _gameSaveName = save;
                 gameData = result;
                 return true;
             }
@@ -90,7 +88,7 @@ namespace Larje.Core.Services
         public List<SaveMetaData> GetSaves()
         {
             List<SaveMetaData> saves = new List<SaveMetaData>();
-            CheckExistDirectory(GetSavePath());
+            CheckExistDirectory(GetSavePath(), false);
             string[] files = Directory.GetFiles(GetSavePath(), "*" + SAVE_FILE_EXTENSION, SearchOption.AllDirectories);
             foreach (string file in files)
             {
@@ -150,24 +148,20 @@ namespace Larje.Core.Services
 
         private string ReadFileLine(string path, int line)
         {
-            CheckExistDirectory(Path.GetDirectoryName(path));
-            if (!File.Exists(path))
+            try
             {
-                try
-                {
-                    return File.ReadLines(path).Skip(line - 1).FirstOrDefault();
-                }
-                catch (Exception e)
-                {
-                    // 
-                }
+                return File.ReadLines(path).Skip(line - 1).FirstOrDefault();
             }
-            return "";
+            catch (Exception e)
+            {
+                Debug.LogError($"DataService: Failed to read line {line} from file {path}: {e.Message}");
+                return "";
+            }
         }
         
         private void WriteFile(string path, object data, bool writeMetaData)
         {
-            CheckExistDirectory(path);
+            CheckExistDirectory(path, true);
             
             string content = string.Empty;
             if (writeMetaData)
@@ -188,9 +182,14 @@ namespace Larje.Core.Services
             File.WriteAllText(path, content);
         }
 
-        private void CheckExistDirectory(string path)
+        private void CheckExistDirectory(string path, bool removeFileName)
         {
-            string dir = Path.GetDirectoryName(path);
+            string dir = path;
+            if (removeFileName)
+            {
+                dir = Path.GetDirectoryName(path);
+            }
+            
             if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
@@ -200,7 +199,7 @@ namespace Larje.Core.Services
         [ContextMenu("Open Data Path")]
         private void OpenDataPath()
         {
-            CheckExistDirectory(GetSavePath());
+            CheckExistDirectory(GetSavePath(), false);
             Debug.Log(GetSavePath());
             LarjeSystemUtility.OpenFileExplorer(GetSavePath());
         }
