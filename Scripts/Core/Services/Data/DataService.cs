@@ -10,8 +10,8 @@ namespace Larje.Core.Services
     [BindService(typeof(IDataService))]
     public class DataService : Service, IDataService
     {
-        private const int META_DATA_LINE = 0;
-        private const int CONTENT_DATA_LINE = 1;
+        private const int META_DATA_LINE = 1;
+        private const int CONTENT_DATA_LINE = 2;
         
         private const string DATA_PATH = "Saves"; 
         private const string SAVE_FILE_EXTENSION = ".save"; 
