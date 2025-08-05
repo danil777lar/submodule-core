@@ -24,6 +24,8 @@ namespace Larje.Core.Services
         private string _systemSaveName = "system";
         private string _gameSaveName = "default";
         
+        private List<IMetaDataWriter> _metaDataWriters = new List<IMetaDataWriter>();
+        
         public SystemData SystemData => systemData;
         public GameData GameData => gameData;
         
@@ -31,6 +33,8 @@ namespace Larje.Core.Services
 
         public override void Init()
         {
+            _metaDataWriters = GetComponents<IMetaDataWriter>().ToList();
+            
             InitSystemData();
             InitGameData();
         }
@@ -166,13 +170,7 @@ namespace Larje.Core.Services
             string content = string.Empty;
             if (writeMetaData)
             {
-                SaveMetaData metaData = new SaveMetaData
-                {
-                    name = _gameSaveName,
-                    date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-                    imagePath = string.Empty
-                };
-                content += JsonUtility.ToJson(metaData, false) + Environment.NewLine;
+                content += JsonUtility.ToJson(GetMetaData(), false) + Environment.NewLine;
             }
             else
             {
@@ -207,6 +205,22 @@ namespace Larje.Core.Services
         private string GetSavePath(string fileName = "")
         {
             return Path.Combine(Application.persistentDataPath, DATA_PATH, fileName);
+        }
+
+        private SaveMetaData GetMetaData()
+        {
+            SaveMetaData metaData = new SaveMetaData
+            {
+                name = _gameSaveName,
+                date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+
+            foreach (IMetaDataWriter metaWriter in _metaDataWriters)
+            {
+                metaWriter.WriteMetaData(metaData);
+            }
+            
+            return metaData;
         }
     }
 }
