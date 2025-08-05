@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -16,18 +17,29 @@ public static class Texture2DExtensions
     public static void SavePng(this Texture2D texture, string dir, string name)
     {
         byte[] bytes = texture.EncodeToPNG();
-        string dirPath = Application.persistentDataPath + dir;
-        if(!Directory.Exists(dirPath)) 
+        string fullPath = Path.Combine(Application.persistentDataPath, dir);
+        if(!Directory.Exists(fullPath)) 
         {
-            Directory.CreateDirectory(dirPath);
+            Directory.CreateDirectory(fullPath);
         }
-        string photoName = name + ".png";
-        File.WriteAllBytes(dirPath + photoName, bytes);
+        string fileName = name + ".png";
+        fullPath = Path.Combine(fullPath, fileName);
+        File.WriteAllBytes(fullPath, bytes);
     }
     
-    public static Texture2D LoadPng(this Texture2D texture, string path)
+    public static bool LoadPng(this Texture2D texture, string path)
     {
-        texture.LoadImage(File.ReadAllBytes(Application.persistentDataPath + path + ".png"));
-        return texture;
+        try
+        {
+            string fullPath = Path.Combine(Application.persistentDataPath, path + ".png");
+            byte[] bytes = File.ReadAllBytes(fullPath);
+            return texture.LoadImage(bytes);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning("Texture2DExtensions: LoadPng failed: " + e.Message);
+        }
+        
+        return false;
     }
 }
