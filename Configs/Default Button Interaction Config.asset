@@ -189,7 +189,7 @@ MonoBehaviour:
       type: {class: MaterialFloatPropertyEffect, ns: , asm: Assembly-CSharp}
       data:
         speedIn: 1
-        speedOut: 0.5
+        speedOut: 1
         propertyName: _Specular_Value
         curve:
           serializedVersion: 2
@@ -197,20 +197,20 @@ MonoBehaviour:
           - serializedVersion: 3
             time: 0
             value: 0
-            inSlope: 0
-            outSlope: 0
+            inSlope: 2.9748704
+            outSlope: 2.9748704
             tangentMode: 0
             weightedMode: 0
             inWeight: 0
-            outWeight: 0
+            outWeight: 0.03652174
           - serializedVersion: 3
             time: 1
             value: 1
-            inSlope: 2.3689895
-            outSlope: 2.3689895
+            inSlope: -0.054835543
+            outSlope: -0.054835543
             tangentMode: 0
             weightedMode: 0
-            inWeight: 0.14440018
+            inWeight: 0.16173911
             outWeight: 0
           m_PreInfinity: 2
           m_PostInfinity: 2
