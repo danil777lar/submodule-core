@@ -17,6 +17,7 @@ public class GUIDHolder : MonoBehaviour
 
     public string GUID => guid;
 
+    [ContextMenu("Generate GUID")]
     public void GenerateGUID()
     {
         guid = System.Guid.NewGuid().ToString();
