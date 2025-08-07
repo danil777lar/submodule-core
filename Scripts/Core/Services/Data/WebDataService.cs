@@ -23,6 +23,9 @@ public class WebDataService : Service, IDataService
 
     public string UserId { get; private set; } = "0";
     public string UserFirstName { get; private set; }
+    
+    public event Action EventPreSave;
+    public event Action EventAfterLoad;
 
     public override void Init()
     {

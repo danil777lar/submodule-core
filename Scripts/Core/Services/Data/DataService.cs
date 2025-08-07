@@ -29,6 +29,9 @@ namespace Larje.Core.Services
         public SystemData SystemData => systemData;
         public GameData GameData => gameData;
         
+        public event Action EventPreSave;
+        public event Action EventAfterLoad;
+        
         private string SystemSavePath => Path.Combine(Application.persistentDataPath, _systemSaveName);
 
         public override void Init()
@@ -46,6 +49,7 @@ namespace Larje.Core.Services
                 _gameSaveName = saveName;
             }
             
+            EventPreSave?.Invoke();
             WriteFile(GetSavePath(_gameSaveName + SAVE_FILE_EXTENSION), gameData, true);
         }
 
@@ -57,6 +61,7 @@ namespace Larje.Core.Services
             {
                 _gameSaveName = save;
                 gameData = result;
+                EventAfterLoad?.Invoke();
                 return true;
             }
 
