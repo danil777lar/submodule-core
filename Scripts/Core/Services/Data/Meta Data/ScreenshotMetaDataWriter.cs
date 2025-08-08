@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ScreenshotMetaDataWriter : MonoBehaviour, IMetaDataWriter
 {
+    [SerializeField] private Vector2Int screenshotSize = new Vector2Int(480, 270);
+    
     public void WriteMetaData(SaveMetaData metaData)
     {
         string fileName = $"{metaData.name}_screenshot";
@@ -15,8 +17,8 @@ public class ScreenshotMetaDataWriter : MonoBehaviour, IMetaDataWriter
     private IEnumerator SaveScreenshotCo(string filePath, string fileName)
     {
         yield return new WaitForEndOfFrame();
-        
-        Vector2Int size = new Vector2Int(Screen.width, Screen.height);
+
+        Vector2Int size = screenshotSize;
         
         Camera renderCamera = Camera.main;
         RenderTexture rt = new RenderTexture(size.x, size.y, 24);
