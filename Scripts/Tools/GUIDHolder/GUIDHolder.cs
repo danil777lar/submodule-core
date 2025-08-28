@@ -22,6 +22,11 @@ public class GUIDHolder : MonoBehaviour
     {
         guid = System.Guid.NewGuid().ToString();
     }
+
+    public void SetGUID(string guid)
+    {
+        this.guid = guid;
+    }
     
     private void Awake()
     {
