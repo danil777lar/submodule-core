@@ -9,6 +9,7 @@ public abstract class LarjePostFX : ScriptableObject
         public abstract Material Material { get; }
         public abstract bool Enabled { get; }
 
+        public abstract void Update();
         public abstract void Destroy();
     }
 }

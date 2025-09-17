@@ -25,6 +25,8 @@ public class LarjePostFXPass : ScriptableRenderPass
     {
         foreach (LarjePostFX.Processor effect in _effects)
         {
+            effect.Update();
+            
             if (effect.Material == null || !effect.Enabled)
             {
                 continue;
