@@ -18,7 +18,7 @@ namespace Larje.Core.Services
         [SerializeField] private List<string> tableNames;
         [Header("Cache")] 
         [SerializeField] private string cacheFileName = "localization_cache";
-        [SerializeField] private List<TextAsset> localizationCache;
+        [SerializeField] private List<string> localizationCache;
         [Header("Debug")] 
         [SerializeField] private bool debugMode;
         [SerializeField] private string debugLanguage;
@@ -36,8 +36,9 @@ namespace Larje.Core.Services
             if (localizationCache != null && localizationCache.Count > 0)
             {
                 _localization = new List<GTableLocalization>();
-                foreach (TextAsset cache in localizationCache)
+                foreach (string cacheFileName in localizationCache)
                 {
+                    TextAsset cache = Resources.Load<TextAsset>(cacheFileName);
                     _localization.AddRange(DeserealizeLocalization(cache.text));   
                 }
             }
@@ -156,7 +157,6 @@ namespace Larje.Core.Services
         [ContextMenu("Cache Localization")]
         private void CacheLocalization()
         {
-            localizationCache = new List<TextAsset>();
             foreach (string table in tableNames)
             {
                 UnityWebRequest request = UnityWebRequest.Get($"{localizationUrl}?name={table}");
@@ -165,22 +165,15 @@ namespace Larje.Core.Services
                     if (request.downloadHandler.isDone)
                     {
                         string localizationJson = request.downloadHandler.text;
-                        string fileName = $"{cacheFileName}_{table}.asset";
-                        string fullPath = "Assets/" + fileName;
-
-                        TextAsset foundAsset = localizationCache.Find(f => f.name == fileName); 
-                        if (foundAsset != null)
-                        {
-                            fullPath = AssetDatabase.GetAssetPath(foundAsset);
-                        }
+                        string fileName = $"{cacheFileName}_{table}";
+                        string fullPath = $"Assets/Resources/{fileName}.asset";
 
                         TextAsset cache = new TextAsset(localizationJson);
                         AssetDatabase.CreateAsset(cache, fullPath);
                         AssetDatabase.SaveAssets();
                         AssetDatabase.Refresh();
-                        localizationCache.Add(cache);
 
-                        Debug.Log("Localization cached!!");
+                        Debug.Log("Cache saved: " + fileName);
                     }
                 };
             }
