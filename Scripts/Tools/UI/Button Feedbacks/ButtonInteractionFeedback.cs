@@ -15,6 +15,10 @@ namespace Larje.Core.Tools
         IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private ButtonInteractionFeedbackConfig config;
+        [Header("Rewrite Material")]
+        [SerializeField] private List<RewriteFloat> rewriteFloats;
+        [SerializeField] private List<RewriteVector> rewriteVectors;
+        [SerializeField] private List<RewriteColor> rewriteColors;
         
         [InjectService] private IDataService _dataService;
         [InjectService] private SoundService _soundService;
@@ -98,11 +102,21 @@ namespace Larje.Core.Tools
             if (config.Material != null)
             {
                 _material = Instantiate(config.Material);
+                ApplyMaterialOverrides();
+                
                 foreach (Image image in GetComponentsInChildren<Image>())
                 {
                     image.material = _material;
                 }
             }
+        }
+
+        [ContextMenu("Set Material")]
+        private void ApplyMaterialOverrides()
+        {
+            rewriteFloats.ForEach(x => _material.SetFloat(x.Key, x.Value));
+            rewriteVectors.ForEach(x => _material.SetVector(x.Key, x.Value));
+            rewriteColors.ForEach(x => _material.SetColor(x.Key, x.Value));
         }
 
         private void OnDisable()
@@ -133,6 +147,27 @@ namespace Larje.Core.Tools
         private ButtonInteractionState GetState(ButtonInteractionStateType type)
         {
             return config.States.ToList().Find(x => x.stateType == type);
+        }
+
+        [Serializable]
+        private struct RewriteFloat
+        {
+            [field: SerializeField] public string Key { get; private set; }
+            [field: SerializeField] public float Value { get; private set; }
+        }
+        
+        [Serializable]
+        private struct RewriteVector
+        {
+            [field: SerializeField] public string Key { get; private set; }
+            [field: SerializeField] public Vector4 Value { get; private set; }
+        }
+
+        [Serializable]
+        private struct RewriteColor
+        {
+            [field: SerializeField] public string Key { get; private set; }
+            [field: SerializeField] public Color Value { get; private set; }
         }
     }
 }
