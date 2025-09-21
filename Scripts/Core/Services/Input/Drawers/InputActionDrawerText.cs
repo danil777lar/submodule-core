@@ -16,6 +16,7 @@ public class InputActionDrawerText : InputActionDrawer
         if (action.type == InputActionType.Button)
         {
             title = action.bindings.First().path;
+            title = title.Split('/').Last();
         }
 
         return $"{leftModifier}{title}{rightModifier}";
