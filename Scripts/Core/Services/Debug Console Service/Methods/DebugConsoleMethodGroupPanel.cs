@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using DG.Tweening;
-using MoreMountains.Tools;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,7 +32,7 @@ namespace Larje.Core.Services.DebugConsole
             
             button.onClick.AddListener(OnClicked);
             
-            contentRoot.MMDestroyAllChildren();
+            contentRoot.DestroyAllChildren();
             contentRoot.localScale = new Vector3(1f, 0f, 1f);
         }
 

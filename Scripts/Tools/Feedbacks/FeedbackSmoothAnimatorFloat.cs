@@ -1,3 +1,5 @@
+#if MoreMountains
+
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -46,3 +48,4 @@ public class FeedbackSmoothAnimatorFloat : MMF_FeedbackBase
         DOTween.Kill(this);
     }
 }
+#endif

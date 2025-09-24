@@ -1,3 +1,5 @@
+#if MoreMountains
+
 using System.Collections;
 using System.Collections.Generic;
 using MoreMountains.Feedbacks;
@@ -37,3 +39,4 @@ public class CinemachineFovFeedback : MMF_FeedbackBase
         CinemachineFovListener.SetFovModifier(ListenerChannel, 1f);
     }
 }
+#endif

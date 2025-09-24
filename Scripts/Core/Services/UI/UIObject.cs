@@ -55,7 +55,7 @@ namespace Larje.Core.Services.UI
                 OnBeforeOpen(args);
                 EventBeforeOpen?.Invoke();
 
-                float delay = _eventDelays.Max(x => x.OnOpen());
+                float delay = GetDelay(x => x.OnOpen());
                 DOVirtual.DelayedCall(delay, () =>
                 {
                     OnAfterOpen(args);
@@ -73,7 +73,7 @@ namespace Larje.Core.Services.UI
                 OnBeforeClose();
                 EventBeforeClose?.Invoke();
             
-                float delay = _hidden ? 0f : _eventDelays.Max(x => x.OnClose());
+                float delay = _hidden ? 0f : GetDelay(x => x.OnClose());
                 DOVirtual.DelayedCall(delay, () =>
                 {
                     OnAfterClose();
@@ -94,7 +94,7 @@ namespace Larje.Core.Services.UI
                 OnBeforeShow();
                 EventBeforeShow?.Invoke();
 
-                float delay = _eventDelays.Max(x => x.OnShow());
+                float delay = GetDelay(x => x.OnShow());
                 DOVirtual.DelayedCall(delay, () =>
                 {
                     OnAfterShow();
@@ -112,7 +112,7 @@ namespace Larje.Core.Services.UI
                 OnBeforeHide();
                 EventBeforeHide?.Invoke();
             
-                float delay = _eventDelays.Max(x => x.OnHide());
+                float delay = GetDelay(x => x.OnHide());
                 DOVirtual.DelayedCall(delay, () =>
                 {
                     OnAfterHide();
@@ -132,7 +132,7 @@ namespace Larje.Core.Services.UI
                 OnBeforeFocus();
                 EventBeforeFocus?.Invoke();
 
-                float delay = _eventDelays.Max(x => x.OnFocus());
+                float delay = GetDelay(x => x.OnFocus());
                 DOVirtual.DelayedCall(delay, () =>
                 {
                     OnAfterFocus();
@@ -150,7 +150,7 @@ namespace Larje.Core.Services.UI
                 OnBeforeUnfocus();
                 EventBeforeUnfocus?.Invoke();
             
-                float delay = _eventDelays.Max(x => x.OnUnfocus());
+                float delay = GetDelay(x => x.OnUnfocus());
                 DOVirtual.DelayedCall(delay, () =>
                 {
                     OnAfterUnfocus();
@@ -209,6 +209,11 @@ namespace Larje.Core.Services.UI
             }
             
             return false;
+        }
+        
+        private float GetDelay(Func<IUIObjectEventDelay, float> delay)
+        {
+            return _eventDelays == null || _eventDelays.Count < 1 ? 0f : _eventDelays.Max(delay);
         }
         
         public class Args

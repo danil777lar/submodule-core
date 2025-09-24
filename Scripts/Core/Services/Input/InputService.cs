@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Larje.Core;
-using MoreMountains.Tools;
 using ProjectConstants;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -12,7 +11,7 @@ using UnityEngine.InputSystem;
 [BindService(typeof(InputService))]
 public abstract class InputService : Service
 {
-    [SerializeField, MMReadOnly] private List<MapDebug> mapDebugs; 
+    [SerializeField] private List<MapDebug> mapDebugs; 
     
     public abstract InputAction UIBack { get; }
     public abstract InputAction UIDebug { get; }

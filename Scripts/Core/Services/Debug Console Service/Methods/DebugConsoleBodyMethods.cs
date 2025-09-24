@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using MoreMountains.Tools;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -26,7 +25,7 @@ namespace Larje.Core.Services.DebugConsole
 
         private void Rebuild()
         {
-            content.MMDestroyAllChildren();
+            content.DestroyAllChildren();
             List<MethodInfo> methods = GetMethods();
 
             _panels = new List<DebugConsoleMethodPanel>();

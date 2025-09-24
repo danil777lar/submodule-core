@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MoreMountains.Tools;
 using ProjectConstants;
 using UnityEditor;
 using UnityEngine;
@@ -10,7 +9,7 @@ namespace Larje.Core.Tools.PrefabPacker
     public class PrefabPacker : MonoBehaviour
     {
         [SerializeField] private PrefabPackerConfig config;
-        [SerializeField, MMReadOnly] private List<PackedObject> packedObjects;
+        [SerializeField] private List<PackedObject> packedObjects;
 
         public event Action EventLevelUnpacked;
 

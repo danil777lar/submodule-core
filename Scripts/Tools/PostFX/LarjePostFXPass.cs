@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+#if UNITY_2023_1_OR_NEWER
 using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.RenderGraphModule.Util;
+#endif
 using UnityEngine.Rendering.Universal;
 
 public class LarjePostFXPass : ScriptableRenderPass
@@ -18,9 +20,12 @@ public class LarjePostFXPass : ScriptableRenderPass
     {
         _effects = effects;
         renderPassEvent = injectionPoint;
+#if UNITY_2023_1_OR_NEWER
         requiresIntermediateTexture = true;
+#endif
     }
 
+#if UNITY_2023_1_OR_NEWER
     public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData)
     {
         foreach (LarjePostFX.Processor effect in _effects)
@@ -49,5 +54,11 @@ public class LarjePostFXPass : ScriptableRenderPass
 
             resourceData.cameraColor = dst;   
         }
+    }
+#endif
+
+    public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+    {
+        
     }
 }

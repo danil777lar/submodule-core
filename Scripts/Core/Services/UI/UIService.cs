@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MoreMountains.Tools;
 using ProjectConstants;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,7 +13,7 @@ namespace Larje.Core.Services.UI
         [SerializeField] private bool useDeviceBackButton = true;
         [SerializeField] private int maxSortOrder;
         [field: Space]
-        [field: SerializeField, MMReadOnly] public GameObject FocusedObject { get; private set; }
+        [field: SerializeField] public GameObject FocusedObject { get; private set; }
         
         [InjectService] private InputService inputService;
         

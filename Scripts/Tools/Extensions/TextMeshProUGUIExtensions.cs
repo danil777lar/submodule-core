@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
-using MoreMountains.Tools;
 using TMPro;
 
 public static class TextMeshProUGUIExtensions
@@ -14,7 +13,7 @@ public static class TextMeshProUGUIExtensions
             string result = initialText.LerpLinear(targetText, t);
             if (removeExtraSpaces)
             {
-                result = result.RemoveExtraSpaces();
+                //result = result.RemoveExtraSpaces();
             }
             tmp.text = result;
         }, 1f, duration);

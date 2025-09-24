@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Larje.Core.Tools;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using MoreMountains.Tools;
 using UnityEditor;
 using UnityEngine.Rendering;
 
@@ -54,7 +54,7 @@ namespace Larje.Core.Services
 
             _isInstantiatingLevel = true;
 
-            GetLevelHolder().MMDestroyAllChildren();
+            GetLevelHolder().DestroyAllChildren();
             int levelId = GetCurrentLevelIndex();
             _dataService.GameData.levelManagerAddressablesData.LastLevelIndex = levelId;
             _dataService.SaveGameData();
@@ -85,7 +85,7 @@ namespace Larje.Core.Services
         public async void SpawnLevelInDebugMode(AssetReference prefab)
         {
 #if UNITY_EDITOR
-            GetLevelHolder().MMDestroyAllChildren();
+            GetLevelHolder().DestroyAllChildren();
             var handle = Addressables.LoadAssetAsync<GameObject>(prefab);
             while (!handle.IsDone)
             {
@@ -166,10 +166,10 @@ namespace Larje.Core.Services
                     {
                         randomLevels.Add(levels.ToList().IndexOf(level));
                     }
-                    randomLevels.MMShuffle();
+                    randomLevels.Shuffle();
                     if (randomLevels.Count > 1 && randomLevels[0] == _dataService.GameData.levelManagerAddressablesData.LastLevelIndex)
                     {
-                        randomLevels.MMSwap(0, UnityEngine.Random.Range(1, randomLevels.Count));
+                        randomLevels.Swap(0, UnityEngine.Random.Range(1, randomLevels.Count));
                     }
                     _dataService.SaveGameData();
                 }

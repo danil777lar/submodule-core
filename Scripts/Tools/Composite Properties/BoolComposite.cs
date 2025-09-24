@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MoreMountains.Tools;
 using UnityEngine;
 
 namespace Larje.Core.Tools.CompositeProperties
@@ -10,7 +9,7 @@ namespace Larje.Core.Tools.CompositeProperties
     {
         [SerializeField] private bool defaultValue = true;
         [SerializeField] private Operation operation = Operation.And;
-        [SerializeField, MMReadOnly] private bool value; 
+        [SerializeField] private bool value; 
         
         private List<Func<bool>> _values = new List<Func<bool>>();
         

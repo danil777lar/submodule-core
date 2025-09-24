@@ -1,18 +1,24 @@
 using System;
 using UnityEngine;
+
+#if MoreMountains
 using MoreMountains.Feedbacks;
 using MoreMountains.Tools;
+#endif
 
 namespace Larje.Core.Services.UI
 {
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(MMF_Player))]
-    public class FeedbackUIAnimation : MonoBehaviour, IUIObjectEventDelay
+    public class FeedbackUIAnimation : MonoBehaviour
+#if MoreMountains
+        ,IUIObjectEventDelay
+#endif
     {
         [SerializeField] private bool useForceDelay;
-        [SerializeField, MMCondition("useForceDelay")] private float forceDelay;
+        [SerializeField] private float forceDelay;
         [SerializeField] private EventType _eventType;
         
+#if MoreMountains
         private MMF_Player _feedback;
         private MMF_Player Feedback
         {
@@ -99,5 +105,7 @@ namespace Larje.Core.Services.UI
             Focus = 16,
             Unfocus = 32
         }
+
+#endif
     }
 }
