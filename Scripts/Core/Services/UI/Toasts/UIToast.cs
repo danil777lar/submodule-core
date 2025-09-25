@@ -21,16 +21,22 @@ namespace Larje.Core.Services.UI
         
         public UIToastType ToastType => toastType;
 
-        public override void Open(UIObject.Args args)
+        protected override void OnBeforeOpen(UIObject.Args args)
         {
-            if (!Opened && args is Args toastArgs)
+            if (args is Args toastArgs)
             {
                 tmp.text = toastArgs.Text;
                 StartCoroutine(OpenCoroutine());
-                StartCoroutine(CloseDelayCoroutine());
-            }
-            
-            base.Open(args);
+                
+                if (toastArgs.IsOpen == null)
+                {
+                    StartCoroutine(CloseDelayCoroutine());
+                }
+                else
+                {
+                    StartCoroutine(CloseWaitCoroutine(toastArgs.IsOpen));
+                }
+            }   
         }
         
         public void OnPointerDown(PointerEventData eventData)
@@ -57,15 +63,27 @@ namespace Larje.Core.Services.UI
             Close();
         }
         
+        private IEnumerator CloseWaitCoroutine(Func<bool> isOpen)
+        {
+            yield return null;
+            while (isOpen.Invoke())
+            {
+                yield return null;
+            }
+            Close();
+        }
+        
         public class Args : UIObject.Args
         {
             public readonly UIToastType ToastType;
             public readonly string Text;
+            public readonly Func<bool> IsOpen;
 
-            public Args(UIToastType toastType, string text)
+            public Args(UIToastType toastType, string text, Func<bool> isOpen = null)
             {
                 ToastType = toastType;
                 Text = text;
+                IsOpen = isOpen;
             }
         }
     }
