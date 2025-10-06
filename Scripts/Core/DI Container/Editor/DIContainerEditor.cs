@@ -5,6 +5,7 @@ using Larje.Core;
 using Larje.Core.Entities;
 using UnityEditor;
 using UnityEngine;
+using EntityId = Larje.Core.Entities.EntityId;
 
 namespace Larje.Core
 {

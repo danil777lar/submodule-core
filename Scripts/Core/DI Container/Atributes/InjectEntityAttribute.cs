@@ -1,6 +1,7 @@
 using System;
 using Larje.Core.Entities;
 using UnityEngine;
+using EntityId = Larje.Core.Entities.EntityId;
 
 namespace Larje.Core
 {

@@ -6,6 +6,7 @@ using System.Linq;
 using Larje.Core.Entities;
 using Larje.Core.Services;
 using UnityEngine;
+using EntityId = Larje.Core.Entities.EntityId;
 
 namespace Larje.Core
 {
