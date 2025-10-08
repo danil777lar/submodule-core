@@ -16,5 +16,7 @@ namespace Larje.Core.Services
         public void ShowInterstitial(int interIndex = 0);
         
         public void ShowRewarded(Action onAdShowStart, Action onAdShowClick, Action onAdShowComplete, Action onAdShowFailed);
+
+        public bool ShowAppOpenAd();
     }
 }
