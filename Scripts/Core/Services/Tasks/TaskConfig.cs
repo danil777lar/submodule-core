@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Larje.Core.Services
@@ -12,7 +13,7 @@ namespace Larje.Core.Services
         [SerializeField] protected Sprite icon;
         
         [Header("Logic")]
-        [SerializeField] protected bool activateOnInitialize;
+        [SerializeField] protected bool startOnInitialize;
         
         [Header("Reward")] 
         [SerializeField] protected List<TaskRewardConfig> rewards;
@@ -24,9 +25,8 @@ namespace Larje.Core.Services
         
         public virtual bool IsAvailable => true;
         public virtual bool Initialized => GetData().Initialized;
-        public virtual bool IsActive => GetData().IsActive;
-        public virtual bool Complete => GetData().Complete;
         public virtual bool RewardGiven => GetData().RewardGiven;
+        public virtual TaskStatusType Status => GetData().Status;
         
 
         public abstract Processor CreateProcessor();
@@ -67,9 +67,7 @@ namespace Larje.Core.Services
 
             protected TaskData Data => _config.GetData();
 
-            public event Action EventActivated;
-            public event Action EventDeactivated;
-            public event Action EventCompleted;
+            public event Action<TaskStatusType> EventStatusChanged;
             public event Action EventRewarded;
 
             public Processor(TaskConfig config)
@@ -91,60 +89,26 @@ namespace Larje.Core.Services
                     InitializeData();
                 }
                 
-                if (_config.activateOnInitialize)
+                if (_config.startOnInitialize)
                 {
-                    Activate();
-                }
-            }
-            
-            protected void InitializeData()
-            {
-                Data.Initialized = true;
-                OnInitializeData();
-            }
-            
-            public void Activate()
-            {
-                if (!Data.IsActive)
-                {
-                    Data.IsActive = true;
-                    EventActivated?.Invoke();
-                    
-                    OnActivate();
-                }
-            }
-            
-            public void Deactivate()
-            {
-                if (Data.IsActive)
-                {
-                    Data.IsActive = false;
-                    EventDeactivated?.Invoke();
-                    
-                    OnDeactivate();
+                    Start();
                 }
             }
 
-            public void Complete()
+            public void Start()
             {
-                if (!Data.Complete)
+                if (Data.Status == TaskStatusType.NotStarted)
                 {
-                    Data.Complete = true;
-                    EventCompleted?.Invoke();
-                    
-                    OnComplete();
+                    ChangeStatus(TaskStatusType.Started);
                 }
             }
 
             public void GiveReward(int multiplier = 1)
             {
-                if (!Data.Complete)
+                if ((Data.Status == TaskStatusType.Completed || Data.Status == TaskStatusType.Failed) && !Data.RewardGiven)
                 {
-                    Data.Complete = true;
                     _config.rewards.ForEach(x => x.GiveReward(multiplier));
                     EventRewarded?.Invoke();
-                    
-                    OnGiveReward(multiplier);
                 }
             }
 
@@ -156,18 +120,54 @@ namespace Larje.Core.Services
                     OnDestroy();
                 }
             }
+            
+            protected void InitializeData()
+            {
+                Data.Initialized = true;
+                OnInitializeData();
+            }
+
+            protected void Complete()
+            {
+                if (Data.Status == TaskStatusType.Started)
+                {
+                    ChangeStatus(TaskStatusType.Completed);
+                }
+            }
+
+            protected void Fail()
+            {
+                if (Data.Status == TaskStatusType.Started)
+                {
+                    ChangeStatus(TaskStatusType.Failed);
+                }
+            }
+
+            private void ChangeStatus(TaskStatusType status)
+            {
+                Data.Status = status;
+                
+                switch (status)
+                {
+                    case TaskStatusType.Started:
+                        OnStarted();
+                        break;
+                    case TaskStatusType.Completed:
+                        OnCompleted();
+                        break;
+                    case TaskStatusType.Failed:
+                        OnFailed();
+                        break;
+                }
+                
+                EventStatusChanged?.Invoke(status);
+            }
 
             protected virtual void OnInitialize() { }
-            
             protected virtual void OnInitializeData() { }
-
-            protected virtual void OnActivate() { }
-            protected virtual void OnDeactivate() { }
-
-            protected virtual void OnComplete() { }
-
-            protected virtual void OnGiveReward(int multiplier = 1) { }
-
+            protected virtual void OnStarted() { }
+            protected virtual void OnCompleted() { }
+            protected virtual void OnFailed() { }
             protected virtual void OnDestroy() { }
         }
     }

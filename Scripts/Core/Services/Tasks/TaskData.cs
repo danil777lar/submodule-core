@@ -41,9 +41,8 @@ public class TaskData
     public string TaskType;
 
     public bool Initialized;
-    public bool IsActive;
-    public bool Complete;
     public bool RewardGiven;
+    public TaskStatusType Status;
     
     public int MaxProgress;
     public int CurrentProgress;

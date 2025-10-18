@@ -7,8 +7,7 @@ namespace Larje.Core.Services
     {
         public IReadOnlyCollection<TaskConfig> Tasks { get; }
 
-        public event Action EventTaskActivated;
-        public event Action EventTaskCompleted;
-        public event Action EventTaskRewardGiven;
+        public event Action<TaskConfig, TaskStatusType> EventTaskStatusChanged;
+        public event Action<TaskConfig> EventTaskRewardGiven;
     }
 }

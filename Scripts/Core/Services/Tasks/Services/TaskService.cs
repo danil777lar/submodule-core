@@ -11,38 +11,28 @@ namespace Larje.Core.Services
 
         public abstract IReadOnlyCollection<TaskConfig> Tasks { get; }
         
-        public event Action EventTaskActivated;
-        public event Action EventTaskCompleted;
-        public event Action EventTaskRewardGiven;
+        public event Action<TaskConfig, TaskStatusType> EventTaskStatusChanged;
+        public event Action<TaskConfig> EventTaskRewardGiven;
         
         protected virtual TaskConfig.Processor CreateProcessor(TaskConfig config)
         {
             TaskConfig.Processor processor = config.CreateProcessor();
             
-            processor.EventActivated += () => OnTaskActivated(config);
-            processor.EventCompleted += () => OnTaskCompleted(config);
+            processor.EventStatusChanged += (status) => OnTaskStatusChanged(config, status);
             processor.EventRewarded += () => OnTaskRewardGiven(config);
 
             processor.Initialize();
             return processor;
         }
         
-        protected virtual void OnTaskActivated(TaskConfig config)
+        protected virtual void OnTaskStatusChanged(TaskConfig config, TaskStatusType taskStatusType)
         {
-            Debug.Log($"Activate task {config.Type}");
-            EventTaskActivated?.Invoke();
-        }
-
-        protected virtual void OnTaskCompleted(TaskConfig config)
-        {
-            Debug.Log($"Complete task {config.Type}");
-            EventTaskCompleted?.Invoke();
+            EventTaskStatusChanged?.Invoke(config, taskStatusType);
         }
         
         protected virtual void OnTaskRewardGiven(TaskConfig config)
         {
-            Debug.Log($"Reward task {config.Type}");
-            EventTaskRewardGiven?.Invoke();
+            EventTaskRewardGiven?.Invoke(config);
         }
     }
 }
