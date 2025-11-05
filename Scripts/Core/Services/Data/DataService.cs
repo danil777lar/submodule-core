@@ -132,6 +132,7 @@ namespace Larje.Core.Services
             {
                 gameData = new GameData();
                 SaveGameData();
+                LoadGameData();
             }
         }
 

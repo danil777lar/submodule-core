@@ -22,6 +22,7 @@ public class SoundData
     
     public SoundChannelData GetChannel(string channelName)
     {
+        Channels ??= new List<SoundChannelData>();
         SoundChannelData channel = Channels.Find(c => c.Name == channelName);
         if (channel == null)
         {
