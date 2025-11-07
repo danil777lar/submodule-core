@@ -10,7 +10,7 @@ using UnityEngine.UI;
 namespace Larje.Core.Tools
 {
     public class ButtonInteractionFeedback : MonoBehaviour, 
-        IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
+        IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
     {
         [SerializeField] private ButtonInteractionFeedbackConfig config;
         [Header("Rewrite Material")]
@@ -47,11 +47,22 @@ namespace Larje.Core.Tools
             SetActiveState(ButtonInteractionStateType.Hovered, false);
         }
 
+        public void OnSelect(BaseEventData eventData)
+        {
+            SetActiveState(ButtonInteractionStateType.Hovered, true);
+        }
+
+        public void OnDeselect(BaseEventData eventData)
+        {
+            SetActiveState(ButtonInteractionStateType.Hovered, false);
+        }
+
         private void Start()
         {
             DIContainer.InjectTo(this);
             
             _selectable = GetComponentInChildren<Selectable>();
+
             if (config == null)
             {
                 Debug.LogError("Button Interaction Feedback: config is null", gameObject);
