@@ -12,33 +12,46 @@ public class UIEventsRoot : MonoBehaviour,
     private bool _interactable = true;
 
     private Selectable _selectable;
-    private List<UIAnimationBase> _animatons;
+    private List<UIAnimationBase> _animations;
+
+    private List<UIAnimationBase> Animations
+    {
+        get
+        {
+            if (_animations == null)
+            {
+                _animations = GetComponentsInChildren<UIAnimationBase>().ToList();
+            }
+            
+            return _animations;
+        }
+    }
 
     // POINTER ---------------------------------------------
     
     public void OnPointerDown(PointerEventData eventData)
     {
-        _animatons.ForEach(a => a.PointerDown());
+        Animations.ForEach(a => a.PointerDown());
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        _animatons.ForEach(a => a.PointerUp());
+        Animations.ForEach(a => a.PointerUp());
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        _animatons.ForEach(a => a.PointerEnter());
+        Animations.ForEach(a => a.PointerEnter());
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        _animatons.ForEach(a => a.PointerExit());
+        Animations.ForEach(a => a.PointerExit());
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        _animatons.ForEach(a => a.PointerClick());
+        Animations.ForEach(a => a.PointerClick());
     }
 
 
@@ -46,12 +59,12 @@ public class UIEventsRoot : MonoBehaviour,
 
     public void OnSelect(BaseEventData eventData)
     {
-        _animatons.ForEach(a => a.SelectableSelect());
+        Animations.ForEach(a => a.SelectableSelect());
     }
 
     public void OnDeselect(BaseEventData eventData)
     {
-        _animatons.ForEach(a => a.SelectableDeselect());
+        Animations.ForEach(a => a.SelectableDeselect());
     }
 
 
@@ -59,17 +72,16 @@ public class UIEventsRoot : MonoBehaviour,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        _animatons.ForEach(a => a.DraggableBeginDrag());
+        Animations.ForEach(a => a.DraggableBeginDrag());
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        _animatons.ForEach(a => a.DraggableEndDrag());
+        Animations.ForEach(a => a.DraggableEndDrag());
     }
 
     private void Start()
     {
-        _animatons = GetComponentsInChildren<UIAnimationBase>().ToList();
 
         _selectable = GetComponent<Selectable>();
         if (_selectable != null)
@@ -92,11 +104,11 @@ public class UIEventsRoot : MonoBehaviour,
     {
         if (interactable)
         {
-            _animatons.ForEach(a => a.SelectableInteractableOn());
+            Animations.ForEach(a => a.SelectableInteractableOn());
         }
         else
         {
-            _animatons.ForEach(a => a.SelectableInteractableOff());
+            Animations.ForEach(a => a.SelectableInteractableOff());
         }
     }
 }
