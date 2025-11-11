@@ -15,16 +15,18 @@ public class UIAnimationTransformPosition : UIAnimationBase
     [Space]
     [SerializeField] private bool setToFromOnAwake = true;
     
-    private Vector3 _valueFrom;
-    private Vector3 _valueTo;
+    private Vector2 _valueFrom;
+    private Vector2 _valueTo;
     
     protected override float OnEvent(bool forward)
     {
         this.DOKill();
         
+        RectTransform rectTransform = transform as RectTransform;
+
         float duration = forward ? durationForward : durationBackwards;
         Ease ease = forward ? easeForward : easeBackwards;
-        transform.DOLocalMove(forward ? _valueTo : _valueFrom, duration)
+        rectTransform.DOAnchorPos(forward ? _valueTo : _valueFrom, duration)
             .SetEase(ease)
             .SetUpdate(true)
             .SetTarget(this);
@@ -34,12 +36,14 @@ public class UIAnimationTransformPosition : UIAnimationBase
 
     private void Awake()
     {
-        _valueFrom = transform.localPosition + offsetFrom;
-        _valueTo = transform.localPosition + offsetTo;
+        RectTransform rectTransform = transform as RectTransform;
+
+        _valueFrom = rectTransform.anchoredPosition + (Vector2)offsetFrom;
+        _valueTo = rectTransform.anchoredPosition + (Vector2)offsetTo;
         
         if (setToFromOnAwake)
         {
-            transform.localPosition = _valueFrom;
+            rectTransform.anchoredPosition = _valueFrom;
         }
     }
 }
