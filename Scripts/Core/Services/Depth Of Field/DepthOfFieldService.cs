@@ -13,6 +13,9 @@ public class DepthOfFieldService : Service
     public PriotizedProperty<DepthValue> Depth;
 
     [SerializeField] private bool autoDepth;
+    [SerializeField] private LayerMask autoDepthLayerMask;
+    [SerializeField] private float autoDepthStartMultiplier = 1.1f;
+    [SerializeField] private float autoDepthEndMultiplier = 2f;
 
     private Camera _camera;
     private Volume _volume;
@@ -65,8 +68,8 @@ public class DepthOfFieldService : Service
             }
             distances = distances.OrderBy(x => x).ToList();
 
-            depthValue.Start = (distances.Max() + 2f) * 1.1f;
-            depthValue.End = (distances.Max() + 2f) * 2f;
+            depthValue.Start = (distances.Max() + 2f) * autoDepthStartMultiplier;
+            depthValue.End = (distances.Max() + 2f) * autoDepthEndMultiplier;
         }
 
         return depthValue;
@@ -78,7 +81,7 @@ public class DepthOfFieldService : Service
         Vector3 screenPoint = new Vector3(screenPercent.x * camera.pixelWidth, screenPercent.y * camera.pixelHeight, camera.nearClipPlane);
         Ray ray = camera.ScreenPointToRay(screenPoint);
 
-        if (Physics.Raycast(ray, out RaycastHit hitInfo))
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, Mathf.Infinity, autoDepthLayerMask))
         {
             return hitInfo.distance;
         }
