@@ -663,7 +663,6 @@ GameObject:
   - component: {fileID: 3743605803088025202}
   - component: {fileID: 11663154533540229}
   - component: {fileID: 7682070217849585038}
-  - component: {fileID: 4546235914423906558}
   m_Layer: 0
   m_Name: Close Button
   m_TagString: Untagged
@@ -774,19 +773,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &4546235914423906558
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5895121178125351554}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 334d823cb014a0846b70e03f636401ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  config: {fileID: 11400000, guid: 57bdc30fe8b198951a25c508ff84ba7e, type: 2}
 --- !u!1 &6547406392748591584
 GameObject:
   m_ObjectHideFlags: 0
@@ -838,7 +824,6 @@ GameObject:
   - component: {fileID: 3320070338247064845}
   - component: {fileID: 7329562783577258061}
   - component: {fileID: 3368658607359008616}
-  - component: {fileID: 3499036240179317283}
   m_Layer: 0
   m_Name: Console Button
   m_TagString: Untagged
@@ -931,19 +916,6 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
---- !u!114 &3499036240179317283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8439220655277123751}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 334d823cb014a0846b70e03f636401ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  config: {fileID: 11400000, guid: 57bdc30fe8b198951a25c508ff84ba7e, type: 2}
 --- !u!1 &8807413890031002756
 GameObject:
   m_ObjectHideFlags: 0
