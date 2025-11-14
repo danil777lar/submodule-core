@@ -10,6 +10,30 @@ public class VolumetricLightMesh : MonoBehaviour
     [Space]
     [SerializeField] private Vector2 sizeStart;
     [SerializeField] private Vector2 sizeEnd;
+    [SerializeField] private Color defaultColor;
+
+    public void SetColors(Color color)
+    {
+        MeshFilter filter = GetMeshFilter();
+        Mesh mesh = filter.sharedMesh;
+
+        if (mesh != null)
+        {
+            int vertCount = mesh.vertices.Length;
+            Color[] colors = new Color[vertCount];
+            for (int i = 0; i < vertCount; i++)
+            {
+                colors[i] = color;
+            }
+
+            mesh.colors = colors;
+        }
+    }
+
+    private void Start()
+    {
+        GenerateMesh();
+    }
 
     private void OnDrawGizmosSelected()
     {
@@ -24,6 +48,7 @@ public class VolumetricLightMesh : MonoBehaviour
         Gizmos.color = Color.green;
         Gizmos.DrawLine(transform.position, transform.position + transform.TransformDirection(up) * sizeStart.y);
     }
+
     
     [ContextMenu("Generate Mesh")]
     private void GenerateMesh()
@@ -36,6 +61,7 @@ public class VolumetricLightMesh : MonoBehaviour
 
         Vector3[] vertices = new Vector3[corners * 2];
         int[] triangles = new int[vertices.Length * 3];
+        Vector2[] uvs = new Vector2[vertices.Length];
 
         for (int i = 0; i < corners; i++)
         {
@@ -45,10 +71,12 @@ public class VolumetricLightMesh : MonoBehaviour
 
             Vector3 startPoint = (right * cos * sizeStart.x) + (up * sin * sizeStart.y);
             vertices[i] = startPoint;
+            uvs[i] = new Vector2(0f, 0f);
 
             Vector3 endPoint = startPoint + forward * length;
             endPoint += (right * cos * sizeEnd.x) + (up * sin * sizeEnd.y);
             vertices[i + corners] = endPoint;
+            uvs[i + corners] = new Vector2(0f, 1f);
         }
 
         for (int i = 0; i < corners; i++)
@@ -66,8 +94,11 @@ public class VolumetricLightMesh : MonoBehaviour
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;
+        mesh.uv = uvs;
         mesh.RecalculateNormals();
         meshFilter.mesh = mesh;
+
+        SetColors(defaultColor);
     }
 
     private MeshFilter GetMeshFilter()
