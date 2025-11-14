@@ -5,7 +5,6 @@ public class VolumetricLightMesh : MonoBehaviour
     [SerializeField] private Vector3 localDirection = Vector3.forward;
     [Space]
     [SerializeField] private float length = 5f;
-    [SerializeField] private float angle = 30f;
     [SerializeField, Min(3)] private int corners = 4;
     [Space]
     [SerializeField] private Vector2 sizeStart;
@@ -37,31 +36,50 @@ public class VolumetricLightMesh : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        GetDirectionVectors(out Vector3 forward, out Vector3 right, out Vector3 up);
+        GetMeshData(out Vector3[] vertices, out int[] triangles, out Vector2[] uvs);
 
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, transform.position + transform.TransformDirection(forward) * length);
+        Gizmos.color = Color.white;
+        for (int i = 0; i < vertices.Length / 2; i++)
+        {
+            int vCount = vertices.Length / 2;
+            Vector3 v0 = transform.TransformPoint(vertices[i]);
+            Vector3 v1 = transform.TransformPoint(vertices[(i + 1) % vCount]);
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, transform.position + transform.TransformDirection(right) * sizeStart.x);
+            Vector3 v2 = transform.TransformPoint(vertices[i + vCount]);
+            Vector3 v3 = transform.TransformPoint(vertices[(i + 1) % vCount + vCount]);
 
-        Gizmos.color = Color.green;
-        Gizmos.DrawLine(transform.position, transform.position + transform.TransformDirection(up) * sizeStart.y);
+            Gizmos.DrawLine(v0, v1);
+            Gizmos.DrawLine(v0, v2);
+            Gizmos.DrawLine(v2, v3);
+        }
     }
 
     
     [ContextMenu("Generate Mesh")]
     private void GenerateMesh()
     {
-        GetDirectionVectors(out Vector3 forward, out Vector3 right, out Vector3 up);
-
         MeshFilter meshFilter = GetMeshFilter();
         Mesh mesh = new Mesh();
         mesh.name = "Volumetric Light Mesh";
 
-        Vector3[] vertices = new Vector3[corners * 2];
-        int[] triangles = new int[vertices.Length * 3];
-        Vector2[] uvs = new Vector2[vertices.Length];
+        GetMeshData(out Vector3[] vertices, out int[] triangles, out Vector2[] uvs);
+
+        mesh.vertices = vertices;
+        mesh.triangles = triangles;
+        mesh.uv = uvs;
+        mesh.RecalculateNormals();
+        meshFilter.mesh = mesh;
+
+        SetColors(defaultColor);
+    }
+
+    private void GetMeshData(out Vector3[] vertices, out int[] triangles, out Vector2[] uvs)
+    {
+        GetDirectionVectors(out Vector3 forward, out Vector3 right, out Vector3 up);
+
+        vertices = new Vector3[corners * 2];
+        triangles = new int[vertices.Length * 3];
+        uvs = new Vector2[vertices.Length];
 
         for (int i = 0; i < corners; i++)
         {
@@ -69,14 +87,16 @@ public class VolumetricLightMesh : MonoBehaviour
             float cos = Mathf.Cos(angleRad);
             float sin = Mathf.Sin(angleRad);
 
+            float uvX = (float)i / corners;
+
             Vector3 startPoint = (right * cos * sizeStart.x) + (up * sin * sizeStart.y);
             vertices[i] = startPoint;
-            uvs[i] = new Vector2(0f, 0f);
+            uvs[i] = new Vector2(uvX, 0f);
 
             Vector3 endPoint = startPoint + forward * length;
             endPoint += (right * cos * sizeEnd.x) + (up * sin * sizeEnd.y);
             vertices[i + corners] = endPoint;
-            uvs[i + corners] = new Vector2(0f, 1f);
+            uvs[i + corners] = new Vector2(uvX, 1f);
         }
 
         for (int i = 0; i < corners; i++)
@@ -91,14 +111,6 @@ public class VolumetricLightMesh : MonoBehaviour
             triangles[i * 6 + 4] = i + corners;
             triangles[i * 6 + 5] = nextI + corners;
         }
-
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.uv = uvs;
-        mesh.RecalculateNormals();
-        meshFilter.mesh = mesh;
-
-        SetColors(defaultColor);
     }
 
     private MeshFilter GetMeshFilter()
