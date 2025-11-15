@@ -14,6 +14,7 @@ public class VolumetricLightMeshCluster : MonoBehaviour
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
         List<Vector2> uvs = new List<Vector2>();
+        List<Vector4> uvs2 = new List<Vector4>();
         List<Color> colors = new List<Color>();
 
         foreach (VolumetricLightMesh light in lights)
@@ -26,7 +27,9 @@ public class VolumetricLightMeshCluster : MonoBehaviour
             {
                 Vector3 worldPos = light.transform.TransformPoint(v);
                 Vector3 localPos = transform.InverseTransformPoint(worldPos);
+
                 vertices.Add(localPos);
+                uvs2.Add(light.transform.localPosition);
             }
 
             foreach (int t in lightTris)
@@ -41,6 +44,7 @@ public class VolumetricLightMeshCluster : MonoBehaviour
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
         mesh.uv = uvs.ToArray();
+        mesh.SetUVs(2, uvs2.ToArray());
         mesh.colors = colors.ToArray();
         mesh.RecalculateNormals();
         meshFilter.mesh = mesh;

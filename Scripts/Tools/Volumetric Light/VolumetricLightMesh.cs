@@ -112,9 +112,16 @@ public class VolumetricLightMesh : MonoBehaviour
 
         GetMeshData(out Vector3[] vertices, out int[] triangles, out Vector2[] uvs, out Color[] colors);
 
+        List<Vector4> posUvs = new List<Vector4>();
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            posUvs.Add(transform.localPosition);
+        }
+
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.uv = uvs;
+        mesh.SetUVs(2, posUvs.ToArray());
         mesh.colors = colors;
         mesh.RecalculateNormals();
         meshFilter.mesh = mesh;
