@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class VolumetricLightMesh : MonoBehaviour
 {
+    [SerializeField] private bool buildOnStart = true;
+    [Space]
     [SerializeField] private Vector3 localDirection = Vector3.forward;
     [Space]
     [SerializeField] private float length = 5f;
@@ -29,14 +32,59 @@ public class VolumetricLightMesh : MonoBehaviour
         }
     }
 
+    public void GetMeshData(out Vector3[] vertices, out int[] triangles, out Vector2[] uvs, out Color[] colors)
+    {
+        vertices = new Vector3[corners * 2];
+        triangles = new int[corners * 6];
+        uvs = new Vector2[corners * 2];
+        colors = new Color[corners * 2];
+
+        GetDirectionVectors(out Vector3 forward, out Vector3 right, out Vector3 up);
+
+        for (int i = 0; i < corners; i++)
+        {
+            float angleRad = Mathf.Deg2Rad * ((i * 360f / corners) + 45f);
+            float cos = Mathf.Cos(angleRad);
+            float sin = Mathf.Sin(angleRad);
+
+            float uvX = (float)i / corners;
+
+            Vector3 startPoint = (right * cos * sizeStart.x) + (up * sin * sizeStart.y);
+            vertices[i] = startPoint;
+            uvs[i] = new Vector2(uvX, 0f);
+
+            Vector3 endPoint = startPoint + forward * length;
+            endPoint += (right * cos * sizeEnd.x) + (up * sin * sizeEnd.y);
+            vertices[i + corners] = endPoint;
+            uvs[i + corners] = new Vector2(uvX, 1f);
+            colors[i] = defaultColor;
+        }
+
+        for (int i = 0; i < corners; i++)
+        {
+            int nextI = (i + 1) % corners;
+
+            triangles[i * 6 + 0] = i;
+            triangles[i * 6 + 1] = i + corners;
+            triangles[i * 6 + 2] = nextI;
+
+            triangles[i * 6 + 3] = nextI;
+            triangles[i * 6 + 4] = i + corners;
+            triangles[i * 6 + 5] = nextI + corners;
+        }
+    }
+
     private void Start()
     {
-        GenerateMesh();
+        if (buildOnStart)
+        {
+            GenerateMesh();
+        }
     }
 
     private void OnDrawGizmosSelected()
     {
-        GetMeshData(out Vector3[] vertices, out int[] triangles, out Vector2[] uvs);
+        GetMeshData(out Vector3[] vertices, out int[] triangles, out Vector2[] uvs, out Color[] colors);
 
         Gizmos.color = Color.white;
         for (int i = 0; i < vertices.Length / 2; i++)
@@ -62,56 +110,16 @@ public class VolumetricLightMesh : MonoBehaviour
         Mesh mesh = new Mesh();
         mesh.name = "Volumetric Light Mesh";
 
-        GetMeshData(out Vector3[] vertices, out int[] triangles, out Vector2[] uvs);
+        GetMeshData(out Vector3[] vertices, out int[] triangles, out Vector2[] uvs, out Color[] colors);
 
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.uv = uvs;
+        mesh.colors = colors;
         mesh.RecalculateNormals();
         meshFilter.mesh = mesh;
-
-        SetColors(defaultColor);
     }
 
-    private void GetMeshData(out Vector3[] vertices, out int[] triangles, out Vector2[] uvs)
-    {
-        GetDirectionVectors(out Vector3 forward, out Vector3 right, out Vector3 up);
-
-        vertices = new Vector3[corners * 2];
-        triangles = new int[vertices.Length * 3];
-        uvs = new Vector2[vertices.Length];
-
-        for (int i = 0; i < corners; i++)
-        {
-            float angleRad = Mathf.Deg2Rad * ((i * 360f / corners) + 45f);
-            float cos = Mathf.Cos(angleRad);
-            float sin = Mathf.Sin(angleRad);
-
-            float uvX = (float)i / corners;
-
-            Vector3 startPoint = (right * cos * sizeStart.x) + (up * sin * sizeStart.y);
-            vertices[i] = startPoint;
-            uvs[i] = new Vector2(uvX, 0f);
-
-            Vector3 endPoint = startPoint + forward * length;
-            endPoint += (right * cos * sizeEnd.x) + (up * sin * sizeEnd.y);
-            vertices[i + corners] = endPoint;
-            uvs[i + corners] = new Vector2(uvX, 1f);
-        }
-
-        for (int i = 0; i < corners; i++)
-        {
-            int nextI = (i + 1) % corners;
-
-            triangles[i * 6 + 0] = i;
-            triangles[i * 6 + 1] = i + corners;
-            triangles[i * 6 + 2] = nextI;
-
-            triangles[i * 6 + 3] = nextI;
-            triangles[i * 6 + 4] = i + corners;
-            triangles[i * 6 + 5] = nextI + corners;
-        }
-    }
 
     private MeshFilter GetMeshFilter()
     {
