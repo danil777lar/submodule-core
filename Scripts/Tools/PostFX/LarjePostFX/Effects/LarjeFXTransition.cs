@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
-[CreateAssetMenu(menuName = "Larje/Core/PostFX/Damage Effect", fileName = "LarjeFX_Damage")]
-public class LarjeFXDamage : LarjePostFX
+[CreateAssetMenu(menuName = "Larje/Core/PostFX/Transition Effect", fileName = "LarjeFX_Transition")]
+public class LarjeFXTransition : LarjePostFX
 {
     [SerializeField] private Shader shader;
     
@@ -16,7 +15,7 @@ public class LarjeFXDamage : LarjePostFX
     public new class Processor : LarjePostFX.Processor
     {
         private bool _destroyed = false;
-        private LarjeFXDamage _config;
+        private LarjeFXTransition _config;
         private Material _material;
         
         private List<Func<float>> _valueProviders = new List<Func<float>>();
@@ -24,7 +23,7 @@ public class LarjeFXDamage : LarjePostFX
         public override bool Enabled => _material != null && !_destroyed && GetValue() > 0f;
         public override Material Material => _material;
 
-        public Processor(LarjeFXDamage config)
+        public Processor(LarjeFXTransition config)
         {
             _config = config;
             if (_config.shader != null)
