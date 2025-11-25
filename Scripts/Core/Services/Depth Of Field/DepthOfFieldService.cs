@@ -16,6 +16,10 @@ public class DepthOfFieldService : Service
     [SerializeField] private LayerMask autoDepthLayerMask;
     [SerializeField] private float autoDepthStartMultiplier = 1.1f;
     [SerializeField] private float autoDepthEndMultiplier = 2f;
+    [SerializeField] private float maxDistance = 10f;
+    [Space]
+    [SerializeField] private float speedStart = 10f;
+    [SerializeField] private float speedEnd = 5f;
 
     private Camera _camera;
     private Volume _volume;
@@ -37,8 +41,8 @@ public class DepthOfFieldService : Service
             if (Depth.TryGetValue(out DepthValue depthValue))
             {
                 dof.active = depthValue.Active;
-                dof.gaussianStart.value = Mathf.Lerp(dof.gaussianStart.value, depthValue.Start, Time.deltaTime * 10f);
-                dof.gaussianEnd.value = Mathf.Lerp(dof.gaussianEnd.value, depthValue.End, Time.deltaTime * 10f);
+                dof.gaussianStart.value = Mathf.Lerp(dof.gaussianStart.value, depthValue.Start, Time.deltaTime * speedStart);
+                dof.gaussianEnd.value = Mathf.Lerp(dof.gaussianEnd.value, depthValue.End, Time.deltaTime * speedEnd);
             }
             else
             {
@@ -67,6 +71,14 @@ public class DepthOfFieldService : Service
                 distances.Add(GetDistance(screenPercent));
             }
             distances = distances.OrderBy(x => x).ToList();
+
+            float closestDistance = distances.First();
+            if (closestDistance > maxDistance)
+            {
+                depthValue.Start = 1000f;
+                depthValue.End = 1000f;
+                return depthValue;
+            }
 
             depthValue.Start = (distances.Max() + 2f) * autoDepthStartMultiplier;
             depthValue.End = (distances.Max() + 2f) * autoDepthEndMultiplier;
