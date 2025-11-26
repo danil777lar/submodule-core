@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,9 @@ namespace Larje.Core.Services
         protected bool isLevelPlaying = false;
         
         public bool IsLevelPlaying => isLevelPlaying;
+
+        public event Action<StartData> EventLevelStart;
+        public event Action<StopData> EventLevelStop;
 
         public abstract void TryStartLevel(StartData data);
 
@@ -58,10 +62,12 @@ namespace Larje.Core.Services
 
         public class StopData
         {
+            public readonly bool IsWin;
             public readonly LevelStopType StopType;
 
-            public StopData(LevelStopType stopType)
+            public StopData(bool isWin, LevelStopType stopType)
             {
+                IsWin = isWin;
                 StopType = stopType;
             }
         }

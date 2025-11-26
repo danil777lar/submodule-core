@@ -122,10 +122,10 @@ namespace Larje.Core.Services.DebugConsole
         }
         
         [MethodGroup("Level")]
-        public static void StopLevel(LevelStopType stopType)
+        public static void StopLevel(bool isWin, LevelStopType stopType)
         {
             ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
-            levelService.TryStopCurrentLevel(new LevelProcessor.StopData(stopType));
+            levelService.TryStopCurrentLevel(new LevelProcessor.StopData(isWin, stopType));
         }
         
         [MethodGroup("Level")]
