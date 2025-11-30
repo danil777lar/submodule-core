@@ -90,7 +90,7 @@ namespace Larje.Core.Services
             }
             catch (Exception e)
             {
-                Debug.LogError($"DataService: Failed to delete all data: {e.Message}");
+                Debug.LogWarning($"DataService: Failed to delete all data: {e.Message}");
             }
         }
 
@@ -150,7 +150,7 @@ namespace Larje.Core.Services
             }
             catch (Exception e)
             {
-                Debug.LogError($"DataService: Failed to read file {path}: {e.Message}");
+                Debug.LogWarning($"DataService: Failed to read file {path}: {e.Message}");
             }
             
             return false;
@@ -164,7 +164,7 @@ namespace Larje.Core.Services
             }
             catch (Exception e)
             {
-                Debug.LogError($"DataService: Failed to read line {line} from file {path}: {e.Message}");
+                Debug.LogWarning($"DataService: Failed to read line {line} from file {path}: {e.Message}");
                 return "";
             }
         }
