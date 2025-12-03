@@ -17,11 +17,8 @@ namespace Larje.Core.Services
         protected virtual TaskConfig.Processor CreateProcessor(TaskConfig config)
         {
             TaskConfig.Processor processor = config.CreateProcessor();
-            
             processor.EventStatusChanged += (status) => OnTaskStatusChanged(config, status);
-            processor.EventRewarded += () => OnTaskRewardGiven(config);
 
-            processor.Initialize();
             return processor;
         }
         

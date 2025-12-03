@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -18,14 +19,12 @@ namespace Larje.Core.Services
         [Header("Reward")] 
         [SerializeField] protected List<TaskRewardConfig> rewards;
 
-        public virtual string Type => name;
+        public virtual string TaskId => name;
         public virtual string TaskName => taskNameKey;
         public virtual string TaskDescription => taskDescriptionKey;
         public virtual Sprite Icon => icon;
         
         public virtual bool IsAvailable => true;
-        public virtual bool Initialized => GetData().Initialized;
-        public virtual bool RewardGiven => GetData().RewardGiven;
         public virtual TaskStatusType Status => GetData().Status;
         
 
@@ -33,7 +32,7 @@ namespace Larje.Core.Services
 
         public virtual void ClearTaskData()
         {
-            DIContainer.GetService<IDataService>().GameData.ClearTaskData(Type);
+            DIContainer.GetService<IDataService>().GameData.ClearTaskData(TaskId);
         }
 
         [ContextMenu("Set Localization Keys")]
@@ -56,7 +55,7 @@ namespace Larje.Core.Services
 
         protected virtual TaskData GetData()
         {
-            return DIContainer.GetService<IDataService>().GameData.GetTaskData(Type);
+            return DIContainer.GetService<IDataService>().GameData.GetTaskData(TaskId);
         }
 
         public abstract class Processor
@@ -67,32 +66,16 @@ namespace Larje.Core.Services
 
             protected TaskData Data => _config.GetData();
 
+            protected abstract TaskStep RootStep { get; }
+
             public event Action<TaskStatusType> EventStatusChanged;
-            public event Action EventRewarded;
 
             public Processor(TaskConfig config)
             {
                 _config = config;
-            }
 
-            public bool IsChildOf(TaskConfig config)
-            {
-                return config == _config;
-            }
-
-            public void Initialize()
-            {
-                OnInitialize();
-                
-                if (!Data.Initialized)
-                {
-                    InitializeData();
-                }
-                
-                if (_config.startOnInitialize)
-                {
-                    Start();
-                }
+                TryInit();
+                RootStep.InjectData(Data.StepsData.ToArray());
             }
 
             public void Start()
@@ -100,15 +83,7 @@ namespace Larje.Core.Services
                 if (Data.Status == TaskStatusType.NotStarted)
                 {
                     ChangeStatus(TaskStatusType.Started);
-                }
-            }
-
-            public void GiveReward(int multiplier = 1)
-            {
-                if ((Data.Status == TaskStatusType.Completed || Data.Status == TaskStatusType.Failed) && !Data.RewardGiven)
-                {
-                    _config.rewards.ForEach(x => x.GiveReward(multiplier));
-                    EventRewarded?.Invoke();
+                    RootStep.Start();
                 }
             }
 
@@ -120,13 +95,12 @@ namespace Larje.Core.Services
                     OnDestroy();
                 }
             }
-            
-            protected void InitializeData()
-            {
-                Data.Initialized = true;
-                OnInitializeData();
-            }
 
+            public bool IsChildOf(TaskConfig config)
+            {
+                return config == _config;
+            }
+            
             protected void Complete()
             {
                 if (Data.Status == TaskStatusType.Started)
@@ -140,6 +114,15 @@ namespace Larje.Core.Services
                 if (Data.Status == TaskStatusType.Started)
                 {
                     ChangeStatus(TaskStatusType.Failed);
+                }
+            }
+
+            private void TryInit()
+            {
+                if (!Data.Inited)
+                {
+                    TaskStepData[] stepsData = RootStep.ReadData();
+                    Data.StepsData = stepsData;
                 }
             }
 
@@ -163,8 +146,6 @@ namespace Larje.Core.Services
                 EventStatusChanged?.Invoke(status);
             }
 
-            protected virtual void OnInitialize() { }
-            protected virtual void OnInitializeData() { }
             protected virtual void OnStarted() { }
             protected virtual void OnCompleted() { }
             protected virtual void OnFailed() { }

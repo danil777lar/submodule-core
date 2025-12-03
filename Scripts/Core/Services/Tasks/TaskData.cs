@@ -38,12 +38,16 @@ namespace Larje.Core.Services
 [Serializable]
 public class TaskData
 {
+    public bool Inited;
     public string TaskType;
-
-    public bool Initialized;
-    public bool RewardGiven;
     public TaskStatusType Status;
-    
-    public int MaxProgress;
-    public int CurrentProgress;
+    public TaskStepData[] StepsData;
+}
+
+[Serializable]
+public class TaskStepData
+{
+    public string Id;
+    public string Type;
+    public string Json;
 }

@@ -16,7 +16,7 @@ namespace Larje.Core.Services
 
         public virtual DateTime LastReset => DateTime.Parse(_dataService.GameData.DailyTasksServiceData.LastDailyTaskReset);
         public virtual DateTime NextReset => DateTime.Today.AddDays(1);
-        public override IReadOnlyCollection<TaskConfig> Tasks => taskConfigs.FindAll(x => x.Initialized);
+        public override IReadOnlyCollection<TaskConfig> Tasks => taskConfigs.FindAll(x => true);
 
 
         public override void Init()
