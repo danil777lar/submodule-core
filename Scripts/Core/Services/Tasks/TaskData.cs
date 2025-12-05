@@ -39,6 +39,7 @@ namespace Larje.Core.Services
 public class TaskData
 {
     public bool Inited;
+    public bool IsTrackinig;
     public string TaskType;
     public TaskStatusType Status;
     public TaskStepData[] StepsData;

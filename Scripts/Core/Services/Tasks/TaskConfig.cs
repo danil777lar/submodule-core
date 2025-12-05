@@ -25,6 +25,7 @@ namespace Larje.Core.Services
         public virtual Sprite Icon => icon;
         
         public virtual bool IsAvailable => true;
+        public virtual bool IsTracking => GetData().IsTrackinig;
         public virtual TaskStatusType Status => GetData().Status;
         
 
@@ -33,6 +34,12 @@ namespace Larje.Core.Services
         public virtual void ClearTaskData()
         {
             DIContainer.GetService<IDataService>().GameData.ClearTaskData(TaskId);
+        }
+
+        public void SetTracking(bool tracking)
+        {
+            TaskData data = GetData();
+            data.IsTrackinig = tracking;
         }
 
         [ContextMenu("Set Localization Keys")]
@@ -95,6 +102,8 @@ namespace Larje.Core.Services
                 if (Data.Status == TaskStatusType.NotStarted)
                 {
                     ChangeStatus(TaskStatusType.Started);
+
+                    _config.SetTracking(true);
                     RootStep.Start();
                 }
             }
@@ -116,6 +125,15 @@ namespace Larje.Core.Services
             public bool IsChildOf(TaskConfig config)
             {
                 return config == _config;
+            }
+
+            public List<Func<Vector3>> GetTaskPositions()
+            {
+                if (RootStep == null)
+                {
+                    return new List<Func<Vector3>>();
+                }
+                return RootStep.GetTaskPositions().ToList();
             }
 
             private void OnSave()

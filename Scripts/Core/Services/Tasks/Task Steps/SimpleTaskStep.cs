@@ -5,7 +5,6 @@ public abstract class SimpleTaskStep : TaskStep
 {
     private TaskStep _next;
 
-    protected override bool IsCompleted => false;
     protected override TaskStep Next => _next;
     protected override TaskStep[] Children => _next == null ? new TaskStep[]{} : new TaskStep[] { _next };
 
