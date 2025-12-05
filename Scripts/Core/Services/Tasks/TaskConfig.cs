@@ -63,9 +63,9 @@ namespace Larje.Core.Services
             protected bool _destroyed;
             
             private TaskConfig _config;
+            private IDataService _dataService;
 
             protected TaskData Data => _config.GetData();
-
             protected abstract TaskStep RootStep { get; }
 
             public event Action<TaskStatusType> EventStatusChanged;
@@ -74,8 +74,20 @@ namespace Larje.Core.Services
             {
                 _config = config;
 
-                TryInit();
+                _dataService = DIContainer.GetService<IDataService>();
+                _dataService.EventPreSave += OnSave;
+
+                CreateTree();
+
+                if (!Data.Inited)
+                {
+                    Data.Inited = true;
+                    TaskStepData[] stepsData = RootStep.ReadData();
+                    Data.StepsData = stepsData;
+                }
+
                 RootStep.InjectData(Data.StepsData.ToArray());
+                RootStep.Init();
             }
 
             public void Start()
@@ -91,8 +103,13 @@ namespace Larje.Core.Services
             {
                 if (!_destroyed)
                 {
+                    if (_dataService != null)
+                    {
+                        _dataService.EventPreSave -= OnSave;
+                    }
+
                     _destroyed = true;
-                    OnDestroy();
+                    RootStep.Destroy();
                 }
             }
 
@@ -100,56 +117,19 @@ namespace Larje.Core.Services
             {
                 return config == _config;
             }
-            
-            protected void Complete()
-            {
-                if (Data.Status == TaskStatusType.Started)
-                {
-                    ChangeStatus(TaskStatusType.Completed);
-                }
-            }
 
-            protected void Fail()
+            private void OnSave()
             {
-                if (Data.Status == TaskStatusType.Started)
-                {
-                    ChangeStatus(TaskStatusType.Failed);
-                }
-            }
-
-            private void TryInit()
-            {
-                if (!Data.Inited)
-                {
-                    TaskStepData[] stepsData = RootStep.ReadData();
-                    Data.StepsData = stepsData;
-                }
+                Data.StepsData = RootStep.ReadData();
             }
 
             private void ChangeStatus(TaskStatusType status)
             {
                 Data.Status = status;
-                
-                switch (status)
-                {
-                    case TaskStatusType.Started:
-                        OnStarted();
-                        break;
-                    case TaskStatusType.Completed:
-                        OnCompleted();
-                        break;
-                    case TaskStatusType.Failed:
-                        OnFailed();
-                        break;
-                }
-                
                 EventStatusChanged?.Invoke(status);
             }
 
-            protected virtual void OnStarted() { }
-            protected virtual void OnCompleted() { }
-            protected virtual void OnFailed() { }
-            protected virtual void OnDestroy() { }
+            protected abstract void CreateTree();
         }
     }
 }

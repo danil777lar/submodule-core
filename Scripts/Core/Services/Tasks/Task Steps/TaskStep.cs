@@ -45,6 +45,10 @@ public abstract class TaskStep
 
         Type t = Type.GetType(wrapper.Type);
         Data data = JsonUtility.FromJson(wrapper.Json, t) as Data;
+        if (data == null)
+        {
+            data = Activator.CreateInstance(t) as Data;
+        }
         DataContent = data;
         
         foreach (TaskStep child in Children)
@@ -53,12 +57,58 @@ public abstract class TaskStep
         }
     }
 
+    public void Init()
+    {
+        foreach (TaskStep child in Children)
+        {
+            child.Init();
+        }
+
+        if (DataContent.Started && !DataContent.Completed)
+        {
+            Start();
+        }
+    }
+
     public void Start()
+    {
+        DataContent.Started = true;
+        OnStart();
+    }
+
+    public void Destroy()
+    {
+        OnDestroy();
+        foreach (TaskStep child in Children)
+        {
+            child.Destroy();
+        }
+    }
+
+    protected void Complete()
+    {
+        if (!DataContent.Completed)
+        {
+            DataContent.Completed = true;
+            if (Next != null)
+            {
+                Next.Start();
+            }
+        }
+    }
+
+    protected virtual void OnStart()
+    {
+    }
+
+    protected virtual void OnDestroy()
     {
     }
 
     protected abstract class Data
     {
         public string Id;
+        public bool Started;
+        public bool Completed;
     }
 }

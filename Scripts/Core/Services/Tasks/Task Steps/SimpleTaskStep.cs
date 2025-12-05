@@ -7,10 +7,11 @@ public abstract class SimpleTaskStep : TaskStep
 
     protected override bool IsCompleted => false;
     protected override TaskStep Next => _next;
-    protected override TaskStep[] Children => new TaskStep[] { _next };
+    protected override TaskStep[] Children => _next == null ? new TaskStep[]{} : new TaskStep[] { _next };
 
     public SimpleTaskStep(string id) : base(id)
     {
+        
     }
 
     public SimpleTaskStep SetNext(TaskStep next)
