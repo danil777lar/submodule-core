@@ -113,6 +113,10 @@ public abstract class TaskStep
             {
                 Next.Start();
             }
+            else
+            {
+                EventTreeCompleted?.Invoke();
+            }
         }
     }
 

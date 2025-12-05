@@ -95,6 +95,12 @@ namespace Larje.Core.Services
 
                 RootStep.InjectData(Data.StepsData.ToArray());
                 RootStep.Init();
+
+                RootStep.EventTreeCompleted += () =>
+                {
+                    ChangeStatus(TaskStatusType.Completed);
+                    _config.SetTracking(false);
+                };
             }
 
             public void Start()
