@@ -11,6 +11,8 @@ public abstract class TaskStep
     protected abstract TaskStep Next { get; }
     protected abstract TaskStep[] Children { get; }
 
+    protected string Id => _id;
+
     private string _id;
 
     public event Action EventCompleted;
@@ -107,7 +109,6 @@ public abstract class TaskStep
 
     protected abstract class Data
     {
-        public string Id;
         public bool Started;
         public bool Completed;
     }
