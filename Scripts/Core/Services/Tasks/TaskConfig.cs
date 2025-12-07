@@ -98,8 +98,10 @@ namespace Larje.Core.Services
 
                 RootStep.EventTreeCompleted += () =>
                 {
-                    ChangeStatus(TaskStatusType.Completed);
                     _config.SetTracking(false);
+
+                    ChangeStatus(TaskStatusType.Completed);
+                    OnQuestCompleted();
                 };
             }
 
@@ -108,8 +110,6 @@ namespace Larje.Core.Services
                 if (Data.Status == TaskStatusType.NotStarted)
                 {
                     ChangeStatus(TaskStatusType.Started);
-
-                    _config.SetTracking(true);
                     RootStep.Start();
                 }
             }
@@ -154,6 +154,10 @@ namespace Larje.Core.Services
             }
 
             protected abstract void CreateTree();
+
+            protected virtual void OnQuestCompleted()
+            {
+            }
         }
     }
 }

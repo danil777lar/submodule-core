@@ -42,11 +42,11 @@ namespace Larje.Core
                     return component;
                 }
                 
-                Debug.LogError($"DIContainer: Can't find component of type {typeof(T).Name} in entity {id} - {entity.name}", entity);
+                Debug.LogWarning($"DIContainer: Can't find component of type {typeof(T).Name} in entity {id} - {entity.name}", entity);
                 return default;
             }
 
-            Debug.LogError($"DIContainer: Can't find entity with id {id}");
+            Debug.LogWarning($"DIContainer: Can't find entity with id {id}");
             return default;
         }
         
@@ -59,11 +59,11 @@ namespace Larje.Core
                     return component.ToArray();
                 }
                 
-                Debug.LogError($"DIContainer: Can't find component of type {typeof(T).Name} in entity {id} - {entity.name}", entity);
+                Debug.LogWarning($"DIContainer: Can't find component of type {typeof(T).Name} in entity {id} - {entity.name}", entity);
                 return default;
             }
 
-            Debug.LogError($"DIContainer: Can't find entity with id {id}");
+            Debug.LogWarning($"DIContainer: Can't find entity with id {id}");
             return default;
         }
 
