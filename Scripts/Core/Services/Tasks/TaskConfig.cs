@@ -80,6 +80,7 @@ namespace Larje.Core.Services
             public Processor(TaskConfig config)
             {
                 _config = config;
+                Initialize(config);
 
                 _dataService = DIContainer.GetService<IDataService>();
                 _dataService.EventPreSave += OnSave;
@@ -152,6 +153,8 @@ namespace Larje.Core.Services
                 Data.Status = status;
                 EventStatusChanged?.Invoke(status);
             }
+
+            protected abstract void Initialize(TaskConfig config);
 
             protected abstract void CreateTree();
 
