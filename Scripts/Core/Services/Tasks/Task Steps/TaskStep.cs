@@ -10,16 +10,21 @@ public abstract class TaskStep
     protected abstract TaskStep Next { get; }
     protected abstract TaskStep[] Children { get; }
 
+    protected int RawIndex => _rawIndex;
     protected string Id => _id;
     protected bool IsStarted => DataContent.Started;
     protected bool IsCompleted => DataContent.Completed;
 
+    private int _rawIndex;
     private string _id;
+
+    public abstract int CurrentIndex { get; }
 
     public event Action EventTreeCompleted;
 
-    public TaskStep(string id)
+    public TaskStep(int index, string id)
     {
+        _rawIndex = index;
         _id = id;
     }
 

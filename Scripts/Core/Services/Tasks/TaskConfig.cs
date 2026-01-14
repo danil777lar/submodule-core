@@ -27,7 +27,6 @@ namespace Larje.Core.Services
         public virtual bool IsAvailable => true;
         public virtual bool IsTracking => GetData().IsTrackinig;
         public virtual TaskStatusType Status => GetData().Status;
-        
 
         public abstract Processor CreateProcessor();
 
@@ -71,6 +70,8 @@ namespace Larje.Core.Services
             
             private TaskConfig _config;
             private IDataService _dataService;
+
+            public int CurrentStep => RootStep.CurrentIndex;
 
             protected TaskData Data => _config.GetData();
             protected abstract TaskStep RootStep { get; }
