@@ -1,6 +1,6 @@
 using UnityEngine;
 
-#if !ROJECT_CONSTANT_LOCATIONARGTYPE
+#if !PROJECT_CONSTANT_LOCATIONARGTYPE
 
 public enum LocationArgType
 {
