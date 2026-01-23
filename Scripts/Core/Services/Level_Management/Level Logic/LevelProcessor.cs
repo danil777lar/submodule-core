@@ -22,12 +22,6 @@ namespace Larje.Core.Services
 
         public abstract LevelData GetLevelData();
 
-        public void SendEvent(LevelEvent levelEvent)
-        {
-            GetComponentsInChildren<ILevelEventHandler>(true)
-                .ToList().ForEach(x => x.OnLevelEvent(levelEvent));
-        }
-        
         protected void StartLevel(StartData data)
         {
             if (!isLevelPlaying)

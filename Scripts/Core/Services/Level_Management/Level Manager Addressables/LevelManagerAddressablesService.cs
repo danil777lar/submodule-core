@@ -140,14 +140,6 @@ namespace Larje.Core.Services
                 _currentLevel.TryStopLevel(data);
             }
         }
-        
-        public void TrySendEventToCurrentLevel(LevelEvent levelEvent)
-        {
-            if (_currentLevel != null)
-            {
-                _currentLevel.SendEvent(levelEvent);
-            }
-        }
 
         public T GetCurrentLevelData<T>() where T : LevelProcessor.LevelData 
         {

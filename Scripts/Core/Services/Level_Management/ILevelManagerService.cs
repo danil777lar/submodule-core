@@ -24,8 +24,6 @@ namespace Larje.Core.Services
         
         public void IncrementLevelId();
 
-        public void TrySendEventToCurrentLevel(LevelEvent levelEvent);
-        
         public void TryStartCurrentLevel(LevelProcessor.StartData data);
 
         public void TryStopCurrentLevel(LevelProcessor.StopData data);

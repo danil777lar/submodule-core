@@ -128,22 +128,22 @@ namespace Larje.Core.Services.DebugConsole
             levelService.TryStopCurrentLevel(new LevelProcessor.StopData(isWin, stopType));
         }
         
-        [MethodGroup("Level")]
-        public static void SendLevelEvent(string eventName)
-        {
-            ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
+        // [MethodGroup("Level")]
+        // public static void SendLevelEvent(string eventName)
+        // {
+        //     ILevelManagerService levelService = DIContainer.GetService<ILevelManagerService>();
             
-            List<Type> derivedTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .Where(t => t.IsClass && t.IsSubclassOf(typeof(LevelEvent))).ToList();
+        //     List<Type> derivedTypes = AppDomain.CurrentDomain.GetAssemblies()
+        //         .SelectMany(a => a.GetTypes())
+        //         .Where(t => t.IsClass && t.IsSubclassOf(typeof(LevelEvent))).ToList();
             
-            Type type = derivedTypes.FirstOrDefault(x => x.Name.ToLower() == eventName.ToLower());
-            if (type != null)
-            {
-                LevelEvent levelEvent = (LevelEvent) Activator.CreateInstance(type);
-                levelService.TrySendEventToCurrentLevel(levelEvent);
-            }
-        }
+        //     Type type = derivedTypes.FirstOrDefault(x => x.Name.ToLower() == eventName.ToLower());
+        //     if (type != null)
+        //     {
+        //         LevelEvent levelEvent = (LevelEvent) Activator.CreateInstance(type);
+        //         levelService.TrySendEventToCurrentLevel(levelEvent);
+        //     }
+        // }
         
         #endregion
         
