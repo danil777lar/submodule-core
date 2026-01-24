@@ -573,7 +573,6 @@ GameObject:
   - component: {fileID: 4525622677211064696}
   - component: {fileID: 6100372937534300397}
   - component: {fileID: 5634661915536392731}
-  - component: {fileID: 7929736512249229592}
   m_Layer: 0
   m_Name: Dropdown
   m_TagString: Untagged
@@ -720,19 +719,6 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 10, y: -10}
   m_UseGraphicAlpha: 1
---- !u!114 &7929736512249229592
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6534795450701551818}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 334d823cb014a0846b70e03f636401ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  config: {fileID: 11400000, guid: 57bdc30fe8b198951a25c508ff84ba7e, type: 2}
 --- !u!1 &6650883907077441716
 GameObject:
   m_ObjectHideFlags: 0

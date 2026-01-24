@@ -91,7 +91,6 @@ GameObject:
   - component: {fileID: 5591873290391196390}
   - component: {fileID: 3847221316240994974}
   - component: {fileID: 3937092672118984517}
-  - component: {fileID: 6180753173003443228}
   m_Layer: 0
   m_Name: Execute Button
   m_TagString: Untagged
@@ -217,19 +216,6 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 10, y: -10}
   m_UseGraphicAlpha: 1
---- !u!114 &6180753173003443228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1931403889404379748}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 334d823cb014a0846b70e03f636401ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  config: {fileID: 11400000, guid: 57bdc30fe8b198951a25c508ff84ba7e, type: 2}
 --- !u!1 &3210951805803923889
 GameObject:
   m_ObjectHideFlags: 0
