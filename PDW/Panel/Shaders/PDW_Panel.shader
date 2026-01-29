@@ -1,4 +1,4 @@
-Shader "LarjeUI/Panel"
+Shader "Hidden/PDW/Panel"
 {
     Properties
     {
@@ -58,7 +58,7 @@ Shader "LarjeUI/Panel"
             {
                 float4 vertex   : POSITION;
                 float4 color    : COLOR;
-                float4 size : TANGENT;
+                float4 tangent : TANGENT;
 
                 float2 texcoord : TEXCOORD0;
                 float4 texcoord1 : TEXCOORD1;
@@ -70,18 +70,21 @@ Shader "LarjeUI/Panel"
 
             struct v2f
             {
-                float4 vertex   : SV_POSITION;
-                fixed4 color    : COLOR;
-                float2 uv       : TEXCOORD0;
-                float4 fillColor     : TEXCOORD1;
-                float4 borderColor   : TEXCOORD2;
-                float4 rbs           : TEXCOORD3;
-                float4 rectSize : TANGENT;
+                float4 vertex         : SV_POSITION;
+                fixed4 color          : COLOR;
+                float2 uv             : TEXCOORD0;
+
+                float4 fillColor      : TEXCOORD1;
+                float4 borderColor    : TEXCOORD2;
+                float4 borderSoftSize : TEXCOORD3;
+                float4 radius : TANGENT;
 
                 float4 worldPos : TEXCOORD7;
 
                 UNITY_VERTEX_OUTPUT_STEREO
             };
+
+
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -101,8 +104,8 @@ Shader "LarjeUI/Panel"
 
                 o.fillColor = v.texcoord1;
                 o.borderColor = v.texcoord2;
-                o.rbs = v.texcoord3;
-                o.rectSize = v.size;
+                o.borderSoftSize = v.texcoord3;
+                o.radius = v.tangent;
 
                 return o;
             }
@@ -113,21 +116,36 @@ Shader "LarjeUI/Panel"
                 return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
             }
 
+            float getActualRadius(float2 p, float4 radius) 
+            {
+                float r;
+                if (p.x < 0)
+                {
+                    r = (p.y < 0) ? radius.x : radius.y;
+                }
+                else
+                {
+                    r = (p.y < 0) ? radius.w : radius.z;
+                }
+
+                return r;
+            }
+
             fixed4 frag(v2f i) : SV_Target
             {
                 fixed4 fillColor = i.fillColor;
                 fixed4 borderColor = i.borderColor;
-                fixed radiusPx = i.rbs.x;
-                fixed borderPx = i.rbs.y;
-                fixed softnessPx = i.rbs.z;
-                fixed2 rectSize = i.rectSize.xy;
+                fixed4 radiusPx = i.radius;
+                fixed borderPx = i.borderSoftSize.x;
+                fixed softnessPx = i.borderSoftSize.y;
+                fixed2 rectSize = i.borderSoftSize.zw;
 
                 fixed4 tex = tex2D(_MainTex, i.uv);
 
                 float w = max(1.0, rectSize.x);
                 float h = max(1.0, rectSize.y);
                 float2 p = (i.uv - 0.5) * float2(w, h);
-                float r = clamp(radiusPx, 0.0, 0.5 * min(w, h));
+                float r = getActualRadius(p, radiusPx);
                 float b = clamp(borderPx, 0.0, 0.5 * min(w, h));
 
                 float2 halfSize = 0.5 * float2(w, h);
