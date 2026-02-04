@@ -7,31 +7,37 @@ public class DebugConsoleOverlay : MonoBehaviour
 {
     [SerializeField] private TMP_Text entryPrefab;
 
-    private int frames;
-    private float time;
-    private float fps;
-
     private List<TMP_Text> _textInstances = new List<TMP_Text>();
-    private List<Func<string>> _entries = new List<Func<string>>(); 
+    private List<OverlayEntry> _entries = new List<OverlayEntry>(); 
+
+    public void AddEntry(OverlayEntry entry)
+    {
+        if (!_entries.Contains(entry))
+        {
+            _entries.Add(entry);
+        }
+    }
+
+    public void RemoveEntry(OverlayEntry entry)
+    {
+        if (_entries.Contains(entry))
+        {
+            _entries.Remove(entry);
+        }
+    }
+
+    public void ClearEntries()
+    {
+        _entries.Clear();
+    }
 
     private void Start()
     {
         entryPrefab.gameObject.SetActive(false);
 
-        _entries.Add(() => 
-        {    
-            frames++;
-            time += Time.unscaledDeltaTime;
-
-            if (time >= 0.5f)
-            {
-                fps = frames / time;
-                frames = 0;
-                time = 0;
-            }
-
-            return $"FPS: {Mathf.Round(fps).ToString()}";
-        });
+        AddEntry(new OverlayEntryFps());
+        AddEntry(new OverlayEntryBatches());
+        AddEntry(new OverlayEntryTriangles());
     }
 
     private void Update()
@@ -40,7 +46,7 @@ public class DebugConsoleOverlay : MonoBehaviour
 
         for (int i = 0; i < _entries.Count; i++)
         {
-            _textInstances[i].text = _entries[i]?.Invoke();
+            _textInstances[i].text = _entries[i].GetData();
         }
     }
 

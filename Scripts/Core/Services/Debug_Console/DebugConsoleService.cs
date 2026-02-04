@@ -37,6 +37,8 @@ namespace Larje.Core.Services.DebugConsole
             }
         }
 
+        public DebugConsoleOverlay Overlay => overlay;
+
         public IReadOnlyCollection<Log> UnityLogs => _unityLogs;
         public IReadOnlyCollection<Log> JSLogs => _jsLogs;
 
