@@ -165,8 +165,6 @@ namespace Larje.Core.Tools.PDW
             {
                 Destroy(s_sharedMaterial);
             }
-    #else
-            Destroy(_runtimeMat);
     #endif
 
             s_sharedMaterial = null;

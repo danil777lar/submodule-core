@@ -17,12 +17,25 @@ namespace Larje.Core.Services.DebugConsole
         [Space] 
         [SerializeField] private GameObject consoleRoot;
         [SerializeField] private GameObject buttonRoot;
+        [Space]
+        [SerializeField] private DebugConsoleOverlay overlay;
 
         [InjectService] private InputService _inputService;
+        [InjectService] private IDataService _dataService;
 
         private bool _consoleOpened;
         private List<Log> _unityLogs = new List<Log>();
         private List<Log> _jsLogs = new List<Log>();
+
+        public bool OverlayActive 
+        {
+            get => _dataService.SystemData.IternalData.DebugConsoleData.overlayEnabled;
+            set
+            {
+                _dataService.SystemData.IternalData.DebugConsoleData.overlayEnabled = value;
+                overlay.gameObject.SetActive(value && enableConsole);
+            }
+        }
 
         public IReadOnlyCollection<Log> UnityLogs => _unityLogs;
         public IReadOnlyCollection<Log> JSLogs => _jsLogs;
@@ -56,6 +69,8 @@ namespace Larje.Core.Services.DebugConsole
                 consoleRoot.SetActive(false);
                 buttonRoot.SetActive(false);
             }
+
+            overlay.gameObject.SetActive(OverlayActive && enableConsole);
         }
 
         public void OpenConsole()
@@ -84,16 +99,6 @@ namespace Larje.Core.Services.DebugConsole
             }
         }
 
-        private void HandleUnityLog(string logString, string stackTrace, LogType type)
-        {
-            Log log = new Log();
-            log.text = logString;
-            log.stackTrace = stackTrace;
-            log.type = type;
-
-            _unityLogs.Add(log);
-        }
-
         public void HandleJSLog(string message)
         {
             Log log = new Log();
@@ -103,6 +108,16 @@ namespace Larje.Core.Services.DebugConsole
             log.type = LogType.Log;
 
             _jsLogs.Add(log);
+        }
+
+        private void HandleUnityLog(string logString, string stackTrace, LogType type)
+        {
+            Log log = new Log();
+            log.text = logString;
+            log.stackTrace = stackTrace;
+            log.type = type;
+
+            _unityLogs.Add(log);
         }
 
         [Serializable]
