@@ -81,7 +81,11 @@ namespace Larje.Core.Services
             public Processor(TaskConfig config)
             {
                 _config = config;
-                Initialize(config);
+            }
+
+            public virtual void Init()
+            {
+                Initialize(_config);
 
                 _dataService = DIContainer.GetService<IDataService>();
                 _dataService.EventPreSave += OnSave;
