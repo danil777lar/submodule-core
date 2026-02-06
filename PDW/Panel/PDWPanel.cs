@@ -31,6 +31,7 @@ namespace Larje.Core.Tools.PDW
         {
             get
             {
+                EnsureMaterial();
                 Material mat = s_sharedMaterial;
                 return GetModifiedMaterial(mat);
             }
