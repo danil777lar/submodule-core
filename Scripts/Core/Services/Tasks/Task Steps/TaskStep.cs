@@ -21,6 +21,7 @@ public abstract class TaskStep
     public abstract int CurrentIndex { get; }
 
     public event Action EventTreeCompleted;
+    public event Action EventSomeStepCompleted;
 
     public TaskStep(int index, string id)
     {
@@ -71,6 +72,7 @@ public abstract class TaskStep
         {
             child.Init();
             child.EventTreeCompleted += OnTreeCompleted;
+            child.EventSomeStepCompleted += () => EventSomeStepCompleted?.Invoke();
         }
 
         if (DataContent.Started && !DataContent.Completed)
@@ -122,6 +124,7 @@ public abstract class TaskStep
             {
                 EventTreeCompleted?.Invoke();
             }
+            EventSomeStepCompleted?.Invoke();
         }
     }
 
