@@ -32,6 +32,7 @@ namespace Larje.Core.Tools.PDW
             get
             {
                 EnsureMaterial();
+
                 Material mat = s_sharedMaterial;
                 return GetModifiedMaterial(mat);
             }
@@ -57,17 +58,6 @@ namespace Larje.Core.Tools.PDW
             base.OnEnable();
             EnsureMaterial();
             SetAllDirty();
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            DestroyRuntimeMaterial();
         }
 
         #if UNITY_EDITOR
@@ -119,21 +109,19 @@ namespace Larje.Core.Tools.PDW
 
         private void EnsureMaterial()
         {
-            Shader shader = Shader.Find(SHADER_NAME);
-            if (shader == null)
+            if (s_sharedMaterial == null)
             {
-                return;
-            }
+                Shader shader = Shader.Find(SHADER_NAME);
+                if (shader == null)
+                {
+                    return;
+                }
 
-            if (s_sharedMaterial == null || s_sharedMaterial.shader != shader)
-            {
                 s_sharedMaterial = new Material(shader)
                 {
                     name = $"PDW Panel Shared",
                     hideFlags = HideFlags.HideAndDontSave
                 };
-
-                return;
             }
         }
 
@@ -149,28 +137,6 @@ namespace Larje.Core.Tools.PDW
             
             return radiusPx;
         }
-
-        private void DestroyRuntimeMaterial()
-        {
-            if (s_sharedMaterial == null)
-            {
-                return;
-            }
-
-    #if UNITY_EDITOR
-            if (!Application.isPlaying)
-            {
-                DestroyImmediate(s_sharedMaterial);
-            }
-            else
-            {
-                Destroy(s_sharedMaterial);
-            }
-    #endif
-
-            s_sharedMaterial = null;
-        }
-
 
         public enum CornerType
         {

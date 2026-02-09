@@ -15,6 +15,11 @@ public static class TransformExtensions
 
     public static void DestroyAllChildren(this Transform transform)
 	{
+        if (transform == null)
+        {
+            return;
+        }
+
 		for (int t = transform.childCount - 1; t >= 0; t--)
 		{
 			if (Application.isPlaying)
