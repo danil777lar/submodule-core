@@ -1,10 +1,23 @@
+using System;
 using System.Collections.Generic;
+using Larje.Core;
+using Larje.Core.Services;
 using UnityEngine;
 
 public class VolumetricLightMeshCluster : MonoBehaviour
 {
+    [Space]
+    [SerializeField] private List<QualityMaterial> qualityMaterials;
+
+    [InjectService] private IDataService _dataService;
+
     private void Start()
     {
+        DIContainer.InjectTo(this);
+
+        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+        meshRenderer.material = GetMaterial();
+
         MeshFilter meshFilter = GetComponent<MeshFilter>(); 
         VolumetricLightMesh[] lights = GetComponentsInChildren<VolumetricLightMesh>();
 
@@ -48,5 +61,18 @@ public class VolumetricLightMeshCluster : MonoBehaviour
         mesh.colors = colors.ToArray();
         mesh.RecalculateNormals();
         meshFilter.mesh = mesh;
+    }
+
+    private Material GetMaterial()
+    {
+        VolumetricLightQuality quality = _dataService.SystemData.Settings.Graphics.VolumetricLightQuality;
+        return qualityMaterials.Find(qm => qm.Quality == quality)?.Material;
+    }
+
+    [Serializable]
+    private class QualityMaterial
+    {
+        [field: SerializeField] public VolumetricLightQuality Quality { get; private set; }
+        [field: SerializeField] public Material Material { get; private set; }
     }
 }

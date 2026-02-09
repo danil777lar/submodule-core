@@ -15,6 +15,12 @@ namespace Larje.Core.Services
     {
         public bool VibrationGlobal = true;
         public bool SoundGlobal = true;
+        public GraphicsSettings Graphics;
+    }
+
+    [Serializable]
+    public partial class GraphicsSettings
+    {
     }
 
     [Serializable]
