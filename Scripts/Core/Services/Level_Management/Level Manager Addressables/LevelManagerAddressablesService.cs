@@ -10,8 +10,8 @@ using UnityEngine.Rendering;
 
 namespace Larje.Core.Services
 {
-    [BindService(typeof(ILevelManagerService), typeof(IGameStateService))]
-    public class LevelManagerAddressablesService : Service, ILevelManagerService, IGameStateService
+    [BindService(typeof(ILevelManagerService))]
+    public class LevelManagerAddressablesService : Service, ILevelManagerService
     {
         [SerializeField] private bool editorMode;
         [SerializeField] private bool spawnLevelOnInit;
@@ -19,29 +19,15 @@ namespace Larje.Core.Services
         [SerializeField, HideInInspector] private LevelOptions[] levels;
 
         [InjectService] private IDataService _dataService;
+        [InjectService] private IGameStateService _stateService;
 
         private bool _firstLevelSpawn = true;
         private bool _isInstantiatingLevel;
         private LevelProcessor _currentLevel;
-        private GameStateType _currentState = GameStateType.Menu;
 
         public bool IsLevelPlaying => _currentLevel != null && _currentLevel.IsLevelPlaying;
-        public GameStateType CurrentState 
-        {
-            get => _currentState; 
-            private set
-            {
-                if (_currentState != value)
-                {
-                    GameStateType previousState = _currentState;
-                    _currentState = value;
-                    EventGameStateChanged?.Invoke(previousState, _currentState);
-                }
-            } 
-        }
 
         public event Action<LevelProcessor> EventLevelInstantiated;
-        public event Action<GameStateType, GameStateType> EventGameStateChanged;
 
         public override void Init()
         {
@@ -57,8 +43,6 @@ namespace Larje.Core.Services
 
         public async void SpawnCurrentLevel()
         {
-            CurrentState = GameStateType.Menu;
-
             if (editorMode && _firstLevelSpawn)
             {
                 _currentLevel = GetLevelHolder().GetComponentInChildren<LevelProcessor>();
@@ -83,8 +67,8 @@ namespace Larje.Core.Services
                 if (levelInstance.TryGetComponent(out LevelProcessor level))
                 {
                     _currentLevel = level;
-                    _currentLevel.EventLevelStart += (data) => CurrentState = GameStateType.Playing; 
-                    _currentLevel.EventLevelStop += (data) => CurrentState = data.IsWin ? GameStateType.Win : GameStateType.Fail;
+                    _currentLevel.EventLevelStart += (data) => _stateService.SetGameState(GameStates.Playing); 
+                    _currentLevel.EventLevelStop += (data) => _stateService.SetGameState(data.IsWin ? GameStates.Win : GameStates.Fail);
                     EventLevelInstantiated?.Invoke(level);
                 }
                 else

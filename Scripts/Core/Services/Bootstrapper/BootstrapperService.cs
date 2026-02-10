@@ -1,6 +1,7 @@
 using System;
 using DG.Tweening;
 using Larje.Core;
+using Larje.Core.Services;
 using Larje.Core.Services.UI;
 using ProjectConstants;
 using UnityEngine;
@@ -27,7 +28,7 @@ public class BootstrapperService : Service
     [SerializeField] private UIScreenType playScreen;
 
     [InjectService] private UIService _uiService;
-    [InjectService] private GameStateService _gameStateService;
+    [InjectService] private IGameStateService _gameStateService;
 
     private float _transitionValue;
     
@@ -47,7 +48,7 @@ public class BootstrapperService : Service
 
     public void LoadMenuWithTransition()
     {
-        _gameStateService.SetGameState(GameStateType.Menu);
+        _gameStateService.SetGameState(GameStates.Menu);
 
         if (LarjePostFXFeature.TryGetFX(out LarjeFXTransition.Processor transitionFX))
         {
@@ -66,7 +67,7 @@ public class BootstrapperService : Service
     
     public void LoadMenu(Action onComplete = null)
     {
-        _gameStateService.SetGameState(GameStateType.Menu);
+        _gameStateService.SetGameState(GameStates.Menu);
 
         SceneManager.LoadScene(menuScene);
         DOVirtual.DelayedCall(0.25f, () =>
