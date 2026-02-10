@@ -16,7 +16,7 @@ public class LocationArgActivator : MonoBehaviour
     {
         DIContainer.InjectTo(this);
         
-        bool isActive = _locationService.CurrentArguments.Contains(argType);
+        bool isActive = _locationService.CurrentLocation.LocationArgs.Contains(argType);
         targetObject.SetActive(isActive);
 
         if (isActive)

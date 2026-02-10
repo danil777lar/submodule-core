@@ -11,13 +11,12 @@ using UnityEngine;
 [BindService(typeof(LocationService))]
 public class LocationService : Service
 {
-    [SerializeField] private LocationType defaultLocationType = LocationType.Office;
+    [SerializeField] private LocationType defaultLocationType;
     [SerializeField] private int defaultLocationEntry = 0;
-    [SerializeField] private List<LocationArgType> defaultLocationArguments = new List<LocationArgType>();
-    [Space]
-    [SerializeField] private List<LocationInfo> locations;
     [Space]
     [SerializeField] private float transitionDuration = 0.5f;
+    [Space]
+    [SerializeField] private List<LocationInfo> locations;
     
     [InjectService] private IDataService _dataService;
     [InjectService] private BootstrapperService _bootstrapperService;
@@ -26,22 +25,18 @@ public class LocationService : Service
     private List<ILocationEntry> _locationEntries = new List<ILocationEntry>();
     private List<CallbackData> _locationCallbacks = new List<CallbackData>();
 
-    public LocationType CurrentLocation
+    public float TransitionValue;
+
+    public LocationInfo CurrentLocation
     {
-        get => _dataService.GameData.LocationData.CurrentLocation;
-        private set => _dataService.GameData.LocationData.CurrentLocation = value;
+        get => locations.Find(x => x.LocationType == _dataService.GameData.LocationData.CurrentLocation);
+        private set => _dataService.GameData.LocationData.CurrentLocation = value.LocationType;
     }
     
     public int CurrentLocationEntry
     {
         get => _dataService.GameData.LocationData.CurrentLocationEntry;
         private set => _dataService.GameData.LocationData.CurrentLocationEntry = value;
-    }
-    
-    public IReadOnlyCollection<LocationArgType> CurrentArguments
-    {
-        get => _dataService.GameData.LocationData.CurrentArguments;
-        private set => _dataService.GameData.LocationData.CurrentArguments = new List<LocationArgType>(value);
     }
 
     public event Action EventStartLoadLocation;
@@ -51,40 +46,36 @@ public class LocationService : Service
     {
         if (!_dataService.GameData.LocationData.Inited)
         {
-            CurrentLocation = defaultLocationType;
+            CurrentLocation = locations.Find(x => x.LocationType == defaultLocationType);
             CurrentLocationEntry = defaultLocationEntry;
-            CurrentArguments = defaultLocationArguments;
 
             _dataService.GameData.LocationData.Inited = true;
             _dataService.EventAfterLoad += OnDataLoaded;
         }
     }
     
-    public void LoadLocation(LocationType locationType, int entryId = 0, List<LocationArgType> locationArgType = null)
+    public void LoadLocation(LocationType locationType, int entryId = 0)
     {
         LocationInfo locationInfo = locations.Find(x => x.LocationType == locationType);
         if (locationInfo != null)
         {
-            CurrentLocation = locationType;
+            CurrentLocation = locationInfo;
             CurrentLocationEntry = entryId;
-            CurrentArguments = locationArgType ?? new List<LocationArgType>();
 
-            if (LarjePostFXFeature.TryGetFX(out LarjeFXTransition.Processor transitionFX))
-            {
-                transitionFX.AddProvider(GetTransitionValue);
-            }
+            EventStartLoadLocation?.Invoke();
+
             DOVirtual.Float(0f, 1f, transitionDuration, value => _transitionValue = value)
                 .OnComplete(() =>
                 {
                     _bootstrapperService.LoadLocation(locationInfo.SceneName, () =>
                     {
                         _locationCallbacks.ForEach(TryCallCallback);
+                        ApplyLightmaps();
                         EventLocationEntered?.Invoke(locationType, entryId); 
                         DOVirtual.Float(1f, 0f, transitionDuration, value => _transitionValue = value);
                     });
                 });
 
-            EventStartLoadLocation?.Invoke();
         }
     }
     
@@ -124,6 +115,22 @@ public class LocationService : Service
         _locationCallbacks.RemoveAll(x => x.target == target);
     }
 
+    public void ApplyLightmaps()
+    {
+        Texture2D[] lightmapColors = CurrentLocation.Lightmaps.ToArray();
+
+        if (lightmapColors.Length > 0)
+        {
+            LightmapData[] newMaps = new LightmapData[lightmapColors.Length];
+            for (int i = 0; i < newMaps.Length; i++)
+            {
+                newMaps[i] = new LightmapData();
+                newMaps[i].lightmapColor = lightmapColors[i];
+            }
+            LightmapSettings.lightmaps = newMaps;
+        }
+    }
+
     private void OnValidate()
     {
         foreach (LocationInfo location in locations)
@@ -134,9 +141,9 @@ public class LocationService : Service
 
     private void TryCallCallback(CallbackData callbackData)
     {
-        bool callNow = callbackData.anyLocation || CurrentLocation == callbackData.locationType;
+        bool callNow = callbackData.anyLocation || CurrentLocation.LocationType == callbackData.locationType;
         callNow &= callbackData.entryId < 0 || CurrentLocationEntry == callbackData.entryId;
-        callNow &= callbackData.args == null || callbackData.args.Count == 0 || callbackData.args.TrueForAll(x => CurrentArguments.Contains(x));
+        callNow &= callbackData.args == null || callbackData.args.Count == 0 || callbackData.args.TrueForAll(x => CurrentLocation.LocationArgs.Contains(x));
 
         if (callNow)
         {
@@ -146,12 +153,7 @@ public class LocationService : Service
 
     private void OnDataLoaded()
     {
-        LoadLocation(CurrentLocation, CurrentLocationEntry, new List<LocationArgType>(CurrentArguments));
-    }
-
-    private float GetTransitionValue()
-    {
-        return _transitionValue;
+        LoadLocation(CurrentLocation.LocationType, CurrentLocationEntry);
     }
 
     public class CallbackData
@@ -180,15 +182,24 @@ public class LocationService : Service
     }
     
     [Serializable]
-    private class LocationInfo
+    public class LocationInfo
     {
         [HideInInspector, SerializeField] public string inspectorName;
-        [field: SerializeField] public LocationType LocationType { get; private set; }
-        [field: SerializeField] public string SceneName { get; private set; }
+
+        [SerializeField] private LocationType locationType;
+        [SerializeField] private string sceneName;
+        [SerializeField] private List<LocationArgType> locationArgs;
+        [SerializeField] private List<Texture2D> lightmaps;
         
+        public LocationType LocationType => locationType;
+        public string SceneName => sceneName;
+
+        public IReadOnlyCollection<LocationArgType> LocationArgs => locationArgs;
+        public IReadOnlyCollection<Texture2D> Lightmaps => lightmaps;
+
         public void Validate()
         {
-            inspectorName = LocationType.ToString();
+            inspectorName = locationType.ToString();
         }
     }
 }

@@ -34,7 +34,7 @@ public class LevelObjectDataController : MonoBehaviour
 
         string locationName = _locationService.CurrentLocation.ToString();
         string locationArgs = "";
-        foreach (LocationArgType arg in _locationService.CurrentArguments)
+        foreach (LocationArgType arg in _locationService.CurrentLocation.LocationArgs)
         {
             locationArgs += $"({arg.ToString()})";
         }

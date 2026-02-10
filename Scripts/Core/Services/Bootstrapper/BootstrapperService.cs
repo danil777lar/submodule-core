@@ -2,22 +2,29 @@ using System;
 using DG.Tweening;
 using Larje.Core;
 using Larje.Core.Services.UI;
+using ProjectConstants;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 [BindService(typeof(BootstrapperService))]
 public class BootstrapperService : Service
 {
-    [Header("Splash Scene")]
+    [Header("Splash")]
+    [SerializeField] private UIScreenType splashScreen;
     [SerializeField] private string splashScene;
     [SerializeField] private float splashDuration;
     
-    [Header("Menu Scene")]
+    [Header("Menu")]
+    [SerializeField] private UIScreenType menuScreen;
     [SerializeField] private string menuScene;
     
-    [Header("Loading Scene")]
+    [Header("Loading")]
+    [SerializeField] private UIScreenType loadingScreen;
     [SerializeField] private string loadingScene;
     [SerializeField] private float minLoadingDuration;
+
+    [Header("Play")]
+    [SerializeField] private UIScreenType playScreen;
 
     [InjectService] private UIService _uiService;
     [InjectService] private GameStateService _gameStateService;
@@ -34,9 +41,7 @@ public class BootstrapperService : Service
         ShowLoading(sceneName, () =>
         {
             onComplete?.Invoke();
-            
-            UIScreen.Args playScreen = new PlayScreen.Args();
-            _uiService.GetProcessor<UIScreenProcessor>().OpenScreen(playScreen); 
+            _uiService.GetProcessor<UIScreenProcessor>().OpenScreen(new UIScreen.Args(playScreen)); 
         });
     }
 
