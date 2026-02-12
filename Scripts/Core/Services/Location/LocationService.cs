@@ -19,6 +19,7 @@ public class LocationService : Service
     [SerializeField] private List<LocationInfo> locations;
     
     [InjectService] private IDataService _dataService;
+    [InjectService] private IGameStateService _gameStateService;
     [InjectService] private BootstrapperService _bootstrapperService;
 
     private float _transitionValue;
@@ -39,7 +40,9 @@ public class LocationService : Service
         private set => _dataService.GameData.LocationData.CurrentLocationEntry = value;
     }
 
+    public event Action EventExitLocation;
     public event Action EventStartLoadLocation;
+    public event Action<LocationType, int> EventFinishLoadLocation;
     public event Action<LocationType, int> EventLocationEntered;  
     
     public override void Init()
@@ -63,19 +66,24 @@ public class LocationService : Service
             CurrentLocationEntry = entryId;
 
             EventStartLoadLocation?.Invoke();
-
             DOVirtual.Float(0f, 1f, transitionDuration, value => _transitionValue = value)
                 .OnComplete(() =>
                 {
-                    _bootstrapperService.LoadLocation(locationInfo.SceneName, () =>
+                    EventExitLocation?.Invoke();
+                    _bootstrapperService.LoadSceneAsync(locationInfo.SceneName, () =>
                     {
                         _locationCallbacks.ForEach(TryCallCallback);
                         ApplyLightmaps();
-                        EventLocationEntered?.Invoke(locationType, entryId); 
-                        DOVirtual.Float(1f, 0f, transitionDuration, value => _transitionValue = value);
+
+                        EventFinishLoadLocation?.Invoke(locationType, entryId);
+                        DOVirtual.Float(1f, 0f, transitionDuration, value => _transitionValue = value)
+                        .OnComplete(() =>
+                        {
+                            _gameStateService.SetGameState(GameStates.Playing);
+                            EventLocationEntered?.Invoke(locationType, entryId); 
+                        });
                     });
                 });
-
         }
     }
     

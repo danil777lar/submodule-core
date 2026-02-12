@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using DG.Tweening;
 using Larje.Core;
 using Larje.Core.Services;
@@ -11,71 +12,78 @@ using UnityEngine.SceneManagement;
 public class BootstrapperService : Service
 {
     [Header("Splash")]
-    [SerializeField] private UIScreenType splashScreen;
     [SerializeField] private string splashScene;
     [SerializeField] private float splashDuration;
     
-    [Header("Menu")]
-    [SerializeField] private UIScreenType menuScreen;
-    [SerializeField] private string menuScene;
-    
     [Header("Loading")]
-    [SerializeField] private UIScreenType loadingScreen;
     [SerializeField] private string loadingScene;
     [SerializeField] private float minLoadingDuration;
+    
+    [Header("Menu")]
+    [SerializeField] private string menuScene;
 
-    [Header("Play")]
-    [SerializeField] private UIScreenType playScreen;
-
-    [InjectService] private UIService _uiService;
     [InjectService] private IGameStateService _gameStateService;
 
-    private float _transitionValue;
+    private float _splashProgress;
+    private float _loadingProgress;
+
+    public float SplashProgress => _splashProgress;
+    public float LoadingProgress => _loadingProgress;
+
+    public event Action EventSplashStarted;
+    public event Action EventLoadingStarted;
+    public event Action EventMenuEntered;
+    public event Action EventSceneLoaded;
     
     public override void Init()
     {
-        ShowSplash();        
+        ShowSplash(() => ShowMenu());        
     }
 
-    public void LoadLocation(string sceneName, Action onComplete = null)
+    private void ShowSplash(Action onComplete = null)
     {
-        ShowLoading(sceneName, () =>
+        if (_gameStateService.CurrentState != GameStates.Splash)
         {
-            onComplete?.Invoke();
-            _uiService.GetProcessor<UIScreenProcessor>().OpenScreen(new UIScreen.Args(playScreen)); 
-        });
-    }
+            _splashProgress = 0f;
+            _gameStateService.SetGameState(GameStates.Splash);
+            SceneManager.LoadScene(splashScene);
 
-    public void LoadMenuWithTransition()
-    {
-        _gameStateService.SetGameState(GameStates.Menu);
+            EventSplashStarted?.Invoke();
 
-        if (LarjePostFXFeature.TryGetFX(out LarjeFXTransition.Processor transitionFX))
-        {
-            transitionFX.AddProvider(GetTransitionValue);
-        }
-
-        DOVirtual.Float(0f, 1f, 0.5f, value => _transitionValue = value)
-            .OnComplete(() =>
-            {
-                LoadMenu(() =>
+            DOVirtual.Float(0, 1, splashDuration, t => _splashProgress = t)
+                .OnComplete(() => 
                 {
-                    DOVirtual.Float(1f, 0f, 0.5f, value => _transitionValue = value);
+                    onComplete?.Invoke();
                 });
-            });
+        }
     }
-    
-    public void LoadMenu(Action onComplete = null)
-    {
-        _gameStateService.SetGameState(GameStates.Menu);
 
-        SceneManager.LoadScene(menuScene);
-        DOVirtual.DelayedCall(0.25f, () =>
+    public void ShowMenu(Action onComplete = null)
+    {
+        if (_gameStateService.CurrentState != GameStates.Menu)
         {
-            onComplete?.Invoke();
-            UIScreen.Args menuScreen = new MenuScreen.Args();
-            _uiService.GetProcessor<UIScreenProcessor>().OpenScreen(menuScreen); 
-        });
+            _gameStateService.SetGameState(GameStates.Menu);
+            SceneManager.LoadScene(menuScene);
+
+            EventMenuEntered?.Invoke();
+        }
+    }
+
+    public void LoadSceneAsync(string sceneName, Action onComplete)
+    {        
+        if (_gameStateService.CurrentState != GameStates.Loading)
+        {
+            _loadingProgress = 0f;
+            _gameStateService.SetGameState(GameStates.Loading);
+
+            EventLoadingStarted?.Invoke();
+
+            DOVirtual.DelayedCall(0.25f, () => 
+            {
+                SceneManager.LoadScene(loadingScene);
+                StartCoroutine(LoadSceneAsyncCoroutine(sceneName, onComplete));
+            }, ignoreTimeScale: true);
+        }
     }
 
     public void QuitApplication()
@@ -86,24 +94,27 @@ public class BootstrapperService : Service
         Application.Quit();
 #endif
     }
-    
-    private void ShowSplash()
-    {
-        SceneManager.LoadScene(splashScene);
-        UIScreen.Args splashScreen = new SplashScreen.Args(splashDuration, () => LoadMenu());
-        _uiService.GetProcessor<UIScreenProcessor>().OpenScreen(splashScreen);
-    }
 
-    private float GetTransitionValue()
+    private IEnumerator LoadSceneAsyncCoroutine(string sceneName, Action onComplete)
     {
-        return _transitionValue;
-    }
-    
-    private void ShowLoading(string sceneName, Action onComplete)
-    {
-        //SceneManager.LoadScene(loadingScene);
-        UIScreen.Args loadingScreen = new LoadingScreen.Args(minLoadingDuration, 
-            () => SceneManager.LoadSceneAsync(sceneName), onComplete);
-        _uiService.GetProcessor<UIScreenProcessor>().OpenScreen(loadingScreen);
+        Debug.Log("Start LoadSceneAsyncCoroutine");
+
+        var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+        op.allowSceneActivation = false;
+        while (!op.isDone)
+        {
+            _loadingProgress = Mathf.Clamp01(op.progress / 0.9f);
+            Debug.Log("Update ciriutine progress: " + _loadingProgress);
+            if (_loadingProgress >= 1f - 0.0001f)
+            {
+                yield return null;
+                op.allowSceneActivation = true;
+            }
+
+            yield return null;
+        }
+
+        onComplete?.Invoke();
+        EventSceneLoaded?.Invoke();
     }
 }
