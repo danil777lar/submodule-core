@@ -26,7 +26,7 @@ public class LocationService : Service
     private List<ILocationEntry> _locationEntries = new List<ILocationEntry>();
     private List<CallbackData> _locationCallbacks = new List<CallbackData>();
 
-    public float TransitionValue;
+    public float TransitionValue => _transitionValue;
 
     public LocationInfo CurrentLocation
     {
@@ -66,7 +66,7 @@ public class LocationService : Service
             CurrentLocationEntry = entryId;
 
             EventStartLoadLocation?.Invoke();
-            DOVirtual.Float(0f, 1f, transitionDuration, value => _transitionValue = value)
+            DOTween.To(() => _transitionValue, value => _transitionValue = value, 1f, transitionDuration)
                 .OnComplete(() =>
                 {
                     EventExitLocation?.Invoke();

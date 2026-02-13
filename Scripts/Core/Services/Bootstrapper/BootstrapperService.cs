@@ -15,12 +15,12 @@ public class BootstrapperService : Service
     [SerializeField] private string splashScene;
     [SerializeField] private float splashDuration;
     
-    [Header("Loading")]
-    [SerializeField] private string loadingScene;
-    [SerializeField] private float minLoadingDuration;
-    
     [Header("Menu")]
     [SerializeField] private string menuScene;
+
+    [Header("Loading")]
+    [SerializeField] private float loadingDelay = 1f;
+    [SerializeField] private float loadingSmoothSpeed = 0.5f;
 
     [InjectService] private IGameStateService _gameStateService;
 
@@ -40,7 +40,7 @@ public class BootstrapperService : Service
         ShowSplash(() => ShowMenu());        
     }
 
-    private void ShowSplash(Action onComplete = null)
+    public void ShowSplash(Action onComplete = null)
     {
         if (_gameStateService.CurrentState != GameStates.Splash)
         {
@@ -76,13 +76,9 @@ public class BootstrapperService : Service
             _loadingProgress = 0f;
             _gameStateService.SetGameState(GameStates.Loading);
 
+            Debug.Log("End load");
             EventLoadingStarted?.Invoke();
-
-            DOVirtual.DelayedCall(0.25f, () => 
-            {
-                SceneManager.LoadScene(loadingScene);
-                StartCoroutine(LoadSceneAsyncCoroutine(sceneName, onComplete));
-            }, ignoreTimeScale: true);
+            StartCoroutine(LoadSceneAsyncCoroutine(sceneName, onComplete));
         }
     }
 
@@ -95,17 +91,41 @@ public class BootstrapperService : Service
 #endif
     }
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        SceneManager.activeSceneChanged += OnActiveChanged;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+        SceneManager.activeSceneChanged -= OnActiveChanged;
+    }
+
+    private void OnSceneLoaded(Scene s, LoadSceneMode m)
+    {
+        UnityEngine.Debug.Log($"sceneLoaded: {s.name} mode={m}");
+    }
+
+    private void OnActiveChanged(Scene a, Scene b)
+    {
+        UnityEngine.Debug.Log($"activeSceneChanged: {a.name} -> {b.name}");
+    }
+
     private IEnumerator LoadSceneAsyncCoroutine(string sceneName, Action onComplete)
     {
-        Debug.Log("Start LoadSceneAsyncCoroutine");
+        yield return new WaitForSeconds(loadingDelay);
 
-        var op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+        AsyncOperation op = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
         op.allowSceneActivation = false;
+
         while (!op.isDone)
         {
-            _loadingProgress = Mathf.Clamp01(op.progress / 0.9f);
-            Debug.Log("Update ciriutine progress: " + _loadingProgress);
-            if (_loadingProgress >= 1f - 0.0001f)
+            float currentProgress = op.progress / 0.9f;
+            _loadingProgress = Mathf.MoveTowards(_loadingProgress, currentProgress, Time.deltaTime * loadingSmoothSpeed);
+
+            if (_loadingProgress >= 1f)
             {
                 yield return null;
                 op.allowSceneActivation = true;
