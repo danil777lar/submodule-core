@@ -128,23 +128,10 @@ public class LocationService : Service
 
     public void ApplyLightmaps()
     {
-        DOVirtual.DelayedCall(1f, () =>
+        if (CurrentLocation.LightmapPack != null)
         {
-            Texture2D[] lightmapColors = CurrentLocation.LightmapLights.ToArray();
-            Texture2D[] lightmapDirs = CurrentLocation.LightmapDirs.ToArray();
-
-            if (lightmapColors.Length > 0)
-            {
-                LightmapData[] newMaps = new LightmapData[lightmapColors.Length];
-                for (int i = 0; i < newMaps.Length; i++)
-                {
-                    newMaps[i] = new LightmapData();
-                    newMaps[i].lightmapColor = lightmapColors[i];
-                    newMaps[i].lightmapDir = lightmapDirs[i];
-                }
-                LightmapSettings.lightmaps = newMaps;
-            }
-        });
+            CurrentLocation.LightmapPack.Apply();
+        }
     }
 
     public void QuitToMenu()
@@ -221,17 +208,14 @@ public class LocationService : Service
 
         [SerializeField] private LocationType locationType;
         [SerializeField] private string sceneName;
+        [SerializeField] private LightmapPackConfig lightmapPack;
         [SerializeField] private List<LocationArgType> locationArgs;
-        [Space]
-        [SerializeField] private List<Texture2D> lightmapLights;
-        [SerializeField] private List<Texture2D> lightmapDirs;
         
         public LocationType LocationType => locationType;
         public string SceneName => sceneName;
+        public LightmapPackConfig LightmapPack => lightmapPack;
 
         public IReadOnlyCollection<LocationArgType> LocationArgs => locationArgs;
-        public IReadOnlyCollection<Texture2D> LightmapLights => lightmapLights;
-        public IReadOnlyCollection<Texture2D> LightmapDirs => lightmapDirs;
 
         public void Validate()
         {
