@@ -11,6 +11,7 @@ namespace Larje.Core.Services
     {
         public static GameState Splash => Load("GS_Splash");
         public static GameState Loading => Load("GS_Loading");
+        public static GameState Transition => Load("GS_Transition");
         public static GameState Menu => Load("GS_Menu");
         public static GameState Playing => Load("GS_Playing");
         public static GameState Paused => Load("GS_Paused");

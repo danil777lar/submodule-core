@@ -30,6 +30,8 @@ public class BootstrapperService : Service
     public float SplashProgress => _splashProgress;
     public float LoadingProgress => _loadingProgress;
 
+    public string MenuScene => menuScene;
+
     public event Action EventSplashStarted;
     public event Action EventLoadingStarted;
     public event Action EventMenuEntered;
@@ -76,7 +78,6 @@ public class BootstrapperService : Service
             _loadingProgress = 0f;
             _gameStateService.SetGameState(GameStates.Loading);
 
-            Debug.Log("End load");
             EventLoadingStarted?.Invoke();
             StartCoroutine(LoadSceneAsyncCoroutine(sceneName, onComplete));
         }
@@ -89,28 +90,6 @@ public class BootstrapperService : Service
 #else
         Application.Quit();
 #endif
-    }
-
-    private void OnEnable()
-    {
-        SceneManager.sceneLoaded += OnSceneLoaded;
-        SceneManager.activeSceneChanged += OnActiveChanged;
-    }
-
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-        SceneManager.activeSceneChanged -= OnActiveChanged;
-    }
-
-    private void OnSceneLoaded(Scene s, LoadSceneMode m)
-    {
-        UnityEngine.Debug.Log($"sceneLoaded: {s.name} mode={m}");
-    }
-
-    private void OnActiveChanged(Scene a, Scene b)
-    {
-        UnityEngine.Debug.Log($"activeSceneChanged: {a.name} -> {b.name}");
     }
 
     private IEnumerator LoadSceneAsyncCoroutine(string sceneName, Action onComplete)

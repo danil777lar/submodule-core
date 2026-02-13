@@ -65,8 +65,9 @@ public class LocationService : Service
             CurrentLocation = locationInfo;
             CurrentLocationEntry = entryId;
 
+            _gameStateService.SetGameState(GameStates.Transition);
             EventStartLoadLocation?.Invoke();
-            DOTween.To(() => _transitionValue, value => _transitionValue = value, 1f, transitionDuration)
+            DOTween.To(() => 0f, value => _transitionValue = value, 1f, transitionDuration)
                 .OnComplete(() =>
                 {
                     EventExitLocation?.Invoke();
@@ -75,13 +76,14 @@ public class LocationService : Service
                         _locationCallbacks.ForEach(TryCallCallback);
                         ApplyLightmaps();
 
+                        _gameStateService.SetGameState(GameStates.Transition);
                         EventFinishLoadLocation?.Invoke(locationType, entryId);
-                        DOVirtual.Float(1f, 0f, transitionDuration, value => _transitionValue = value)
-                        .OnComplete(() =>
-                        {
-                            _gameStateService.SetGameState(GameStates.Playing);
-                            EventLocationEntered?.Invoke(locationType, entryId); 
-                        });
+                        DOTween.To(() => 1f, value => _transitionValue = value, 0f, transitionDuration)
+                            .OnComplete(() =>
+                            {
+                                _gameStateService.SetGameState(GameStates.Playing);
+                                EventLocationEntered?.Invoke(locationType, entryId); 
+                            });
                     });
                 });
         }
@@ -137,6 +139,23 @@ public class LocationService : Service
             }
             LightmapSettings.lightmaps = newMaps;
         }
+    }
+
+    public void QuitToMenu()
+    {
+        _gameStateService.SetGameState(GameStates.Transition);
+        DOTween.To(() => 0f, value => _transitionValue = value, 1f, transitionDuration)
+            .OnComplete(() =>
+            {
+                _bootstrapperService.LoadSceneAsync(_bootstrapperService.MenuScene, () =>
+                {
+                    DOTween.To(() => 1f, value => _transitionValue = value, 0f, transitionDuration)
+                        .OnComplete(() =>
+                        {
+                            _gameStateService.SetGameState(GameStates.Menu);
+                        });
+                    });
+            });
     }
 
     private void OnValidate()
