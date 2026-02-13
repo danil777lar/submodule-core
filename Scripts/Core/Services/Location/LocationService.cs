@@ -73,8 +73,9 @@ public class LocationService : Service
                     EventExitLocation?.Invoke();
                     _bootstrapperService.LoadSceneAsync(locationInfo.SceneName, () =>
                     {
-                        _locationCallbacks.ForEach(TryCallCallback);
                         ApplyLightmaps();
+
+                        _locationCallbacks.ForEach(TryCallCallback);
 
                         _gameStateService.SetGameState(GameStates.Transition);
                         EventFinishLoadLocation?.Invoke(locationType, entryId);
@@ -127,18 +128,23 @@ public class LocationService : Service
 
     public void ApplyLightmaps()
     {
-        Texture2D[] lightmapColors = CurrentLocation.Lightmaps.ToArray();
-
-        if (lightmapColors.Length > 0)
+        DOVirtual.DelayedCall(1f, () =>
         {
-            LightmapData[] newMaps = new LightmapData[lightmapColors.Length];
-            for (int i = 0; i < newMaps.Length; i++)
+            Texture2D[] lightmapColors = CurrentLocation.LightmapLights.ToArray();
+            Texture2D[] lightmapDirs = CurrentLocation.LightmapDirs.ToArray();
+
+            if (lightmapColors.Length > 0)
             {
-                newMaps[i] = new LightmapData();
-                newMaps[i].lightmapColor = lightmapColors[i];
+                LightmapData[] newMaps = new LightmapData[lightmapColors.Length];
+                for (int i = 0; i < newMaps.Length; i++)
+                {
+                    newMaps[i] = new LightmapData();
+                    newMaps[i].lightmapColor = lightmapColors[i];
+                    newMaps[i].lightmapDir = lightmapDirs[i];
+                }
+                LightmapSettings.lightmaps = newMaps;
             }
-            LightmapSettings.lightmaps = newMaps;
-        }
+        });
     }
 
     public void QuitToMenu()
@@ -216,13 +222,16 @@ public class LocationService : Service
         [SerializeField] private LocationType locationType;
         [SerializeField] private string sceneName;
         [SerializeField] private List<LocationArgType> locationArgs;
-        [SerializeField] private List<Texture2D> lightmaps;
+        [Space]
+        [SerializeField] private List<Texture2D> lightmapLights;
+        [SerializeField] private List<Texture2D> lightmapDirs;
         
         public LocationType LocationType => locationType;
         public string SceneName => sceneName;
 
         public IReadOnlyCollection<LocationArgType> LocationArgs => locationArgs;
-        public IReadOnlyCollection<Texture2D> Lightmaps => lightmaps;
+        public IReadOnlyCollection<Texture2D> LightmapLights => lightmapLights;
+        public IReadOnlyCollection<Texture2D> LightmapDirs => lightmapDirs;
 
         public void Validate()
         {
