@@ -157,6 +157,7 @@ namespace Larje.Core.Services
             {
                 Data.Status = status;
                 EventStatusChanged?.Invoke(status);
+                DIContainer.GetService<GameEventService>().SendEvent(new GameEventTaskStatusChanged(_config, status, _config.name));
             }
 
             protected abstract void Initialize(TaskConfig config);
