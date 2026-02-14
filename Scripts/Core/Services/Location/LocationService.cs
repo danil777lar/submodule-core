@@ -43,7 +43,7 @@ public class LocationService : Service
     public event Action EventExitLocation;
     public event Action EventStartLoadLocation;
     public event Action<LocationType, int> EventFinishLoadLocation;
-    public event Action<LocationType, int> EventLocationEntered;  
+    public event Action<LocationType, int> EventEnterLocation;  
     
     public override void Init()
     {
@@ -83,7 +83,7 @@ public class LocationService : Service
                             .OnComplete(() =>
                             {
                                 _gameStateService.SetGameState(GameStates.Playing);
-                                EventLocationEntered?.Invoke(locationType, entryId); 
+                                EventEnterLocation?.Invoke(locationType, entryId); 
                             });
                     });
                 });
