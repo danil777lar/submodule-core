@@ -1,5 +1,7 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public class ScreenshotMetaDataWriter : MonoBehaviour, IMetaDataWriter
@@ -21,6 +23,10 @@ public class ScreenshotMetaDataWriter : MonoBehaviour, IMetaDataWriter
         Vector2Int size = screenshotSize;
         
         Camera renderCamera = Camera.main;
+        List<Camera> childCameras = renderCamera.GetComponentsInChildren<Camera>()
+            .ToList().FindAll(x => x != renderCamera);
+        childCameras.ForEach(x => x.enabled = false);
+
         RenderTexture rt = new RenderTexture(size.x, size.y, 24);
         renderCamera.targetTexture = rt;
         Texture2D screenImage = new Texture2D(size.x, size.y, TextureFormat.RGB24, false);
@@ -35,5 +41,7 @@ public class ScreenshotMetaDataWriter : MonoBehaviour, IMetaDataWriter
         RenderTexture.active = null;
         Destroy(rt);
         Destroy(screenImage);
+
+        childCameras.ForEach(x => x.enabled = true);
     }
 }
