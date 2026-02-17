@@ -5,15 +5,15 @@ using UnityEngine;
 
 public class LocationEntryUser : MonoBehaviour
 {
+    public bool permitted = true;
+
     [InjectService] private LocationService _locationService; 
     
     private void Start()
     {
         DIContainer.InjectTo(this);
 
-        CharacterTransformData dataUser = GetComponent<CharacterTransformData>();
-
-        if (dataUser == null || !dataUser.DataInjected)
+        if (permitted)
         {
             if (_locationService.TryGetLocationEntry(out ILocationEntry entry))
             {

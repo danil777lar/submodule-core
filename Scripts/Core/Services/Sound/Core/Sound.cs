@@ -188,6 +188,10 @@ public class Sound
 
         ApplyValues();
         
+        if (float.IsNaN(_loopLength ))
+        {
+            _loopLength = 0f;
+        }
         _loopLength += (deltaTime * _audioSource.pitch) / Time.timeScale;
         if (_loopLength >= _audioSource.clip.length)
         {

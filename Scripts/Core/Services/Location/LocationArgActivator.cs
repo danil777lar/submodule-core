@@ -7,8 +7,6 @@ public class LocationArgActivator : MonoBehaviour
 {
     [SerializeField] private LocationArgType argType;
     [SerializeField] private GameObject targetObject;
-    [Space]
-    [SerializeField] private string triggerName;
     
     [InjectService] private LocationService _locationService;
 
@@ -21,11 +19,9 @@ public class LocationArgActivator : MonoBehaviour
 
         if (isActive)
         {
-            TriggerRoot root = GetComponentInParent<TriggerRoot>();
-            root.ValueChangedBool(triggerName, true);
-            root.ValueChangedFloat(triggerName, 1f);
+            // TriggerRoot root = GetComponentInParent<TriggerRoot>();
+            // root.ValueChangedBool(triggerName, true);
+            // root.ValueChangedFloat(triggerName, 1f);
         }
-
-        Debug.Log($"{triggerName} {isActive}");
     }
 }

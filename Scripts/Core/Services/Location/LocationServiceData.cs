@@ -15,7 +15,7 @@ namespace Larje.Core.Services
 public class LocationServiceData
 {
     public bool Inited = false;
-    public LocationType CurrentLocation = LocationType.Office;
+    public LocationType CurrentLocation;
     public int CurrentLocationEntry = 0;
     public List<LocationArgType> CurrentArguments = new List<LocationArgType>();
 }
