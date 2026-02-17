@@ -51,6 +51,11 @@ public class WebDataService : Service, IDataService
         return _loaded ? 1f : 0f;
     }
 
+    public void SetClearData(string saveName = "")
+    {
+        throw new NotImplementedException();
+    }
+
     public bool LoadGameData(string saveName)
     {
         throw new NotImplementedException();
@@ -102,6 +107,11 @@ public class WebDataService : Service, IDataService
         {
             Debug.Log("Web Data Service: Save Error: User ID is null");
         }*/
+    }
+
+    public void SaveSystemData()
+    {
+        throw new NotImplementedException();
     }
 
     protected void Load()

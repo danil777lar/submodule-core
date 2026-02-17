@@ -47,14 +47,7 @@ public class LocationService : Service
     
     public override void Init()
     {
-        if (!_dataService.GameData.LocationData.Inited)
-        {
-            CurrentLocation = locations.Find(x => x.LocationType == defaultLocationType);
-            CurrentLocationEntry = defaultLocationEntry;
-
-            _dataService.GameData.LocationData.Inited = true;
-            _dataService.EventAfterLoad += OnDataLoaded;
-        }
+        _dataService.EventAfterLoad += OnDataLoaded;
     }
     
     public void LoadLocation(LocationType locationType, int entryId = 0)
@@ -173,6 +166,14 @@ public class LocationService : Service
 
     private void OnDataLoaded()
     {
+        if (!_dataService.GameData.LocationData.Inited)
+        {
+            CurrentLocation = locations.Find(x => x.LocationType == defaultLocationType);
+            CurrentLocationEntry = defaultLocationEntry;
+
+            _dataService.GameData.LocationData.Inited = true;
+        }
+
         LoadLocation(CurrentLocation.LocationType, CurrentLocationEntry);
     }
 

@@ -9,9 +9,14 @@ namespace Larje.Core.Services
         public SystemData SystemData { get; }
         public GameData GameData { get; }
         
+        public void SetClearData(string saveName = "");
         public void SaveGameData(string saveName = "");
         public bool LoadGameData(string saveName = "");
+
         public List<SaveMetaData> GetSaves();
+
+        public void SaveSystemData();
+
         public void DeleteAllData();
         
         public event Action EventPreSave;

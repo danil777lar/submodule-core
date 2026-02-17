@@ -41,6 +41,20 @@ namespace Larje.Core.Services
             InitSystemData();
             InitGameData();
         }
+
+        public void SetClearData(string saveName = "")
+        {
+            if (!string.IsNullOrEmpty(saveName))
+            {
+                _gameSaveName = saveName;
+            }
+
+            gameData = new GameData();
+            string serialized = JsonUtility.ToJson(GetMetaData(), false);
+            gameData = JsonUtility.FromJson<GameData>(serialized);
+
+            EventAfterLoad?.Invoke();
+        }
         
         public void SaveGameData(string saveName = "")
         {
