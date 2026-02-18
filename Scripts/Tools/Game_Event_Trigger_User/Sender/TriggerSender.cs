@@ -17,16 +17,23 @@ public abstract class TriggerSender : MonoBehaviour
     [InjectService] private GameEventService _gameEventService;
     
     private float _value;
-    
-    protected float Value
+
+    public float Value
     {
         get => gameObject.activeSelf && gameObject.activeInHierarchy ? _value : 0f;
-        set
+        protected set
         {
             _value = value;
-            _gameEventService.SendEvent(new GameEventTrigger(trigger, _value, gameObject.name));
+            if (trigger != null)
+            {
+                _gameEventService.SendEvent(new GameEventTrigger(trigger, _value, gameObject.name));
+            }
+
+            EventValueChanged?.Invoke(_value);
         }
     }
+
+    public event Action<float> EventValueChanged;
 
     protected virtual void Start()
     {
