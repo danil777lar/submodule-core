@@ -5,6 +5,8 @@ namespace Larje.Core
 {
     public class GameEventTrigger : GameEvent
     {
+        public override bool IsValid => _trigger != null;
+
         private TriggerConstant _trigger;
         private float _value;
 

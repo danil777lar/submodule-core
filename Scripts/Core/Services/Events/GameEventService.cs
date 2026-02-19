@@ -15,6 +15,11 @@ namespace Larje.Core
 
         public void SendEvent(GameEvent gameEvent)
         {
+            if (!gameEvent.IsValid)
+            {
+                return;
+            }
+
             Type eventType = gameEvent.GetType();
             if (callbacks.TryGetValue(eventType, out var eventCallbacks))
             {
