@@ -21,9 +21,10 @@ namespace Larje.Core
             }
 
             Type eventType = gameEvent.GetType();
-            if (callbacks.TryGetValue(eventType, out var eventCallbacks))
+            if (callbacks.TryGetValue(eventType, out List<Delegate> eventCallbacks))
             {
-                foreach (var callback in eventCallbacks)
+                Delegate[] callbacksCopy = eventCallbacks.ToArray();
+                foreach (Delegate callback in callbacksCopy)
                 {
                     callback.DynamicInvoke(gameEvent);
                 }
