@@ -134,6 +134,7 @@ namespace Larje.Core.Services
             {
                 this.systemData = new SystemData();
                 WriteFile(SystemSavePath, systemData, false);
+                TryReadFile(SystemSavePath, CONTENT_DATA_LINE, out this.systemData);
             }
             
             systemData.IternalData.SessionNum++;

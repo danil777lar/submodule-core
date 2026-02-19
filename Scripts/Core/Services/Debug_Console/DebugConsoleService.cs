@@ -29,7 +29,15 @@ namespace Larje.Core.Services.DebugConsole
 
         public bool OverlayActive 
         {
-            get => _dataService.SystemData.IternalData.DebugConsoleData.overlayEnabled;
+            get 
+            {
+                bool value = false;
+                if (_dataService.SystemData != null)
+                {
+                    value = _dataService.SystemData.IternalData.DebugConsoleData.overlayEnabled;
+                }
+                return value;
+            }
             set
             {
                 _dataService.SystemData.IternalData.DebugConsoleData.overlayEnabled = value;
