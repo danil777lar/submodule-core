@@ -1,4 +1,3 @@
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -13,8 +12,6 @@ public class UIAnimationTMPBold : UIAnimationBase
     
     protected override float OnEvent(bool forward)
     {
-        this.DOKill();
-        
         _tmpText.fontStyle = GetFontStyle(forward ? valueTo : valueFrom);
         
         return 0f;

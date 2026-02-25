@@ -32,4 +32,9 @@ public class UIAnimationTMPColor : UIAnimationBase
             _tmpText.color = valueFrom;
         }
     }
+
+    private void OnDisable()
+    {
+        this.DOKill();
+    }
 }

@@ -37,4 +37,9 @@ public class UIAnimationTransformScale : UIAnimationBase
             transform.localScale = valueFrom;
         }
     }
+
+    private void OnDisable()
+    {
+        this.DOKill();
+    }
 }

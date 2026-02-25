@@ -46,4 +46,9 @@ public class UIAnimationTransformPosition : UIAnimationBase
             rectTransform.anchoredPosition = _valueFrom;
         }
     }
+
+    private void OnDestroy()
+    {
+        this.DOKill();
+    }
 }

@@ -42,4 +42,9 @@ public class UIAnimationTransformRotation : UIAnimationBase
             transform.localRotation = Quaternion.Euler(_valueFrom);
         }
     }
+
+    private void OnDestroy()
+    {
+        this.DOKill();
+    }
 }

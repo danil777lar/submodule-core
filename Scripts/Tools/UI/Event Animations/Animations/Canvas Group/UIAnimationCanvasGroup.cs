@@ -30,4 +30,9 @@ public class UIAnimationCanvasGroup : UIAnimationBase
             _canvasGroup.alpha = valueFrom;
         }
     }
+
+    private void OnDisable()
+    {
+        this.DOKill();
+    }
 }
