@@ -5,7 +5,6 @@ using UnityEngine.Events;
 
 public class TriggerReceiver : MonoBehaviour
 {
-    [SerializeField] private string key;
     [SerializeField] private TriggerConstant trigger;
     [Space]
     [Space] public UnityEvent<float> EventValueChangedFloatNormal;

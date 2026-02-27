@@ -8,7 +8,6 @@ using UnityEngine.Serialization;
 public abstract class TriggerSender : MonoBehaviour
 {
     [Header("Trigger Settings")] 
-    [SerializeField] private string key;
     [SerializeField] private TriggerConstant trigger;
     [Space]
     [SerializeField] private bool sendEventOnStart = true;
