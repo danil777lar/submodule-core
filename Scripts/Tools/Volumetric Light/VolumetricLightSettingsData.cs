@@ -4,13 +4,13 @@ namespace Larje.Core.Services
 {
     public partial class GraphicsSettings
     {
-        public VolumetricLightQuality VolumetricLightQuality = VolumetricLightQuality.Medium;
+        public VolumetricLightQuality VolumetricLightQuality = VolumetricLightQuality.High;
     }
 }
 
 public enum VolumetricLightQuality
 {
-    Low,
-    Medium,
-    High
+    Low = 0,
+    Medium = 1,
+    High = 2
 }
