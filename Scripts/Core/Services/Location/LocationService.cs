@@ -19,6 +19,7 @@ public class LocationService : Service
     [SerializeField] private List<LocationInfo> locations;
     
     [InjectService] private IDataService _dataService;
+    [InjectService] private GameEventService _gameEventService;
     [InjectService] private IGameStateService _gameStateService;
     [InjectService] private BootstrapperService _bootstrapperService;
 
@@ -68,6 +69,7 @@ public class LocationService : Service
                     {
                         ApplyLightmaps();
 
+                        locationInfo.Triggers.ForEach(x => _gameEventService.SendEvent(new GameEventTrigger(x, 1f, "LocationService")));
                         _locationCallbacks.ForEach(TryCallCallback);
 
                         _gameStateService.SetGameState(GameStates.Transition);
@@ -210,12 +212,14 @@ public class LocationService : Service
         [SerializeField] private LocationType locationType;
         [SerializeField] private string sceneName;
         [SerializeField] private LightmapPackConfig lightmapPack;
+        [SerializeField] private List<TriggerConstant> triggers;
         [SerializeField] private List<LocationArgType> locationArgs;
         
         public LocationType LocationType => locationType;
         public string SceneName => sceneName;
         public LightmapPackConfig LightmapPack => lightmapPack;
 
+        public List<TriggerConstant> Triggers => triggers;
         public IReadOnlyCollection<LocationArgType> LocationArgs => locationArgs;
 
         public void Validate()

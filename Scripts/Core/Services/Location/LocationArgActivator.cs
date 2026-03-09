@@ -12,18 +12,22 @@ public class LocationArgActivator : MonoBehaviour
     [InjectService] private LocationService _locationService;
     [InjectService] private GameEventService _gameEventService;
 
-    private void Start()
+    public void OnArgReceived(LocationArgType[] args)
     {
-        DIContainer.InjectTo(this);
-
         if (permitted)
         {
             foreach (Option option in options)
             {
-                bool isActive = _locationService.CurrentLocation.LocationArgs.Contains(option.ArgType);
+                bool isActive = args.Contains(option.ArgType);
                 option.TargetObject.SetActive(isActive);
             }
         }
+    }
+
+    private void Start()
+    {
+        DIContainer.InjectTo(this);
+        OnArgReceived(_locationService.CurrentLocation.LocationArgs.ToArray());
     }
 
     private void OnValidate()
