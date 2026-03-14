@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
 
 public class LightmapPackConfig : ScriptableObject
@@ -38,15 +40,15 @@ public class LightmapPackConfig : ScriptableObject
         LightmapPackConfig asset = ScriptableObject.CreateInstance<LightmapPackConfig>();
 
         int n = lightmaps.Length;
-        asset.lightmapsColors = new Texture2D[n];
-        asset.lightmapsDirections = new Texture2D[n];
-        asset.lightmapsShadowMasks = new Texture2D[n];
+        asset.lightmapsColors = new string[n];
+        asset.lightmapsDirections = new string[n];
+        asset.lightmapsShadowMasks = new string[n];
 
         for (int i = 0; i < n; i++)
         {
-            asset.lightmapsColors[i] = CopyTextureAsset(lightmaps[i].lightmapColor, lmDir);
-            asset.lightmapsDirections[i] = CopyTextureAsset(lightmaps[i].lightmapDir, lmDir);
-            asset.lightmapsShadowMasks[i] = CopyTextureAsset(lightmaps[i].shadowMask, lmDir);
+            asset.lightmapsColors[i] = SaveTextureToAddressables(lightmaps[i].lightmapColor, lmDir);
+            asset.lightmapsDirections[i] = SaveTextureToAddressables(lightmaps[i].lightmapDir, lmDir);
+            asset.lightmapsShadowMasks[i] = SaveTextureToAddressables(lightmaps[i].shadowMask, lmDir);
         }
 
         List<RendererEntry> list = new List<RendererEntry>();
@@ -76,8 +78,10 @@ public class LightmapPackConfig : ScriptableObject
         UnityEditor.Selection.activeObject = asset;
     }
 
-    private static Texture2D CopyTextureAsset(Texture2D src, string targetDir)
+    private static string SaveTextureToAddressables(Texture2D src, string targetDir)
     {
+        string address = "";
+
         if (src == null)
         {
             return null;
@@ -87,7 +91,7 @@ public class LightmapPackConfig : ScriptableObject
         if (string.IsNullOrEmpty(srcPath))
         {
             Debug.LogWarning($"Texture '{src.name}' has no asset path (not an asset?). Skipping copy.");
-            return src;
+            return address;
         }
 
         string ext = System.IO.Path.GetExtension(srcPath);
@@ -103,10 +107,51 @@ public class LightmapPackConfig : ScriptableObject
         if (!ok)
         {
             Debug.LogWarning($"Failed to copy '{srcPath}' -> '{targetPath}'. Using original reference.");
-            return src;
+            return address;
         }
 
-        return UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(targetPath);
+        UnityEditor.AssetDatabase.ImportAsset(targetPath);
+        UnityEditor.AssetDatabase.SaveAssets();
+        UnityEditor.AssetDatabase.Refresh();
+
+        string guid = UnityEditor.AssetDatabase.AssetPathToGUID(targetPath);
+        if (string.IsNullOrEmpty(guid))
+        {
+            Debug.LogError($"Failed to get GUID for copied asset: {targetPath}");
+            return null;
+        }
+
+        UnityEditor.AddressableAssets.Settings.AddressableAssetSettings settings = UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+        if (settings == null)
+        {
+            Debug.LogError("Addressables settings not found.");
+            return null;
+        }
+
+        UnityEditor.AddressableAssets.Settings.AddressableAssetGroup group = settings.DefaultGroup;
+        if (group == null)
+        {
+            Debug.LogError("Default Addressables group not found.");
+            return null;
+        }
+
+        UnityEditor.AddressableAssets.Settings.AddressableAssetEntry entry = settings.FindAssetEntry(guid);
+        if (entry == null)
+        {
+            entry = settings.CreateOrMoveEntry(guid, group);
+        }
+        else if (entry.parentGroup != group)
+        {
+            settings.MoveEntry(entry, group);
+        }
+
+        address = System.IO.Path.GetFileNameWithoutExtension(targetPath);
+        entry.address = address;
+
+        UnityEditor.EditorUtility.SetDirty(settings);
+        UnityEditor.AssetDatabase.SaveAssets();
+
+        return address;
     }
 
     private static void EnsureFolderExists(string assetFolderPath)
@@ -147,16 +192,16 @@ public class LightmapPackConfig : ScriptableObject
 #endif
 
 
-    [SerializeField] private Texture2D[] lightmapsColors;
-    [SerializeField] private Texture2D[] lightmapsDirections;
-    [SerializeField] private Texture2D[] lightmapsShadowMasks;
+    [SerializeField] private string[] lightmapsColors;
+    [SerializeField] private string[] lightmapsDirections;
+    [SerializeField] private string[] lightmapsShadowMasks;
     [Space]
     [SerializeField] private RendererEntry[] rendererEntries;
 
     [ContextMenu("Apply")]
-    public void Apply()
+    public async void Apply()
     {
-        LightmapData[] lightmaps = BuildLightmapDataArray();
+        LightmapData[] lightmaps = await LoadLightmaps();
         LightmapSettings.lightmaps = lightmaps;
 
         foreach (RendererEntry entry in rendererEntries)
@@ -174,28 +219,40 @@ public class LightmapPackConfig : ScriptableObject
         }
     }
 
-    private LightmapData[] BuildLightmapDataArray()
+    public async Task<LightmapData[]> LoadLightmaps()
     {
-        int n = lightmapsColors != null ? lightmapsColors.Length : 0;
+        int n = lightmapsColors.Length;
         LightmapData[] arr = new LightmapData[n];
 
         for (int i = 0; i < n; i++)
         {
+            Texture2D color = null;
+            Texture2D dir = null;
+            Texture2D mask = null;
+
+            if (!string.IsNullOrEmpty(lightmapsColors[i]))
+            {
+                color = await Addressables.LoadAssetAsync<Texture2D>(lightmapsColors[i]).Task;
+            }
+
+            if (!string.IsNullOrEmpty(lightmapsDirections[i]))
+            {
+                dir = await Addressables.LoadAssetAsync<Texture2D>(lightmapsDirections[i]).Task;
+            }
+
+            if (!string.IsNullOrEmpty(lightmapsShadowMasks[i]))
+            {
+                mask = await Addressables.LoadAssetAsync<Texture2D>(lightmapsShadowMasks[i]).Task;
+            }
+
             LightmapData d = new LightmapData();
-            d.lightmapColor = lightmapsColors[i];
-
-            if (lightmapsDirections != null && i < lightmapsDirections.Length)
-            {
-                d.lightmapDir = lightmapsDirections[i];
-            }
-
-            if (lightmapsShadowMasks != null && i < lightmapsShadowMasks.Length)
-            {
-                d.shadowMask = lightmapsShadowMasks[i];
-            }
+            d.lightmapColor = color;
+            d.lightmapDir = dir;
+            d.shadowMask = mask;
 
             arr[i] = d;
         }
+
         return arr;
     }
 
