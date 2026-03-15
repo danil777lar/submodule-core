@@ -39,8 +39,10 @@ public class LightmapPackConfig : ScriptableObject
 
         LightmapPackConfig asset = ScriptableObject.CreateInstance<LightmapPackConfig>();
 
-        ExportLightmaps(asset, lightmaps, path, lmDir);
-        ExportLightprobes(asset);
+        string packName = System.IO.Path.GetFileNameWithoutExtension(path);
+
+        ExportLightmaps(asset, lightmaps, path, lmDir, packName);
+        ExportLightprobes(asset, lmDir, packName);
 
         UnityEditor.AssetDatabase.CreateAsset(asset, path);
         UnityEditor.AssetDatabase.SaveAssets();
@@ -50,9 +52,8 @@ public class LightmapPackConfig : ScriptableObject
         UnityEditor.Selection.activeObject = asset;
     }
 
-    private static void ExportLightmaps(LightmapPackConfig asset, LightmapData[] lightmaps, string path, string lmDir)
+    private static void ExportLightmaps(LightmapPackConfig asset, LightmapData[] lightmaps, string path, string lmDir, string packName)
     {
-        string packName = System.IO.Path.GetFileNameWithoutExtension(path);
         int n = lightmaps.Length;
         asset.lightmaps = new LightmapSaveData[n];
 
@@ -92,55 +93,25 @@ public class LightmapPackConfig : ScriptableObject
         asset.rendererEntries = list.ToArray();
     }
 
-    private static void ExportLightprobes(LightmapPackConfig asset)
-    { 
+    public static void ExportLightprobes(LightmapPackConfig asset, string targetDir, string packName)
+    {
         LightProbes probes = LightmapSettings.lightProbes;
         if (probes == null)
         {
-            Debug.LogError("LightmapSettings.lightProbes is null.");
+            Debug.LogError("LightmapSettings.lightProbes is null");
             return;
         }
 
-        SphericalHarmonicsL2[] baked = probes.bakedProbes;
-        if (baked == null || baked.Length == 0)
-        {
-            Debug.LogError("No baked probes found.");
-            return;
-        }
+        string fullPath = System.IO.Path.Combine(targetDir, $"{packName}_lightProbes.asset");
+        string targetPath = UnityEditor.AssetDatabase.GenerateUniqueAssetPath(fullPath);
+        string path = UnityEditor.AssetDatabase.GenerateUniqueAssetPath(fullPath);
 
-        Vector3[] positions = probes.GetPositionsSelf();
-        if (positions == null || positions.Length != baked.Length)
-        {
-            Debug.LogError("Positions count does not match baked probes count.");
-            return;
-        }
+        UnityEngine.Object copy = UnityEngine.Object.Instantiate(probes);
+        UnityEditor.AssetDatabase.CreateAsset(copy, path);
+        UnityEditor.AssetDatabase.SaveAssets();
+        UnityEditor.AssetDatabase.Refresh();
 
-        asset.lightprobes = new LightprobeSaveData[baked.Length];
-
-        for (int i = 0; i < baked.Length; i++)
-        {
-            asset.lightprobes[i] = new LightprobeSaveData
-            {
-                position = positions[i],
-                coefficients = SerializeSH(baked[i])
-            };
-        }
-    }   
-
-    private static float[] SerializeSH(SphericalHarmonicsL2 sh)
-    {
-        float[] data = new float[27];
-        int k = 0;
-
-        for (int rgb = 0; rgb < 3; rgb++)
-        {
-            for (int coef = 0; coef < 9; coef++)
-            {
-                data[k++] = sh[rgb, coef];
-            }
-        }
-
-        return data;
+        asset.probePath = SaveToAddressables(path, packName);
     }
 
     private static string SaveTextureToAddressables(Texture2D src, string packName, string targetDir)
@@ -179,7 +150,14 @@ public class LightmapPackConfig : ScriptableObject
         UnityEditor.AssetDatabase.SaveAssets();
         UnityEditor.AssetDatabase.Refresh();
 
+        return SaveToAddressables(targetPath, packName);
+    }
+
+    private static string SaveToAddressables(string targetPath, string packName)
+    {
+        string address = "";
         string guid = UnityEditor.AssetDatabase.AssetPathToGUID(targetPath);
+
         if (string.IsNullOrEmpty(guid))
         {
             Debug.LogError($"Failed to get GUID for copied asset: {targetPath}");
@@ -289,7 +267,8 @@ public class LightmapPackConfig : ScriptableObject
 
 
     [SerializeField] private LightmapSaveData[] lightmaps;
-    [SerializeField] private LightprobeSaveData[] lightprobes;
+    [SerializeField] private string probePath;
+    [Space]
     [SerializeField] private RendererEntry[] rendererEntries;
 
     [ContextMenu("Apply")]
@@ -354,38 +333,23 @@ public class LightmapPackConfig : ScriptableObject
         return arr;
     }
 
-    public bool ApplyLightprobes()
+    private void ApplyLightprobes()
     {
-        if (lightprobes == null || lightprobes.Length == 0)
+        if (string.IsNullOrEmpty(probePath))
         {
-            Debug.LogError("FullLightProbesData is empty.");
-            return false;
+            Debug.LogError("Probe asset path is empty.");
+            return;
         }
 
-        Scene scene = SceneManager.GetActiveScene();
-
-        LightProbes probes = LightProbes.GetInstantiatedLightProbesForScene(scene);
-        if (probes == null)
+        LightProbes loaded = Addressables.LoadAssetAsync<LightProbes>(probePath).WaitForCompletion();
+        if (loaded == null)
         {
-            Debug.LogError("Failed to get instantiated LightProbes for scene.");
-            return false;
+            Debug.LogError($"Failed to load LightProbes asset at path: {probePath}");
+            return;
         }
 
-        Vector3[] positions = new Vector3[lightprobes.Length];
-        SphericalHarmonicsL2[] baked = new SphericalHarmonicsL2[lightprobes.Length];
-
-        for (int i = 0; i < lightprobes.Length; i++)
-        {
-            positions[i] = lightprobes[i].position;
-            baked[i] = DeserializeSH(lightprobes[i].coefficients);
-        }
-
-        probes.SetPositionsSelf(positions, true);
-        probes.bakedProbes = baked;
-
-        LightProbes.Tetrahedralize();
-
-        return true;
+        LightProbes copy = UnityEngine.Object.Instantiate(loaded);
+        LightmapSettings.lightProbes = copy;
     }
 
     private SphericalHarmonicsL2 DeserializeSH(float[] data)
