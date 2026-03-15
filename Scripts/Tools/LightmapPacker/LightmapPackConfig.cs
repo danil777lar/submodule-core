@@ -42,15 +42,13 @@ public class LightmapPackConfig : ScriptableObject
         LightmapPackConfig asset = ScriptableObject.CreateInstance<LightmapPackConfig>();
 
         int n = lightmaps.Length;
-        asset.lightmapsColors = new string[n];
-        asset.lightmapsDirections = new string[n];
-        asset.lightmapsShadowMasks = new string[n];
+        asset.lightmaps = new Lightmap[n];
 
         for (int i = 0; i < n; i++)
         {
-            asset.lightmapsColors[i] = SaveTextureToAddressables(lightmaps[i].lightmapColor, packName, lmDir);
-            asset.lightmapsDirections[i] = SaveTextureToAddressables(lightmaps[i].lightmapDir, packName, lmDir);
-            asset.lightmapsShadowMasks[i] = SaveTextureToAddressables(lightmaps[i].shadowMask, packName, lmDir);
+            asset.lightmaps[i].color = SaveTextureToAddressables(lightmaps[i].lightmapColor, packName, lmDir);
+            asset.lightmaps[i].direction = SaveTextureToAddressables(lightmaps[i].lightmapDir, packName, lmDir);
+            asset.lightmaps[i].shadow = SaveTextureToAddressables(lightmaps[i].shadowMask, packName, lmDir);
         }
 
         List<string> rendNames = new List<string>();
@@ -234,10 +232,7 @@ public class LightmapPackConfig : ScriptableObject
 #endif
 
 
-    [SerializeField] private string[] lightmapsColors;
-    [SerializeField] private string[] lightmapsDirections;
-    [SerializeField] private string[] lightmapsShadowMasks;
-    [Space]
+    [SerializeField] private Lightmap[] lightmaps;
     [SerializeField] private RendererEntry[] rendererEntries;
 
     [ContextMenu("Apply")]
@@ -263,28 +258,30 @@ public class LightmapPackConfig : ScriptableObject
 
     public async Task<LightmapData[]> LoadLightmaps()
     {
-        int n = lightmapsColors.Length;
+        int n = lightmaps.Length;
         LightmapData[] arr = new LightmapData[n];
 
         for (int i = 0; i < n; i++)
         {
+            Lightmap lm = lightmaps[i];
+
             Texture2D color = null;
             Texture2D dir = null;
             Texture2D mask = null;
 
-            if (!string.IsNullOrEmpty(lightmapsColors[i]))
+            if (!string.IsNullOrEmpty(lm.color))
             {
-                color = await Addressables.LoadAssetAsync<Texture2D>(lightmapsColors[i]).Task;
+                color = await Addressables.LoadAssetAsync<Texture2D>(lm.color).Task;
             }
 
-            if (!string.IsNullOrEmpty(lightmapsDirections[i]))
+            if (!string.IsNullOrEmpty(lm.direction))
             {
-                dir = await Addressables.LoadAssetAsync<Texture2D>(lightmapsDirections[i]).Task;
+                dir = await Addressables.LoadAssetAsync<Texture2D>(lm.direction).Task;
             }
 
-            if (!string.IsNullOrEmpty(lightmapsShadowMasks[i]))
+            if (!string.IsNullOrEmpty(lm.shadow))
             {
-                mask = await Addressables.LoadAssetAsync<Texture2D>(lightmapsShadowMasks[i]).Task;
+                mask = await Addressables.LoadAssetAsync<Texture2D>(lm.shadow).Task;
             }
 
             LightmapData d = new LightmapData();
@@ -357,6 +354,14 @@ public class LightmapPackConfig : ScriptableObject
         }
 
         return null;
+    }
+
+    [Serializable]
+    public struct Lightmap
+    {
+        public string color;
+        public string direction;
+        public string shadow;
     }
 
     [Serializable]
