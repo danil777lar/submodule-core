@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 public class LightmapPackConfig : ScriptableObject
@@ -30,10 +31,7 @@ public class LightmapPackConfig : ScriptableObject
         string dirName = $"{System.IO.Path.GetFileNameWithoutExtension(path)}_Lightmaps";
         string lmDir = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(path), dirName).Replace("\\", "/");
 
-        string packName = System.IO.Path.GetFileNameWithoutExtension(path);
-
         EnsureFolderExists(lmDir);
-
         if (string.IsNullOrEmpty(path))
         {
             return;
@@ -41,8 +39,22 @@ public class LightmapPackConfig : ScriptableObject
 
         LightmapPackConfig asset = ScriptableObject.CreateInstance<LightmapPackConfig>();
 
+        ExportLightmaps(asset, lightmaps, path, lmDir);
+        ExportLightprobes(asset);
+
+        UnityEditor.AssetDatabase.CreateAsset(asset, path);
+        UnityEditor.AssetDatabase.SaveAssets();
+        UnityEditor.AssetDatabase.Refresh();
+
+        Debug.Log($"Exported LightmapSet: {path}\n:Lightmaps Count{asset.lightmaps.Length}\nMeshRenderers mapped: {asset.rendererEntries.Length}");
+        UnityEditor.Selection.activeObject = asset;
+    }
+
+    private static void ExportLightmaps(LightmapPackConfig asset, LightmapData[] lightmaps, string path, string lmDir)
+    {
+        string packName = System.IO.Path.GetFileNameWithoutExtension(path);
         int n = lightmaps.Length;
-        asset.lightmaps = new Lightmap[n];
+        asset.lightmaps = new LightmapSaveData[n];
 
         for (int i = 0; i < n; i++)
         {
@@ -78,13 +90,57 @@ public class LightmapPackConfig : ScriptableObject
         }
 
         asset.rendererEntries = list.ToArray();
+    }
 
-        UnityEditor.AssetDatabase.CreateAsset(asset, path);
-        UnityEditor.AssetDatabase.SaveAssets();
-        UnityEditor.AssetDatabase.Refresh();
+    private static void ExportLightprobes(LightmapPackConfig asset)
+    { 
+        LightProbes probes = LightmapSettings.lightProbes;
+        if (probes == null)
+        {
+            Debug.LogError("LightmapSettings.lightProbes is null.");
+            return;
+        }
 
-        Debug.Log($"Exported LightmapSet: {path}\nLightmaps: {n}, MeshRenderers mapped: {asset.rendererEntries.Length}");
-        UnityEditor.Selection.activeObject = asset;
+        SphericalHarmonicsL2[] baked = probes.bakedProbes;
+        if (baked == null || baked.Length == 0)
+        {
+            Debug.LogError("No baked probes found.");
+            return;
+        }
+
+        Vector3[] positions = probes.GetPositionsSelf();
+        if (positions == null || positions.Length != baked.Length)
+        {
+            Debug.LogError("Positions count does not match baked probes count.");
+            return;
+        }
+
+        asset.lightprobes = new LightprobeSaveData[baked.Length];
+
+        for (int i = 0; i < baked.Length; i++)
+        {
+            asset.lightprobes[i] = new LightprobeSaveData
+            {
+                position = positions[i],
+                coefficients = SerializeSH(baked[i])
+            };
+        }
+    }   
+
+    private static float[] SerializeSH(SphericalHarmonicsL2 sh)
+    {
+        float[] data = new float[27];
+        int k = 0;
+
+        for (int rgb = 0; rgb < 3; rgb++)
+        {
+            for (int coef = 0; coef < 9; coef++)
+            {
+                data[k++] = sh[rgb, coef];
+            }
+        }
+
+        return data;
     }
 
     private static string SaveTextureToAddressables(Texture2D src, string packName, string targetDir)
@@ -232,7 +288,8 @@ public class LightmapPackConfig : ScriptableObject
 #endif
 
 
-    [SerializeField] private Lightmap[] lightmaps;
+    [SerializeField] private LightmapSaveData[] lightmaps;
+    [SerializeField] private LightprobeSaveData[] lightprobes;
     [SerializeField] private RendererEntry[] rendererEntries;
 
     [ContextMenu("Apply")]
@@ -254,6 +311,8 @@ public class LightmapPackConfig : ScriptableObject
                 }
             }
         }
+
+        ApplyLightprobes();
     }
 
     public async Task<LightmapData[]> LoadLightmaps()
@@ -263,7 +322,7 @@ public class LightmapPackConfig : ScriptableObject
 
         for (int i = 0; i < n; i++)
         {
-            Lightmap lm = lightmaps[i];
+            LightmapSaveData lm = lightmaps[i];
 
             Texture2D color = null;
             Texture2D dir = null;
@@ -293,6 +352,62 @@ public class LightmapPackConfig : ScriptableObject
         }
 
         return arr;
+    }
+
+    public bool ApplyLightprobes()
+    {
+        if (lightprobes == null || lightprobes.Length == 0)
+        {
+            Debug.LogError("FullLightProbesData is empty.");
+            return false;
+        }
+
+        Scene scene = SceneManager.GetActiveScene();
+
+        LightProbes probes = LightProbes.GetInstantiatedLightProbesForScene(scene);
+        if (probes == null)
+        {
+            Debug.LogError("Failed to get instantiated LightProbes for scene.");
+            return false;
+        }
+
+        Vector3[] positions = new Vector3[lightprobes.Length];
+        SphericalHarmonicsL2[] baked = new SphericalHarmonicsL2[lightprobes.Length];
+
+        for (int i = 0; i < lightprobes.Length; i++)
+        {
+            positions[i] = lightprobes[i].position;
+            baked[i] = DeserializeSH(lightprobes[i].coefficients);
+        }
+
+        probes.SetPositionsSelf(positions, true);
+        probes.bakedProbes = baked;
+
+        LightProbes.Tetrahedralize();
+
+        return true;
+    }
+
+    private SphericalHarmonicsL2 DeserializeSH(float[] data)
+    {
+        SphericalHarmonicsL2 sh = new SphericalHarmonicsL2();
+
+        if (data == null || data.Length != 27)
+        {
+            Debug.LogError("Invalid SH coefficient array.");
+            return sh;
+        }
+
+        int k = 0;
+        for (int rgb = 0; rgb < 3; rgb++)
+        {
+            for (int coef = 0; coef < 9; coef++)
+            {
+                sh[rgb, coef] = data[k++];
+            }
+        }
+
+        return sh;
     }
 
     private Transform FindTransformByPath(string path, Transform root = null)
@@ -357,11 +472,18 @@ public class LightmapPackConfig : ScriptableObject
     }
 
     [Serializable]
-    public struct Lightmap
+    public struct LightmapSaveData
     {
         public string color;
         public string direction;
         public string shadow;
+    }    
+
+    [Serializable]
+    public class LightprobeSaveData
+    {
+        public Vector3 position;
+        public float[] coefficients = new float[27];
     }
 
     [Serializable]
