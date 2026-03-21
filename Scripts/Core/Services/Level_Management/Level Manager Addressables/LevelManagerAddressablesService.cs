@@ -28,6 +28,8 @@ namespace Larje.Core.Services
         public bool IsLevelPlaying => _currentLevel != null && _currentLevel.IsLevelPlaying;
 
         public event Action<LevelProcessor> EventLevelInstantiated;
+        public event Action<LevelProcessor.StartData> EventLevelStarted;
+        public event Action<LevelProcessor.StopData> EventLevelStopped;
 
         public override void Init()
         {
@@ -67,8 +69,16 @@ namespace Larje.Core.Services
                 if (levelInstance.TryGetComponent(out LevelProcessor level))
                 {
                     _currentLevel = level;
-                    _currentLevel.EventLevelStart += (data) => _stateService.SetGameState(GameStates.Playing); 
-                    _currentLevel.EventLevelStop += (data) => _stateService.SetGameState(data.IsWin ? GameStates.Win : GameStates.Fail);
+                    _currentLevel.EventLevelStart += (data) => 
+                    {
+                        _stateService.SetGameState(GameStates.Playing);
+                        EventLevelStarted?.Invoke(data);
+                    };
+                    _currentLevel.EventLevelStop += (data) => 
+                    {
+                        _stateService.SetGameState(data.IsWin ? GameStates.Win : GameStates.Fail);
+                        EventLevelStopped?.Invoke(data);
+                    };
                     EventLevelInstantiated?.Invoke(level);
                 }
                 else

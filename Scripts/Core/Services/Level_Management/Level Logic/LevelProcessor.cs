@@ -9,9 +9,9 @@ namespace Larje.Core.Services
 {
     public abstract class LevelProcessor : MonoBehaviour
     {
-        protected bool isLevelPlaying = false;
-        
-        public bool IsLevelPlaying => isLevelPlaying;
+        [InjectService] private IGameStateService _gameStateService;
+
+        public bool IsLevelPlaying => _gameStateService.CurrentState == GameStates.Playing;
 
         public event Action<StartData> EventLevelStart;
         public event Action<StopData> EventLevelStop;
@@ -22,23 +22,28 @@ namespace Larje.Core.Services
 
         public abstract LevelData GetLevelData();
 
+        protected virtual void Awake()
+        {
+            DIContainer.InjectTo(this, typeof(LevelProcessor));
+        }
+
         protected void StartLevel(StartData data)
         {
-            if (!isLevelPlaying)
+            if (!IsLevelPlaying)
             {
                 GetComponentsInChildren<ILevelStartHandler>(true)
                     .ToList().ForEach(x => x.OnLevelStarted(data));
-                isLevelPlaying = true;
+                EventLevelStart?.Invoke(data);
             }
         }
 
         protected void StopLevel(StopData data)
         {
-            if (isLevelPlaying)
+            if (IsLevelPlaying)
             {
                 GetComponentsInChildren<ILevelEndHandler>(true)
                     .ToList().ForEach(x => x.OnLevelEnded(data));
-                isLevelPlaying = false;
+                EventLevelStop?.Invoke(data);
             }
         }
 

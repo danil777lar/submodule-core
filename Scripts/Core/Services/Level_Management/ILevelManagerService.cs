@@ -8,6 +8,8 @@ namespace Larje.Core.Services
     public interface ILevelManagerService
     {
         public event Action<LevelProcessor> EventLevelInstantiated;
+        public event Action<LevelProcessor.StartData> EventLevelStarted;
+        public event Action<LevelProcessor.StopData> EventLevelStopped;
         
         public bool IsLevelPlaying { get; }
 

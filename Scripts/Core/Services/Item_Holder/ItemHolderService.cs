@@ -9,6 +9,8 @@ namespace Larje.Core.Services
     [BindService(typeof(IItemHolderService), typeof(ItemHolderService))]
     public class ItemHolderService : Service, IItemHolderService
     {
+        [SerializeField] private bool autoSave = true;
+        [Space]
         [SerializeField] private bool setFirstItemAsDefault;
         [SerializeField] private List<ItemsHolderConfig> configs;
 
@@ -26,6 +28,10 @@ namespace Larje.Core.Services
         {
             GetSkinsData(itemType).UnlockedItems.Add(itemName);
             EventNewItemUnlocked?.Invoke();
+            if (autoSave)
+            {
+                _dataService.SaveGameData();
+            }
         }
 
         public void SetCurrentItem(ItemType itemType, string itemName)
@@ -38,6 +44,11 @@ namespace Larje.Core.Services
             {
                 GetSkinsData(itemType).CurrentItem = itemName;
                 EventCurrentItemChanged?.Invoke();    
+
+                if (autoSave)
+                {
+                    _dataService.SaveGameData();
+                }
             }
         }
 

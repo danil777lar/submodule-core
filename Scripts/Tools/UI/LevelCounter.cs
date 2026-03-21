@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DTools;
 using Larje.Core;
 using Larje.Core.Services;
 using TMPro;
@@ -8,29 +9,27 @@ using UnityEngine;
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class LevelCounter : MonoBehaviour
 {
-    [SerializeField] private SideType side = SideType.Right;
     [SerializeField] private int addToCount;
+    [Space]
+    [SerializeField] private string leftPrefix;
+    [SerializeField] private string rightPrefix;
 
+    [InjectService] private ILocalizationService _localizationService;
     [InjectService] private ILevelManagerService _levelService;
     
     private void Start()
     {
         DIContainer.InjectTo(this);
-        StartCoroutine(AddNumberCoroutine());
-    }
 
-    private IEnumerator AddNumberCoroutine()
-    {
-        yield return null;
-        
         TextMeshProUGUI tmp = GetComponent<TextMeshProUGUI>();
         int level = _levelService.GetCurrentLevelCount() + addToCount;
-        tmp.text = side == SideType.Right ? $"{tmp.text} {level}" : $"{level} {tmp.text}";
+
+        string levelStr = $"{GetPrefix(leftPrefix)}{level}{GetPrefix(rightPrefix)}";
+        tmp.text = levelStr;
     }
 
-    private enum SideType
+    private string GetPrefix(string rawPrefix)
     {
-        Left,
-        Right
+        return string.IsNullOrEmpty(rawPrefix) ? "" : $"{_localizationService.GetLocalizationValue(rawPrefix)}";
     }
 }

@@ -12,8 +12,6 @@ public class GameObjectActivator : MonoBehaviour, ILevelObjectDataUser
     {
         Data d = (Data)data;
         target.SetActive(d.isActive);
-
-        Debug.Log($"GameObjectActivator: Injected data, set active to {d.isActive}", this);
     }
 
     public object ReadData()
