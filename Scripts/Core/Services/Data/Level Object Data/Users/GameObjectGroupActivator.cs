@@ -6,6 +6,7 @@ public class GameObjectGroupActivator : MonoBehaviour, ILevelObjectDataUser
 {
     [SerializeField] private List<GameObject> targets;
 
+    public GameObject GameObject => gameObject;
     public Type DataType => typeof(Data);
 
     public void InjectData(object data)

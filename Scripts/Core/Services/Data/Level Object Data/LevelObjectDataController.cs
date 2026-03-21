@@ -22,7 +22,16 @@ public class LevelObjectDataController : MonoBehaviour
         DIContainer.InjectTo(this);
         
         _guidHolder = GetComponent<GUIDHolder>();
-        _dataUsers = GetComponentsInChildren<ILevelObjectDataUser>().ToList();
+
+        _dataUsers = new List<ILevelObjectDataUser>();
+        ILevelObjectDataUser[] allUsers = GetComponentsInChildren<ILevelObjectDataUser>();
+        foreach (ILevelObjectDataUser user in allUsers)
+        {
+            if (user.GameObject.GetComponentInParent<LevelObjectDataController>() == this)
+            {
+                _dataUsers.Add(user);
+            }
+        }
         
         _dataService.EventPreSave += SaveData;
 

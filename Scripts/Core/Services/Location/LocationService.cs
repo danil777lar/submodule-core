@@ -23,6 +23,7 @@ public class LocationService : Service
     [InjectService] private IGameStateService _gameStateService;
     [InjectService] private BootstrapperService _bootstrapperService;
 
+    private bool _locationLoaded;
     private float _transitionValue;
     private List<ILocationEntry> _locationEntries = new List<ILocationEntry>();
     private List<CallbackData> _locationCallbacks = new List<CallbackData>();
@@ -56,9 +57,9 @@ public class LocationService : Service
         LocationInfo locationInfo = locations.Find(x => x.LocationType == locationType);
         if (locationInfo != null)
         {
+            _locationLoaded = false;
             CurrentLocation = locationInfo;
             CurrentLocationEntry = entryId;
-
             _gameStateService.SetGameState(GameStates.Transition);
             EventStartLoadLocation?.Invoke();
             DOTween.To(() => 0f, value => _transitionValue = value, 1f, transitionDuration)
@@ -67,13 +68,16 @@ public class LocationService : Service
                     EventExitLocation?.Invoke();
                     _bootstrapperService.LoadSceneAsync(locationInfo.SceneName, () =>
                     {
+                        _locationLoaded = true;
+
                         ApplyLightmaps();
 
-                        locationInfo.Triggers.ForEach(x => _gameEventService.SendEvent(new GameEventTrigger(x, 1f, "LocationService")));
-                        _locationCallbacks.ForEach(TryCallCallback);
-
                         _gameStateService.SetGameState(GameStates.Transition);
+
+                        locationInfo.Triggers.ForEach(x => _gameEventService.SendEvent(new GameEventTrigger(x, 1f, "LocationService")));
+                        StartCoroutine(CallCallbacksNextFrame());
                         EventFinishLoadLocation?.Invoke(locationType, entryId);
+
                         DOTween.To(() => 1f, value => _transitionValue = value, 0f, transitionDuration)
                             .OnComplete(() =>
                             {
@@ -131,6 +135,7 @@ public class LocationService : Service
 
     public void QuitToMenu()
     {
+        _locationLoaded = false;
         _gameStateService.SetGameState(GameStates.Transition);
         DOTween.To(() => 0f, value => _transitionValue = value, 1f, transitionDuration)
             .OnComplete(() =>
@@ -142,7 +147,7 @@ public class LocationService : Service
                         {
                             _gameStateService.SetGameState(GameStates.Menu);
                         });
-                    });
+                });
             });
     }
 
@@ -159,6 +164,7 @@ public class LocationService : Service
         bool callNow = callbackData.anyLocation || CurrentLocation.LocationType == callbackData.locationType;
         callNow &= callbackData.entryId < 0 || CurrentLocationEntry == callbackData.entryId;
         callNow &= callbackData.args == null || callbackData.args.Count == 0 || callbackData.args.TrueForAll(x => CurrentLocation.LocationArgs.Contains(x));
+        callNow &= _locationLoaded;
 
         if (callNow)
         {
@@ -177,6 +183,15 @@ public class LocationService : Service
         }
 
         LoadLocation(CurrentLocation.LocationType, CurrentLocationEntry);
+    }
+
+    private IEnumerator CallCallbacksNextFrame()
+    {
+        yield return null;
+
+        Debug.Log($"Calling location callbacks, load percent is {_bootstrapperService.LoadingProgress}");
+
+        _locationCallbacks.ForEach(TryCallCallback);
     }
 
     public class CallbackData

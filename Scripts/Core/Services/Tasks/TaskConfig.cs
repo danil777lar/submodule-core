@@ -130,7 +130,7 @@ namespace Larje.Core.Services
                     }
 
                     _destroyed = true;
-                    RootStep.Destroy();
+                    RootStep?.Destroy();
                 }
             }
 
