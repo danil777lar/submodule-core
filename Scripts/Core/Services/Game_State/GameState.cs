@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Larje.Core.Services
 {
-    [CreateAssetMenu(fileName = "GameState", menuName = "Larje/Game State", order = 0)]
+    [CreateAssetMenu(fileName = "GameState", menuName = "Larje/Core/Game State", order = 0)]
     public class GameState : ScriptableObject
     {  
     }
