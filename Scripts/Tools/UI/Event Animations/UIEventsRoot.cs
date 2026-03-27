@@ -80,9 +80,20 @@ public class UIEventsRoot : MonoBehaviour,
         Animations.ForEach(a => a.DraggableEndDrag());
     }
 
+    // ENABLE ------------------------------------------------
+
+    private void OnEnable()
+    {
+        Animations.ForEach(a => a.GameObjectEnable());
+    }
+
+    private void OnDisable()
+    {
+        Animations.ForEach(a => a.GameObjectDisable());
+    }
+
     private void Start()
     {
-
         _selectable = GetComponent<Selectable>();
         if (_selectable != null)
         {
