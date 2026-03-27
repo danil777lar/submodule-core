@@ -28,7 +28,11 @@ public class OutlineDrawer : MonoBehaviour
     {
         Mesh mesh = meshFilter.sharedMesh;
 
-        Matrix4x4 matrix = Matrix4x4.TRS(new Vector3(0, 0, 5), Quaternion.identity, Vector3.one);
+        Vector3 position = meshFilter.transform.position;
+        Quaternion rotation = meshFilter.transform.rotation;
+        Vector3 scale = meshFilter.transform.lossyScale;
+
+        Matrix4x4 matrix = Matrix4x4.TRS(position, rotation, scale);
         Graphics.RenderMesh(_params, mesh, 0, matrix);
     }
 }
