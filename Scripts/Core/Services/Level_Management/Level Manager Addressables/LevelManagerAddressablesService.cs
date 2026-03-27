@@ -51,6 +51,8 @@ namespace Larje.Core.Services
                 if (_currentLevel != null)
                 {
                     _firstLevelSpawn = false;
+                    _currentLevel.EventLevelStart += OnLevelStarted;
+                    _currentLevel.EventLevelStop += OnLevelStopped;
                     return;
                 }
             }
@@ -69,16 +71,8 @@ namespace Larje.Core.Services
                 if (levelInstance.TryGetComponent(out LevelProcessor level))
                 {
                     _currentLevel = level;
-                    _currentLevel.EventLevelStart += (data) => 
-                    {
-                        _stateService.SetGameState(GameStates.Playing);
-                        EventLevelStarted?.Invoke(data);
-                    };
-                    _currentLevel.EventLevelStop += (data) => 
-                    {
-                        _stateService.SetGameState(data.IsWin ? GameStates.Win : GameStates.Fail);
-                        EventLevelStopped?.Invoke(data);
-                    };
+                    _currentLevel.EventLevelStart += OnLevelStarted;
+                    _currentLevel.EventLevelStop += OnLevelStopped;
                     EventLevelInstantiated?.Invoke(level);
                 }
                 else
@@ -187,6 +181,18 @@ namespace Larje.Core.Services
         {
             _dataService.GameData.levelManagerAddressablesData.CurrentLevelCount = id;
             _dataService.SaveGameData();
+        }
+
+        private void OnLevelStarted(LevelProcessor.StartData data)
+        {
+            _stateService.SetGameState(GameStates.Playing);
+            EventLevelStarted?.Invoke(data);
+        }
+
+        private void OnLevelStopped(LevelProcessor.StopData data)
+        {
+            _stateService.SetGameState(data.IsWin ? GameStates.Win : GameStates.Fail);
+            EventLevelStopped?.Invoke(data);
         }
 
         private Transform GetLevelHolder()
