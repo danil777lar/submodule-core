@@ -36,14 +36,14 @@ namespace Larje.Core.Services.DebugConsole
         public static void AddCurrency(CurrencyType type, CurrencyPlacementType place, int count)
         {
             ICurrencyService currencyService = DIContainer.GetService<ICurrencyService>();
-            currencyService.AddCurrency(type, place, count);
+            currencyService.AddCurrency(new CurrencyOperationData { Currency = type, Placement = place, Amount = count });
         }
 
         [MethodGroup("Currency")]
         public static void SpendCurrency(CurrencyType type, CurrencyPlacementType place, int count)
         {
             ICurrencyService currencyService = DIContainer.GetService<ICurrencyService>();
-            currencyService.TrySpendCurrency(type, place, count);
+            currencyService.TrySpendCurrency(new CurrencyOperationData { Currency = type, Placement = place, Amount = count });
         }
 
         [MethodGroup("Currency")]

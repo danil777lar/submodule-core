@@ -15,36 +15,38 @@ namespace Larje.Core.Services
         private List<CurrencyData> CurrencyData => _dataService.GameData.CurrencyData; 
 
         public event Action EventCurrencyChanged;
+        public event Action<CurrencyOperationData> EventCurrencyAdded;
+        public event Action<CurrencyOperationData> EventCurrencySpent;
         
         public override void Init()
         {
         }
 
-        public void AddCurrency(CurrencyType currency, CurrencyPlacementType placement, int count)
+        public void AddCurrency(CurrencyOperationData data)
         {
-            int currentCount = GetCurrency(currency, placement);
-            SetCurrency(currency, placement, currentCount + count);
+            int currentCount = GetCurrency(data.Currency, data.Placement);
+            SetCurrency(data.Currency, data.Placement, currentCount + data.Amount);
+        }
+
+        public bool TrySpendCurrency(CurrencyOperationData data)
+        {
+            int currentCount = GetCurrency(data.Currency, data.Placement);
+            if (currentCount < data.Amount)
+            {
+                return false;
+            }
+            else
+            {
+                SetCurrency(data.Currency, data.Placement, currentCount - data.Amount);
+                return true;
+            }
         }
 
         public void MoveCurrency(CurrencyType currency, CurrencyPlacementType placementFrom, CurrencyPlacementType placementTo)
         {
             int currentCount = GetCurrency(currency, placementFrom);
             SetCurrency(currency, placementFrom, 0);
-            AddCurrency(currency, placementTo, currentCount);
-        }
-
-        public bool TrySpendCurrency(CurrencyType currency, CurrencyPlacementType placement, int count)
-        {
-            int currentCount = GetCurrency(currency, placement);
-            if (currentCount < count)
-            {
-                return false;
-            }
-            else
-            {
-                SetCurrency(currency, placement, currentCount - count);
-                return true;
-            }
+            AddCurrency(new CurrencyOperationData{ Currency = currency, Placement = placementTo, Amount = currentCount });
         }
 
         public bool CheckEnoughCurrency(CurrencyType currency, CurrencyPlacementType placement, int count)
