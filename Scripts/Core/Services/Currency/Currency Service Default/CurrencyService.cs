@@ -26,6 +26,7 @@ namespace Larje.Core.Services
         {
             int currentCount = GetCurrency(data.Currency, data.Placement);
             SetCurrency(data.Currency, data.Placement, currentCount + data.Amount);
+            EventCurrencyAdded?.Invoke(data);
         }
 
         public bool TrySpendCurrency(CurrencyOperationData data)
@@ -38,6 +39,7 @@ namespace Larje.Core.Services
             else
             {
                 SetCurrency(data.Currency, data.Placement, currentCount - data.Amount);
+                EventCurrencySpent?.Invoke(data);
                 return true;
             }
         }

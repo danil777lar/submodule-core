@@ -11,9 +11,11 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class CurrencyCounter : MonoBehaviour
 {
+    [Header("Main")]
     [SerializeField] private CurrencyType currencyType;
     [SerializeField] private CurrencyPlacementTypes currencyPlacementTypes;
-    [Space] 
+
+    [Header("Modificators")]
     [SerializeField] private string leftModificator;
     [SerializeField] private string rightModificator = "<sprite index=0>";
         

@@ -7,5 +7,6 @@ public struct CurrencyOperationData
     public CurrencyPlacementType Placement;
     public int Amount;
 
+    public bool UsePosition;
     public Vector3 WorldPosition;
 }
