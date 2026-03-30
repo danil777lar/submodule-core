@@ -6,11 +6,15 @@ using Larje.Core.Services;
 using ProjectConstants;
 using UnityEngine;
 using TMPro;
-using UnityEngine.Serialization;
+using DG.Tweening;
 
 [RequireComponent(typeof(TextMeshProUGUI))]
 public class CurrencyCounter : MonoBehaviour
 {
+    [Space]
+    [SerializeField] private bool autoAddUpdate = true;
+    [SerializeField] private bool autoSpendUpdate = true;
+
     [Header("Main")]
     [SerializeField] private CurrencyType currencyType;
     [SerializeField] private CurrencyPlacementTypes currencyPlacementTypes;
@@ -22,25 +26,15 @@ public class CurrencyCounter : MonoBehaviour
     [InjectService] private ICurrencyService _currencyService;
     
     private TextMeshProUGUI _tmp;
-    
-    private void Awake()
+
+    public CurrencyType CurrencyType => currencyType;
+
+    public void SetValue(int value)
     {
-        DIContainer.InjectTo(this);
-        _tmp = GetComponent<TextMeshProUGUI>();
+        _tmp.text = $"{leftModificator}{value}{rightModificator}";
     }
 
-    private void OnEnable()
-    {
-        _currencyService.EventCurrencyChanged += OnEventCurrencyUpdated;
-        OnEventCurrencyUpdated();
-    }
-    
-    private void OnDisable()
-    {
-        _currencyService.EventCurrencyChanged -= OnEventCurrencyUpdated;
-    }
-
-    private void OnEventCurrencyUpdated()
+    public int GetCurrentValue()
     {
         int sum = 0;
         foreach (CurrencyPlacementType placement in Enum.GetValues(typeof(CurrencyPlacementType)))
@@ -50,6 +44,57 @@ public class CurrencyCounter : MonoBehaviour
                 sum += _currencyService.GetCurrency(currencyType, placement);    
             }
         }
-        _tmp.text = $"{leftModificator}{sum}{rightModificator}";
+
+        return sum;
+    }
+
+    public void PlayUpdateAnim()
+    {
+        this.DOKill();
+        Sequence seq = DOTween.Sequence().SetTarget(this);
+
+        seq.Append(transform.DOScale(0.5f, 0.1f).SetTarget(this));
+        seq.Append(transform.DOScale(1f, 0.2f).SetTarget(this).SetEase(Ease.OutBack));
+    }
+    
+    private void Awake()
+    {
+        DIContainer.InjectTo(this);
+        _tmp = GetComponent<TextMeshProUGUI>();
+    }
+
+    private void OnEnable()
+    {
+        _currencyService.EventCurrencyAdded += OnCurrencyAdded;
+        _currencyService.EventCurrencySpent += OnCurrencySpent;
+
+        OnEventCurrencyUpdated();
+    }
+    
+    private void OnDisable()
+    {
+        _currencyService.EventCurrencyAdded -= OnCurrencyAdded;
+        _currencyService.EventCurrencySpent -= OnCurrencySpent;
+    }
+
+    private void OnCurrencyAdded(CurrencyOperationData data)
+    {
+        if (data.Currency == currencyType && autoAddUpdate)
+        {
+            OnEventCurrencyUpdated();
+        }
+    }
+
+    private void OnCurrencySpent(CurrencyOperationData data)
+    {
+        if (data.Currency == currencyType && autoSpendUpdate)
+        {
+            OnEventCurrencyUpdated();
+        }
+    }
+
+    private void OnEventCurrencyUpdated()
+    {
+        SetValue(GetCurrentValue());
     }
 }
