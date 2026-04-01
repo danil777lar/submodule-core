@@ -205,10 +205,18 @@ public class Sound
         
         float t = _loopLength / _audioSource.clip.length;
         
-        _audioSource.volume = _volume(t) * _defaultVolume * _getChannel.Invoke(_channel).Volume;
-        _audioSource.pitch = _pitch(t) * _defaultPitch;
-        _audioSource.spatialBlend = _spatialBlend(t);
-        _audioSource.transform.position = _position(t);
+        try 
+        {
+            _audioSource.volume = _volume(t) * _defaultVolume * _getChannel.Invoke(_channel).Volume;
+            _audioSource.pitch = _pitch(t) * _defaultPitch;
+            _audioSource.spatialBlend = _spatialBlend(t);
+            _audioSource.transform.position = _position(t);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"Error applying sound values: {e.Message}");
+            Destroy();
+        }
     }
 
     private void LoopComplete()
