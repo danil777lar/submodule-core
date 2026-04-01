@@ -15,7 +15,10 @@ namespace Larje.Core.Tools
         {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             Application.targetFrameRate = targetFrameRate;
+
+            #if !UNITY_EDITOR
             Debug.unityLogger.logEnabled = logEnabled;
+            #endif
         }
     }
 }
