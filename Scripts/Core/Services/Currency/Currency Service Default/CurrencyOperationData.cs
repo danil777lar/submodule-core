@@ -10,14 +10,13 @@ public struct CurrencyOperationData
     public bool UsePosition;
     public Vector3 WorldPosition;
 
-    public CurrencyOperationData()
-    {
-    }
-
     public CurrencyOperationData(CurrencyType currency, CurrencyPlacementType placement, int amount)
     {
         Currency = currency;
         Placement = placement;
         Amount = amount;
+
+        UsePosition = false;
+        WorldPosition = Vector3.zero;
     }
 }
