@@ -12,6 +12,7 @@ namespace Larje.Core.Services
         [InjectService] private IGameStateService _gameStateService;
 
         public bool IsLevelPlaying => _gameStateService.CurrentState == GameStates.Playing;
+        public bool IsLevelPaused => _gameStateService.CurrentState == GameStates.Paused;
 
         public event Action<StartData> EventLevelStart;
         public event Action<StopData> EventLevelStop;
@@ -39,7 +40,7 @@ namespace Larje.Core.Services
 
         protected void StopLevel(StopData data)
         {
-            if (IsLevelPlaying)
+            if (IsLevelPlaying || IsLevelPaused)
             {
                 GetComponentsInChildren<ILevelEndHandler>(true)
                     .ToList().ForEach(x => x.OnLevelEnded(data));
