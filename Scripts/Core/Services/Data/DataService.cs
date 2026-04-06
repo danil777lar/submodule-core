@@ -40,6 +40,9 @@ namespace Larje.Core.Services
             
             InitSystemData();
             InitGameData();
+
+            systemData.IternalData.SessionNum++;
+            SaveSystemData();
         }
 
         public void SetClearData(string saveName = "")
@@ -137,7 +140,6 @@ namespace Larje.Core.Services
                 TryReadFile(SystemSavePath, CONTENT_DATA_LINE, out this.systemData);
             }
             
-            systemData.IternalData.SessionNum++;
             SaveSystemData();
         }
 
