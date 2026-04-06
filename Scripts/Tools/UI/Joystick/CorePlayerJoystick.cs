@@ -13,6 +13,9 @@ namespace Larje.Core.Tools
 
         [Header("Options")] 
         [SerializeField] private float maxDistance;
+
+        [Header("Editor")]
+        [SerializeField] private bool hideInEditor;
         
         [InjectService] private InputService _inputService;
 
@@ -48,6 +51,18 @@ namespace Larje.Core.Tools
         {
             DIContainer.InjectTo(this);
             _initialJoystickPosition = joystick.transform.position;
+
+#if UNITY_EDITOR
+            if (hideInEditor)
+            {
+                CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
+                if (canvasGroup == null)
+                {
+                    canvasGroup = gameObject.AddComponent<CanvasGroup>();
+                }
+                canvasGroup.alpha = 0;
+            }
+#endif
         }
 
         protected void Update()
