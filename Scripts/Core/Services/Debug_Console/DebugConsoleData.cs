@@ -13,4 +13,5 @@ namespace Larje.Core.Services
 public class DebugConsoleData
 {
     public bool overlayEnabled;
+    public float overlayTextTransparency = 1f;
 }

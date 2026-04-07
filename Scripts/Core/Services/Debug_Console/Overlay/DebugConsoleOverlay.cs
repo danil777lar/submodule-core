@@ -31,6 +31,20 @@ public class DebugConsoleOverlay : MonoBehaviour
         _entries.Clear();
     }
 
+    public void SetTextTransparency(float alpha)
+    {
+        foreach (TMP_Text text in _textInstances)
+        {
+            Color c = text.color;
+            c.a = alpha;
+            text.color = c;
+        }
+
+        Color prefabColor = entryPrefab.color;
+        prefabColor.a = alpha;
+        entryPrefab.color = prefabColor;
+    }
+
     private void Start()
     {
         entryPrefab.gameObject.SetActive(false);

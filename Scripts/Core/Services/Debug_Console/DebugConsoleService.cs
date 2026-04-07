@@ -27,9 +27,9 @@ namespace Larje.Core.Services.DebugConsole
         private List<Log> _unityLogs = new List<Log>();
         private List<Log> _jsLogs = new List<Log>();
 
-        public bool OverlayActive 
+        public bool OverlayActive
         {
-            get 
+            get
             {
                 bool value = false;
                 if (_dataService.SystemData != null)
@@ -42,6 +42,23 @@ namespace Larje.Core.Services.DebugConsole
             {
                 _dataService.SystemData.IternalData.DebugConsoleData.overlayEnabled = value;
                 overlay.gameObject.SetActive(value && enableConsole);
+            }
+        }
+
+        public float OverlayTextTransparency
+        {
+            get
+            {
+                if (_dataService.SystemData != null)
+                {
+                    return _dataService.SystemData.IternalData.DebugConsoleData.overlayTextTransparency;
+                }
+                return 1f;
+            }
+            set
+            {
+                _dataService.SystemData.IternalData.DebugConsoleData.overlayTextTransparency = value;
+                overlay.SetTextTransparency(value);
             }
         }
 
