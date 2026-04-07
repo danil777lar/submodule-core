@@ -16,6 +16,7 @@ namespace Larje.Core.Services.DebugConsole
         [SerializeField] private Transform content;
         [Space] [SerializeField] private DebugConsoleMethodPanelField panelFieldInput;
         [SerializeField] private DebugConsoleMethodPanelField panelFieldDropDown;
+        [SerializeField] private DebugConsoleMethodPanelField panelFieldToggle;
         [SerializeField] private DebugConsoleMethodPanelField panelFieldObject;
 
         private MethodInfo _methodInfo;
@@ -45,7 +46,11 @@ namespace Larje.Core.Services.DebugConsole
             foreach (ParameterInfo parameter in parameters)
             {
                 DebugConsoleMethodPanelField field = null;
-                if (parameter.ParameterType.IsPrimitive || parameter.ParameterType == typeof(string))
+                if (parameter.ParameterType == typeof(bool))
+                {
+                    field = panelFieldToggle;
+                }
+                else if (parameter.ParameterType.IsPrimitive || parameter.ParameterType == typeof(string))
                 {
                     field = panelFieldInput;
                 }
