@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 99b9a91ca91d3ee96abd9602009eec00
+timeCreated: 1505370508
+licenseType: Store
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Ubuntu Titling
+  fontNames:
+  - Ubuntu Titling
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

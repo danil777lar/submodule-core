@@ -15,15 +15,19 @@ namespace Larje.Core.Services.DebugConsole
         [SerializeField] private bool enableConsole;
         [SerializeField] private bool showConsoleButton;
         [Space] 
-        [SerializeField] private GameObject consoleRoot;
-        [SerializeField] private GameObject buttonRoot;
-        [Space]
-        [SerializeField] private DebugConsoleOverlay overlay;
+        [SerializeField] private Canvas consolePrefab;
+        [SerializeField] private Canvas consoleButtonPrefab;
+        [SerializeField] private DebugConsoleOverlay overlayPrefab;
 
         [InjectService] private InputService _inputService;
         [InjectService] private IDataService _dataService;
 
         private bool _consoleOpened;
+
+        private Canvas _console;
+        private Canvas _consoleButton;
+        private DebugConsoleOverlay _overlay;
+
         private List<Log> _unityLogs = new List<Log>();
         private List<Log> _jsLogs = new List<Log>();
 
@@ -41,7 +45,7 @@ namespace Larje.Core.Services.DebugConsole
             set
             {
                 _dataService.SystemData.IternalData.DebugConsoleData.overlayEnabled = value;
-                overlay.gameObject.SetActive(value && enableConsole);
+                _overlay.gameObject.SetActive(value && enableConsole);
             }
         }
 
@@ -58,11 +62,11 @@ namespace Larje.Core.Services.DebugConsole
             set
             {
                 _dataService.SystemData.IternalData.DebugConsoleData.overlayTextTransparency = value;
-                overlay.SetTextTransparency(value);
+                _overlay.SetTextTransparency(value);
             }
         }
 
-        public DebugConsoleOverlay Overlay => overlay;
+        public DebugConsoleOverlay Overlay => _overlay;
 
         public IReadOnlyCollection<Log> UnityLogs => _unityLogs;
         public IReadOnlyCollection<Log> JSLogs => _jsLogs;
@@ -75,6 +79,15 @@ namespace Larje.Core.Services.DebugConsole
         {
             if (enableConsole)
             {
+                _console = Instantiate(consolePrefab, transform);
+                _console.gameObject.SetActive(false);
+
+                _consoleButton = Instantiate(consoleButtonPrefab, transform);
+                _consoleButton.gameObject.SetActive(showConsoleButton);
+
+                _overlay = Instantiate(overlayPrefab, transform);
+                _overlay.gameObject.SetActive(false);
+
                 CloseConsole();
 
                 Application.logMessageReceived += HandleUnityLog;
@@ -93,25 +106,25 @@ namespace Larje.Core.Services.DebugConsole
             }
             else
             {
-                consoleRoot.SetActive(false);
-                buttonRoot.SetActive(false);
+                _console.gameObject.SetActive(false);
+                _consoleButton.gameObject.SetActive(false);
             }
 
-            overlay.gameObject.SetActive(OverlayActive && enableConsole);
+            _overlay.gameObject.SetActive(OverlayActive && enableConsole);
         }
 
         public void OpenConsole()
         {
             _consoleOpened = true;
-            consoleRoot.SetActive(true);
-            buttonRoot.SetActive(false);
+            _console.gameObject.SetActive(true);
+            _consoleButton.gameObject.SetActive(false);
         }
 
         public void CloseConsole()
         {
             _consoleOpened = false;
-            consoleRoot.SetActive(false);
-            buttonRoot.SetActive(true && showConsoleButton);
+            _console.gameObject.SetActive(false);
+            _consoleButton.gameObject.SetActive(true && showConsoleButton);
         }
 
         public void ToggleConsole()
