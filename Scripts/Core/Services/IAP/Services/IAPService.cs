@@ -10,17 +10,60 @@ using UnityEngine.Purchasing;
 
 namespace Larje.Core.Services
 {
-    [BindService(typeof(IAPService))]
-    public class IAPService : Service, IDetailedStoreListener
+    [BindService(typeof(IIAPService))]
+    public class IAPService : Service, IIAPService, IDetailedStoreListener
     {
         [SerializeField] private List<IAPProductConfig> _products;
+
+        [InjectService] private IDataService _dataService;
 
         private IStoreController _storeController;
         private IExtensionProvider _extensionProvider;
 
+        private IAPServiceData Data => _dataService.GameData.IAPData;
+
         public override void Init()
         {
             InitializeServicesAndIAP();
+        }
+
+        public bool IsProductPurchased(IAPProductConfig config)
+        {
+            if (_storeController == null)
+            {
+                return false;
+            }
+
+            Product product = _storeController.products.WithID(config.ProductKey);
+            return product != null && product.hasReceipt;
+        }
+
+        public bool IsDiscountApplied(IAPProductConfig config)
+        {
+            return config.HasDiscountProduct && Data.IsDiscountApplied(config.Id);
+        }
+
+        public void ApplyDiscount(IAPProductConfig config)
+        {
+            ApplyDiscount(config, TimeSpan.Zero);
+        }
+
+        public void ApplyDiscount(IAPProductConfig config, TimeSpan duration)
+        {
+            if (!config.HasDiscountProduct)
+            {
+                Debug.LogWarning($"IAP Service: config '{config.Id}' has no discount product key");
+                return;
+            }
+
+            Data.ApplyDiscount(config.Id, duration);
+            _dataService.SaveGameData();
+        }
+
+        public void RemoveDiscount(IAPProductConfig config)
+        {
+            Data.RemoveDiscount(config.Id);
+            _dataService.SaveGameData();
         }
 
         public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
@@ -30,15 +73,27 @@ namespace Larje.Core.Services
             Debug.Log("IAP Service: initialized successfully");
         }
 
-        public Product GetProduct(IAPProductConfig config)
+        public IAPProductData GetProductData(IAPProductConfig config)
         {
-            if (_storeController == null)
+            Product product = GetProduct(config);
+            if (product == null)
             {
-                Debug.LogError("IAP Service: cannot get product, not initialized");
                 return null;
             }
 
-            return _storeController.products.WithID(config.ProductKey);
+            return new IAPProductData(
+                product.availableToPurchase,
+                product.metadata.localizedPriceString,
+                product.metadata.localizedTitle,
+                product.metadata.localizedDescription,
+                product.metadata.isoCurrencyCode,
+                product.metadata.localizedPrice);
+        }
+
+
+        public List<IAPProductConfig> GetAllProducts()
+        {
+            return new List<IAPProductConfig>(_products);
         }
 
         public List<IAPProductConfig> GetProductsByGroup(IAPProductGroupType group)
@@ -48,7 +103,8 @@ namespace Larje.Core.Services
 
         public void BuyProduct(IAPProductConfig config)
         {
-            BuyProduct(config.ProductKey);
+            string key = IsDiscountApplied(config) ? config.DiscountProductKey : config.ProductKey;
+            BuyProduct(key);
         }
 
         public void BuyProduct(string productId)
@@ -99,7 +155,7 @@ namespace Larje.Core.Services
         {
             Debug.LogError($"IAP Service: purchase failed: {product.definition.id}, reason: {failureDescription.reason}, message: {failureDescription.message}");
 
-            GetProductConfig(product.definition.id)?.ProductPurchaseFailed(failureDescription);
+            GetProductConfig(product.definition.id)?.ProductPurchaseFailed();
         }
 
         public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
@@ -144,7 +200,11 @@ namespace Larje.Core.Services
                 ConfigurationBuilder builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
                 foreach (IAPProductConfig config in _products)
                 {
-                    builder.AddProduct(config.ProductKey, config.ProductType);
+                    builder.AddProduct(config.ProductKey, ConvertProductType(config.ProductType));
+                    if (config.HasDiscountProduct)
+                    {
+                        builder.AddProduct(config.DiscountProductKey, ConvertProductType(config.ProductType));
+                    }
                 }
 
                 UnityPurchasing.Initialize(this, builder);
@@ -162,7 +222,42 @@ namespace Larje.Core.Services
 
         private IAPProductConfig GetProductConfig(string key)
         {
-            return _products.Find(p => p.ProductKey == key);
+            return _products.Find(p => p.ProductKey == key || p.DiscountProductKey == key);
+        }
+
+        private Product GetProduct(IAPProductConfig config)
+        {
+            if (_storeController == null)
+            {
+                Debug.LogError("IAP Service: cannot get product, not initialized");
+                return null;
+            }
+
+            if (IsDiscountApplied(config))
+            {
+                Product discountProduct = _storeController.products.WithID(config.DiscountProductKey);
+                if (discountProduct != null && discountProduct.availableToPurchase)
+                {
+                    return discountProduct;
+                }
+            }
+
+            return _storeController.products.WithID(config.ProductKey);
+        }
+
+        private ProductType ConvertProductType(IAPProductType type)
+        {
+            switch (type)
+            {
+                case IAPProductType.Consumable:
+                    return ProductType.Consumable;
+                case IAPProductType.NonConsumable:
+                    return ProductType.NonConsumable;
+                case IAPProductType.Subscription:
+                    return ProductType.Subscription;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), $"Unsupported product type: {type}");
+            }
         }
     }
 }
