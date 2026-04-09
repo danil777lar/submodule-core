@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Larje.Core.Services
 {
@@ -35,12 +36,12 @@ public class IAPServiceData
         DiscountEntry record = DiscountEntrys.Find(r => r.ConfigId == configId);
         if (record != null)
         {
-            record.ApplyTimeTicks = DateTime.UtcNow.Ticks;
-            record.DurationTicks = duration.Ticks;
+            record.ApplyTime = DateTime.UtcNow.ToString("O");
+            record.Duration = duration <= TimeSpan.Zero ? "" : duration.ToString(@"d\.hh\:mm\:ss");
         }
         else
         {
-            DiscountEntrys.Add(new DiscountEntry(configId, DateTime.UtcNow.Ticks, duration.Ticks));
+            DiscountEntrys.Add(new DiscountEntry(configId, DateTime.UtcNow, duration));
         }
     }
 
@@ -52,14 +53,15 @@ public class IAPServiceData
     public DateTime GetDiscountApplyTime(string configId)
     {
         DiscountEntry record = DiscountEntrys.Find(r => r.ConfigId == configId);
-        return record != null ? new DateTime(record.ApplyTimeTicks, DateTimeKind.Utc) : DateTime.MinValue;
+        if (record == null || string.IsNullOrEmpty(record.ApplyTime)) return DateTime.MinValue;
+        return DateTime.Parse(record.ApplyTime, null, DateTimeStyles.RoundtripKind);
     }
 
     public DateTime GetDiscountExpiryTime(string configId)
     {
         DiscountEntry record = DiscountEntrys.Find(r => r.ConfigId == configId);
         if (record == null || record.IsTimeless) return DateTime.MaxValue;
-        return new DateTime(record.ApplyTimeTicks + record.DurationTicks, DateTimeKind.Utc);
+        return GetDiscountApplyTime(configId) + TimeSpan.Parse(record.Duration);
     }
 }
 
@@ -67,16 +69,25 @@ public class IAPServiceData
 public class DiscountEntry
 {
     public string ConfigId;
-    public long ApplyTimeTicks;
-    public long DurationTicks;
+    public string ApplyTime;
+    public string Duration;
 
-    public bool IsTimeless => DurationTicks <= 0;
-    public bool IsExpired => !IsTimeless && DateTime.UtcNow.Ticks > ApplyTimeTicks + DurationTicks;
+    public bool IsTimeless => string.IsNullOrEmpty(Duration);
 
-    public DiscountEntry(string configId, long applyTimeTicks, long durationTicks = 0)
+    public bool IsExpired
+    {
+        get
+        {
+            if (IsTimeless) return false;
+            DateTime applyTime = DateTime.Parse(ApplyTime, null, DateTimeStyles.RoundtripKind);
+            return DateTime.UtcNow > applyTime + TimeSpan.Parse(Duration);
+        }
+    }
+
+    public DiscountEntry(string configId, DateTime applyTime, TimeSpan duration = default)
     {
         ConfigId = configId;
-        ApplyTimeTicks = applyTimeTicks;
-        DurationTicks = durationTicks;
+        ApplyTime = applyTime.ToString("O");
+        Duration = duration <= TimeSpan.Zero ? "" : duration.ToString(@"d\.hh\:mm\:ss");
     }
 }
