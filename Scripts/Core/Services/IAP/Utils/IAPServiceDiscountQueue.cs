@@ -23,7 +23,7 @@ public class IAPServiceDiscountQueue : MonoBehaviour
 
     private void Update()
     {
-        _timeSinceLastCheck += Time.deltaTime / Time.timeScale;
+        _timeSinceLastCheck += Time.deltaTime;
         if (_timeSinceLastCheck >= checkInterval)
         {            
             _timeSinceLastCheck = 0f;
