@@ -29,6 +29,10 @@ namespace Larje.Core.Services
 
         public bool IsProductPurchased(IAPProductConfig config)
         {
+            #if UNITY_EDITOR
+            return Data.EditorPurchasedProductIds.Contains(config.Id);
+            #endif
+
             if (_storeController == null)
             {
                 return false;
@@ -109,6 +113,18 @@ namespace Larje.Core.Services
 
         public void BuyProduct(string productId)
         {
+            #if UNITY_EDITOR
+            if (!IsProductPurchased(GetProductConfig(productId)))
+            {
+                OnProductPurchased(GetProductConfig(productId));
+            }
+            else
+            {
+                Debug.LogWarning("IAP Service: product already purchased: " + productId);
+            }
+            return;
+            #endif
+            
             if (_storeController == null)
             {
                 Debug.LogError("IAP Service: StoreController is null");
@@ -217,6 +233,9 @@ namespace Larje.Core.Services
 
         private void OnProductPurchased(IAPProductConfig config)
         {
+            Debug.Log("IAP Service: product purchased: " + config.Id);
+
+            Data.EditorPurchasedProductIds.Add(config.Id);
             config.ProductPurchaseComplete();
         }
 

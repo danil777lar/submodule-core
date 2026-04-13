@@ -14,6 +14,7 @@ namespace Larje.Core.Services
 public class IAPServiceData
 {
     public List<DiscountEntry> DiscountEntrys = new List<DiscountEntry>();
+    public List<string> EditorPurchasedProductIds = new List<string>();
 
     public bool HasEntry(string configId)
     {
