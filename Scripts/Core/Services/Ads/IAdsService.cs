@@ -12,6 +12,7 @@ namespace Larje.Core.Services
 
         public event Action EventBannerShown;
         public event Action EventBannerHidden;
+        public event Action<bool> EventNoAdsModeChanged;
         
         public void ShowInterstitial(int interIndex = 0);
         

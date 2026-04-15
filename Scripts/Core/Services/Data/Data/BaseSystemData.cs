@@ -26,7 +26,6 @@ namespace Larje.Core.Services
     [Serializable]
     public partial class IternalData 
     {
-        public bool AdsDisabled = false;
         public int SessionNum = 0;
     }
 }

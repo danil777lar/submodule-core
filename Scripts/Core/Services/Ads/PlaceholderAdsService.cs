@@ -18,6 +18,7 @@ namespace Larje.Core.Services
 
         public event Action EventBannerShown;
         public event Action EventBannerHidden;
+        public event Action<bool> EventNoAdsModeChanged;
 
         public override void Init()
         {
