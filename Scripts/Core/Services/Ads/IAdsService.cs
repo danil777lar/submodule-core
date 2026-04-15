@@ -18,5 +18,7 @@ namespace Larje.Core.Services
         public void ShowRewarded(Action onAdShowStart, Action onAdShowClick, Action onAdShowComplete, Action onAdShowFailed);
 
         public bool ShowAppOpenAd();
+
+        public void SetActiveNoAdsMode(bool noAdsActive);
     }
 }

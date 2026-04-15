@@ -36,5 +36,9 @@ namespace Larje.Core.Services
         {
             onAdShowFailed?.Invoke();
         }
+
+        public void SetActiveNoAdsMode(bool noAdsActive)
+        {
+        }
     }
 }
