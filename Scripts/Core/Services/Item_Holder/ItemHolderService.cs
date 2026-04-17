@@ -11,7 +11,6 @@ namespace Larje.Core.Services
     {
         [SerializeField] private bool autoSave = true;
         [Space]
-        [SerializeField] private bool setFirstItemAsDefault;
         [SerializeField] private List<ItemsHolderConfig> configs;
 
         [InjectService] private IDataService _dataService;
@@ -94,12 +93,13 @@ namespace Larje.Core.Services
 
             if (data == null)
             {
-                string defaultSkin = setFirstItemAsDefault ? GetConfigByType(itemType).Items[0].Name : " ";
+                ItemsHolderConfig config = GetConfigByType(itemType);
+                string defaultItem = config.SetFirstItemAsDefault ? config.Items[0].Name : " ";
 
                 data = new ItemsData();
                 data.ItemType = itemType;
-                data.CurrentItem = defaultSkin;
-                data.UnlockedItems.Add(defaultSkin);
+                data.CurrentItem = defaultItem;
+                data.UnlockedItems.Add(defaultItem);
                 _dataService.GameData.ItemsData.Add(data);
                 _dataService.SaveGameData();
             }

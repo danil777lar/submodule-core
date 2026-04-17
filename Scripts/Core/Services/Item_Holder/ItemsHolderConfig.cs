@@ -9,6 +9,7 @@ namespace Larje.Core.Services
     public abstract class ItemsHolderConfig : ScriptableObject
     {
         [field: SerializeField] public ItemType ItemType { get; protected set; }
+        [field: SerializeField] public bool SetFirstItemAsDefault { get; protected set; }
         public abstract Item[] Items { get; }
 
         public Item GetItem(string itemName)
