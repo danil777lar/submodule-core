@@ -16,4 +16,6 @@ namespace Larje.Core.Services
 public class DailyTasksServiceData
 {
     public string LastDailyTaskReset;
+    public List<string> SelectedTaskIds = new List<string>();
+    public List<string> ClaimedTaskIds = new List<string>();
 }

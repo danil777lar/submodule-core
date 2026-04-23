@@ -15,6 +15,7 @@ namespace Larje.Core.Services
         
         [Header("Logic")]
         [SerializeField] protected bool startOnInitialize;
+        [SerializeField, Min(1)] protected int weight = 1;
         
         [Header("Reward")] 
         [SerializeField] protected List<TaskRewardConfig> rewards;
@@ -24,9 +25,18 @@ namespace Larje.Core.Services
         public virtual string TaskDescription => taskDescriptionKey;
         public virtual Sprite Icon => icon;
         
+        public virtual int Weight => weight;
         public virtual bool IsAvailable => true;
         public virtual bool IsTracking => GetData().IsTrackinig;
         public virtual TaskStatusType Status => GetData().Status;
+        public virtual IReadOnlyList<TaskRewardConfig> Rewards => rewards.AsReadOnly();
+
+        public virtual void GetProgress(out int current, out int target)
+        {
+            bool completed = Status == TaskStatusType.Completed;
+            current = completed ? 1 : 0;
+            target = 1;
+        }
 
         public abstract Processor CreateProcessor();
 

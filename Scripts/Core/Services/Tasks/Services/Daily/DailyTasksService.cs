@@ -16,7 +16,8 @@ namespace Larje.Core.Services
 
         public virtual DateTime LastReset => DateTime.Parse(_dataService.GameData.DailyTasksServiceData.LastDailyTaskReset);
         public virtual DateTime NextReset => DateTime.Today.AddDays(1);
-        public override IReadOnlyCollection<TaskConfig> Tasks => taskConfigs.FindAll(x => true);
+        public override IReadOnlyCollection<TaskConfig> Tasks =>
+            taskConfigs.FindAll(x => _dataService.GameData.DailyTasksServiceData.SelectedTaskIds.Contains(x.TaskId));
 
 
         public override void Init()
@@ -36,14 +37,18 @@ namespace Larje.Core.Services
             ClearTasks();
 
             _dataService.GameData.DailyTasksServiceData.LastDailyTaskReset = DateTime.Now.ToString();
+            _dataService.GameData.DailyTasksServiceData.SelectedTaskIds = new List<string>();
 
             List<TaskConfig> createdTasks = new List<TaskConfig>();
             for (int i = 0; i < tasksCount; i++)
             {
-                List<TaskConfig> availableTasks = taskConfigs.FindAll(x => 
+                List<TaskConfig> availableTasks = taskConfigs.FindAll(x =>
                     x.IsAvailable && !createdTasks.Contains(x));
-                
-                TaskConfig task = availableTasks[UnityEngine.Random.Range(0, availableTasks.Count)];
+
+                if (availableTasks.Count == 0) break;
+
+                TaskConfig task = PickWeightedRandom(availableTasks);
+                _dataService.GameData.DailyTasksServiceData.SelectedTaskIds.Add(task.TaskId);
                 _processors.Add(CreateProcessor(task));
                 createdTasks.Add(task);
             }
@@ -62,6 +67,29 @@ namespace Larje.Core.Services
         {
             taskConfigs.ForEach(x => x.ClearTaskData());
             _processors = new List<TaskConfig.Processor>();
+        }
+
+        protected override TaskConfig.Processor CreateProcessor(TaskConfig config)
+        {
+            TaskConfig.Processor processor = base.CreateProcessor(config);
+            processor.Init();
+            processor.Start();
+            return processor;
+        }
+
+        private TaskConfig PickWeightedRandom(List<TaskConfig> tasks)
+        {
+            int totalWeight = 0;
+            foreach (TaskConfig t in tasks) totalWeight += t.Weight;
+
+            int roll = UnityEngine.Random.Range(0, totalWeight);
+            foreach (TaskConfig t in tasks)
+            {
+                roll -= t.Weight;
+                if (roll < 0) return t;
+            }
+
+            return tasks[tasks.Count - 1];
         }
 
         protected virtual bool NeedToResetTasks()
