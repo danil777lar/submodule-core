@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Unity WebGL</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: black;
+}
+
+#unity-canvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+</style>
+</head>
+
+<body>
+<canvas id="unity-canvas"></canvas>
+
+<script src="Build/{{{ LOADER_FILENAME }}}"></script>
+
+<script>
+const canvas = document.querySelector("#unity-canvas");
+
+createUnityInstance(canvas, {
+  dataUrl: "Build/{{{ DATA_FILENAME }}}",
+  frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
+  codeUrl: "Build/{{{ CODE_FILENAME }}}",
+  streamingAssetsUrl: "StreamingAssets",
+  companyName: "{{{ COMPANY_NAME }}}",
+  productName: "{{{ PRODUCT_NAME }}}",
+  productVersion: "{{{ PRODUCT_VERSION }}}",
+}).then(() => {
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+});
+</script>
+</body>
+</html>
