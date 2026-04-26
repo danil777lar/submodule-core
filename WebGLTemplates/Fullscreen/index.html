@@ -28,6 +28,8 @@ html, body {
 <script>
 const canvas = document.querySelector("#unity-canvas");
 
+const renderScale = 0.6; // 0.5–0.8 для телефонов
+
 createUnityInstance(canvas, {
   dataUrl: "Build/{{{ DATA_FILENAME }}}",
   frameworkUrl: "Build/{{{ FRAMEWORK_FILENAME }}}",
@@ -36,17 +38,18 @@ createUnityInstance(canvas, {
   companyName: "{{{ COMPANY_NAME }}}",
   productName: "{{{ PRODUCT_NAME }}}",
   productVersion: "{{{ PRODUCT_VERSION }}}",
-}).then(() => {
 
+  devicePixelRatio: renderScale
+}).then(() => {
   function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.style.width = "100vw";
+    canvas.style.height = "100vh";
   }
 
-  window.addEventListener('resize', resize);
+  window.addEventListener("resize", resize);
   resize();
-
 });
 </script>
+
 </body>
 </html>
