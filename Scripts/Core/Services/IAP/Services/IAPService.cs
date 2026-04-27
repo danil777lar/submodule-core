@@ -39,12 +39,13 @@ namespace Larje.Core.Services
             }
 
             Product product = _storeController.products.WithID(config.ProductKey);
-            return product != null && product.hasReceipt;
+            Product discountProduct = config.HasDiscountProduct ? _storeController.products.WithID(config.DiscountProductKey) : null;
+            return product != null && product.hasReceipt || (discountProduct != null && discountProduct.hasReceipt);
         }
 
         public bool IsDiscountApplied(IAPProductConfig config)
         {
-            return config.HasDiscountProduct && Data.IsDiscountApplied(config.Id);
+            return config.HasDiscountProduct && Data.IsDiscountApplied(config.Id) && !IsProductPurchased(config);
         }
 
         public void ApplyDiscount(IAPProductConfig config)
