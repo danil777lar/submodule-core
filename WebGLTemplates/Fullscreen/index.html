@@ -9,27 +9,81 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: black;
+  background: #0f0f0f;
   width: 100%;
   height: 100%;
+  font-family: Arial, sans-serif;
 }
 
+/* CANVAS */
 #unity-canvas {
   width: 100vw;
   height: 100vh;
   display: block;
-  background: black;
+}
+
+/* SPLASH */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #1a1a1a, #000);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: opacity 0.6s ease;
+}
+
+/* LOGO */
+#logo {
+  font-size: 32px;
+  color: white;
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+}
+
+/* PROGRESS BAR */
+#progress-container {
+  width: 240px;
+  height: 6px;
+  background: #333;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+#progress-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #4cafef, #00e0ff);
+  transition: width 0.2s ease;
+}
+
+/* HIDE */
+.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 </style>
 </head>
 
 <body>
+
+<div id="loading-screen">
+  <div id="logo">{{{ PRODUCT_NAME }}}</div>
+  <div id="progress-container">
+    <div id="progress-bar"></div>
+  </div>
+</div>
+
 <canvas id="unity-canvas"></canvas>
 
 <script src="Build/{{{ LOADER_FILENAME }}}"></script>
 
 <script>
 const canvas = document.querySelector("#unity-canvas");
+const loadingScreen = document.getElementById("loading-screen");
+const progressBar = document.getElementById("progress-bar");
 
 const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 const renderScale = isMobile ? 0.6 : Math.min(window.devicePixelRatio, 1);
@@ -43,7 +97,16 @@ createUnityInstance(canvas, {
   productName: "{{{ PRODUCT_NAME }}}",
   productVersion: "{{{ PRODUCT_VERSION }}}",
   devicePixelRatio: renderScale
+}, (progress) => {
+  progressBar.style.width = (progress * 100) + "%";
+}).then(() => {
+  loadingScreen.classList.add("hidden");
+
+  setTimeout(() => {
+    loadingScreen.style.display = "none";
+  }, 600);
 });
 </script>
+
 </body>
 </html>
