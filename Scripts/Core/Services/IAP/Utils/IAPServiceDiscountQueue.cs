@@ -33,6 +33,14 @@ public class IAPServiceDiscountQueue : MonoBehaviour
 
     private void TryAdvanceDiscount()
     {
+        for (int i = queue.Count - 1; i >= 0; i--)
+        {
+            if (_iapService.IsProductPurchased(queue[i]))
+            {
+                queue.RemoveAt(i);
+            }
+        }
+
         if (queue.Count == 0)
         {
             return;
