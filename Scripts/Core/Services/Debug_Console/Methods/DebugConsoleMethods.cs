@@ -147,6 +147,51 @@ namespace Larje.Core.Services.DebugConsole
         
         #endregion
         
+        #region Ads
+
+        [MethodGroup("Ads")]
+        public static void SetNoAdsMode(bool noAdsActive)
+        {
+            IAdsService adsService = DIContainer.GetService<IAdsService>();
+            adsService.SetActiveNoAdsMode(noAdsActive);
+        }
+
+        [MethodGroup("Ads")]
+        public static void ShowInterstitial(int interIndex = 0)
+        {
+            IAdsService adsService = DIContainer.GetService<IAdsService>();
+            adsService.ShowInterstitial(interIndex);
+        }
+
+        [MethodGroup("Ads")]
+        public static void ShowRewarded()
+        {
+            IAdsService adsService = DIContainer.GetService<IAdsService>();
+            adsService.ShowRewarded(
+                () => Debug.Log("[Ads] Rewarded: start"),
+                () => Debug.Log("[Ads] Rewarded: click"),
+                () => Debug.Log("[Ads] Rewarded: complete"),
+                () => Debug.Log("[Ads] Rewarded: failed")
+            );
+        }
+
+        [MethodGroup("Ads")]
+        public static void ShowAppOpen()
+        {
+            IAdsService adsService = DIContainer.GetService<IAdsService>();
+            bool shown = adsService.ShowAppOpenAd();
+            Debug.Log($"[Ads] App open shown: {shown}");
+        }
+
+        [MethodGroup("Ads")]
+        public static void LogAdsStatus()
+        {
+            IAdsService adsService = DIContainer.GetService<IAdsService>();
+            Debug.Log($"[Ads] Initialized={adsService.Initialized} | Interstitial={adsService.InterstitialAdAvailable} | Rewarded={adsService.RewardedAdAvailable} | Banner={adsService.BannerShowing} (h={adsService.BannerHeight})");
+        }
+
+        #endregion
+
         #region Objects
 
         [MethodGroup("Objects")]
