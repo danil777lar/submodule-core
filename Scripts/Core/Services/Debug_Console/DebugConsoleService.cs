@@ -104,13 +104,10 @@ namespace Larje.Core.Services.DebugConsole
                     () => !_consoleOpened, InputService.ConditionOperation.And, "Debug Console");
                 _inputService.AddCondition(InputActionMapType.Player, condition);
             }
-            else
+            if (_overlay != null)
             {
-                _console.gameObject.SetActive(false);
-                _consoleButton.gameObject.SetActive(false);
+                _overlay.gameObject.SetActive(OverlayActive && enableConsole);
             }
-
-            _overlay.gameObject.SetActive(OverlayActive && enableConsole);
         }
 
         public void OpenConsole()
