@@ -18,6 +18,8 @@ public class BackendBridgeService : Service
 
     private string _url;
     private List<RequestData> _requests = new List<RequestData>();
+
+    public string HostUrl => _url;
     
     #if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")] private static extern void GetCurrentLocation(string goName, string methodName);
