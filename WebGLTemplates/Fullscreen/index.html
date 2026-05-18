@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Unity WebGL</title>
+<title>{{{ PRODUCT_NAME }}}</title>
 
 <style>
 * {
@@ -352,7 +352,9 @@ canvas.mozRequestFullScreen     = () => {};
 canvas.msRequestFullscreen      = () => {};
 
 const isMobile   = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-const renderScale = isMobile ? 0.6 : Math.min(window.devicePixelRatio, 1);
+const dpr = window.devicePixelRatio || 1;
+const longestSide = Math.max(window.innerWidth, window.innerHeight);
+const renderScale = isMobile ? 0.6 : Math.min(dpr, 2560 / longestSide);
 
 createUnityInstance(canvas, {
   dataUrl:           'Build/{{{ DATA_FILENAME }}}',
