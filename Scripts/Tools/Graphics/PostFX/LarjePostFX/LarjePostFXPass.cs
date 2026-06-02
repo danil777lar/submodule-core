@@ -57,8 +57,10 @@ public class LarjePostFXPass : ScriptableRenderPass
     }
 #endif
 
+#if !UNITY_2023_1_OR_NEWER
     public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
     {
-        
+
     }
+#endif
 }
