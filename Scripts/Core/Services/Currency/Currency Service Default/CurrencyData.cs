@@ -12,9 +12,10 @@ namespace Larje.Core.Services
         [SerializeField, HideInInspector] private string inspectorName;
         [SerializeField] private CurrencyType currencyType;
         [SerializeField] public List<PlacementData> placements;
+        [SerializeField] public bool defaultsApplied;
 
         public CurrencyType CurrencyType => currencyType;
-        
+
         public CurrencyData Build(CurrencyType currencyType)
         {
             this.currencyType = currencyType;
