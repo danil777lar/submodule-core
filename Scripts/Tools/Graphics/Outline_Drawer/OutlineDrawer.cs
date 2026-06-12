@@ -51,6 +51,11 @@ public class OutlineDrawer : MonoBehaviour
         float totalWidth = OutlineWidth.TryGetValue(out float width) ? width : defaultWidth;
         totalWidth *= OutlineWidthMultiplier.Value;
 
+        if (totalWidth <= 0f)
+        {
+            return;
+        }
+
         _material.SetFloat("_Width", totalWidth);
         _material.SetColor("_Color", OutlineColor.TryGetValue(out Color color) ? color : defaultColor);
         _material.SetFloat("_ColorPower", OutlineColorPower.Value);
