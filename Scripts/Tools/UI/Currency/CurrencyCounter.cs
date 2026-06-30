@@ -20,6 +20,7 @@ public class CurrencyCounter : MonoBehaviour
     [SerializeField] private CurrencyPlacementTypes currencyPlacementTypes;
 
     [Header("Modificators")]
+    [SerializeField] private bool useFormatter = false;
     [SerializeField] private string leftModificator;
     [SerializeField] private string rightModificator = "<sprite index=0>";
         
@@ -31,7 +32,8 @@ public class CurrencyCounter : MonoBehaviour
 
     public void SetValue(int value)
     {
-        _tmp.text = $"{leftModificator}{value}{rightModificator}";
+        string formatted = useFormatter ? CurrencyFormatter.Format(value) : value.ToString();
+        _tmp.text = $"{leftModificator}{formatted}{rightModificator}";
     }
 
     public int GetCurrentValue()
