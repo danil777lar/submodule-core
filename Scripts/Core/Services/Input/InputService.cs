@@ -11,8 +11,6 @@ using UnityEngine.InputSystem;
 [BindService(typeof(InputService))]
 public abstract class InputService : Service
 {
-    [SerializeField] private List<MapDebug> mapDebugs; 
-    
     public abstract InputAction UIBack { get; }
     public abstract InputAction UIDebug { get; }
 
@@ -146,19 +144,6 @@ public abstract class InputService : Service
                 map.map.Disable();
             }
         }
-        
-        #if UNITY_EDITOR
-        mapDebugs = new List<MapDebug>();
-        foreach (Map map in _maps)
-        {
-            MapDebug mapDebug = new MapDebug
-            {
-                Name = map.type.Name,
-                State = map.map.enabled ? "Enabled" : "Disabled"
-            };
-            mapDebugs.Add(mapDebug);
-        }
-        #endif
     }
 
     public enum ConditionOperation

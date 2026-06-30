@@ -157,6 +157,7 @@ namespace Larje.Core.Services.DebugConsole
             _unityLogs.Add(log);
         }
 
+
         [Serializable]
         public class Log
         {

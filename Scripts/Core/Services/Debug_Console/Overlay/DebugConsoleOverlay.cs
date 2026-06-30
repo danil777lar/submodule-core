@@ -52,6 +52,7 @@ public class DebugConsoleOverlay : MonoBehaviour
         AddEntry(new OverlayEntryFps());
         AddEntry(new OverlayEntryBatches());
         AddEntry(new OverlayEntryTriangles());
+        AddEntry(new OverlayEntryDebug());
     }
 
     private void Update()
@@ -78,5 +79,10 @@ public class DebugConsoleOverlay : MonoBehaviour
         {
             _textInstances.RemoveAt(0);
         }
+    }
+
+    private bool IsDebugGroupActive(string groupName)
+    {
+        return true;
     }
 }
