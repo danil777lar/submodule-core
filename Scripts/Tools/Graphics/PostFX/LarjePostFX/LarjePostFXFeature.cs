@@ -74,11 +74,15 @@ public class LarjePostFXFeature : ScriptableRendererFeature
         {
             return;
         }
+        if (settings.onlyMainCamera && data.cameraData.camera != Camera.main)
+        {
+            return;
+        }
         if (_processors == null || _processors.Count == 0)
         {
             return;
         }
-        
+
         renderer.EnqueuePass(_pass);
     }
 
@@ -92,6 +96,7 @@ public class LarjePostFXFeature : ScriptableRendererFeature
     {
         public RenderPassEvent injectionPoint = RenderPassEvent.BeforeRenderingPostProcessing;
         public bool runInSceneView = true;
+        public bool onlyMainCamera = true;
         public List<LarjePostFX> effects = new List<LarjePostFX>();
     }
 }
